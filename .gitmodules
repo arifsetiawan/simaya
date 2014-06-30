@@ -1,0 +1,8 @@
+[submodule "sinergis-base"]
+	path = sinergis-base
+  url = git@bitbucket.org:blankonpt/sinergis.git
+  ignore = dirty
+[submodule "ob-base"]
+	path = ownbox
+  url = git@bitbucket.org:blankonpt/ownbox.git
+  ignore = dirty

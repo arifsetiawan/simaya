@@ -1,0 +1,32 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app",
+    "test": "mocha test/async --reporter spec"
+  },
+  "dependencies": {
+    "express": "3.0.0beta3",
+    "consolidate": "*",
+    "hogan.js": "*",
+    "mongolia": "*",
+    "nodeunit": "*",
+    "sinon": "*",
+    "mongodb": "*",
+    "bcrypt": "*",
+    "less": "*",
+    "nodemailer": "*",
+    "canvas": "*",
+    "fabric": "*",
+    "jsdom": "0.3.4",
+    "request": "2.12.0",
+    "contextify": "0.1.3",
+    "async": "*",
+    "lodash" : "*"
+  },
+  "devDependencies":{
+    "mocha" : "*",
+    "should" : "*"
+  }
+}
