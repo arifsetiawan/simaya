@@ -9,6 +9,7 @@ module.exports = function(app) {
   
   var mode = process.env.PUSHMODE || "dev";
 
+  /*
   var apn = new notify.apn.Sender({
     gateway: (mode == "dev") ? "gateway.sandbox.push.apple.com" : "gateway.push.apple.com",
     passphrase: process.env.CERTPASSPHRASE,
@@ -26,6 +27,7 @@ module.exports = function(app) {
     console.log(n);
     console.log(e);
   });
+  */
 
   var gcm = new GCM(process.env.GCMAPIKEY || "AIzaSyCRQ3_aw0TMlIbKx_0n22q58syrBrWAicA");
 
@@ -38,7 +40,7 @@ module.exports = function(app) {
     if (message) {
       data.alert = message;
     }
-    apn.send(data);
+    //apn.send(data);
   }
 
   var sendGCM = function(data, message) {

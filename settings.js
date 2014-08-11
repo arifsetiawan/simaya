@@ -22,7 +22,6 @@ module.exports = Utils = function() {
         pass: '',
       }*/
     }
-
   }
 
   return {

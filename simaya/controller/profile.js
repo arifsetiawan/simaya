@@ -95,6 +95,8 @@ module.exports = function(app) {
     vals.user = {
       profile: Object.clone(req.session.currentUserProfile, true)
     } 
+    // console.log("REQBODY = " + JSON.stringify(req.body));
+    // console.log("REQBODY PROFILE = " + JSON.stringify(req.body["profile.phones"]));
     if (Object.keys(req.body).length > 0) {
       var oldProfile = req.session.currentUserProfile;
       if (req.body["profile.phones"]) {
@@ -102,6 +104,7 @@ module.exports = function(app) {
           req.body["profile.phones"] = [ req.body["profile.phones"] ];
         }
         oldProfile.phones = req.body["profile.phones"];
+        // console.log("OLDPROFILE = " + JSON.stringify(oldProfile));
       }
       if (req.body["profile.address"]) {
         oldProfile.address = req.body["profile.address"];
@@ -214,6 +217,7 @@ module.exports = function(app) {
       }
     } else {
       user.list({ search: {username: vals.username}}, function(r) {
+        console.log("r[0] = " + JSON.stringify(r[0]));
         vals.user = r[0];
         if (typeof(vals.user.profile.dates) === "undefined" || 
             (vals.user.profile.dates && typeof(vals.user.profile.dates.birthday) === "undefined")) {
@@ -410,7 +414,8 @@ module.exports = function(app) {
   }
   
   var getAvatarStream = function(req, res) {
-    getAvatarStreamBase(false, req, res);
+    //getAvatarStreamBase(false, req, res);
+    res.end();
   }
 
   var getAvatarBase64Stream = function(req, res) {

@@ -7,6 +7,9 @@ module.exports = function(app) {
   /**
    * @api {get} /notifications Lists notifications
    * @apiName List
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiGroup Notification
    * @apiSuccess {Object[]} result Notification list
    * @apiSuccess {Boolean} result.isRead Whether the notification is explicitly read
@@ -41,6 +44,9 @@ module.exports = function(app) {
   /**
    * @api {get} /notifications/view Views a notification, this will clear notification status and sends push notification to all supported platforms
    * @apiName View
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiGroup Notification
    * @apiSuccess {Object[]} result Notification information
    * @apiSuccess {Boolean} result.isRead Whether the notification is explicitly read

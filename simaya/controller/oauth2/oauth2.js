@@ -147,7 +147,7 @@ module.exports = function(app) {
     filter,
     function (req, res, next) {
 
-      console.log('req.user.id', req.user.id);
+      // console.log('req.user.id = ', req.user.id);
 
       user.list({ search: { username: req.user.id } }, function(r) {
 
@@ -194,7 +194,7 @@ module.exports = function(app) {
 
     client.get(clientId, function(err, clientApp) {
 
-      console.log('AAAAAAAAAAAAAAAA');
+      console.log('CLIENT APP');
       console.log(clientApp);
 
       if (err) { 
@@ -250,7 +250,11 @@ module.exports = function(app) {
       // do following procedures
 
       // hack
-      req.user = req.user || req.session.currentUser || req.oauth2.req.state;
+      console.log("req.user - here");
+      console.log(req.user, req.session.currentUser, req.oauth2.req.state);
+      console.log(req.username);
+      req.user = req.user || req.session.currentUser || req.username;
+      console.log("renderDecision - req.user");
       console.log(req.user);
 
       req.body = {
@@ -259,8 +263,8 @@ module.exports = function(app) {
         user : req.user
       }
 
+      console.log("renderDecision - req.body");
       console.log(req.body);
-
       next();
 
     }
@@ -295,7 +299,7 @@ module.exports = function(app) {
     {
       return next(false);
     }
-
+    console.log(req.body);
     console.log('AUTH', username, password);
 
     // simulate mobile
@@ -306,15 +310,17 @@ module.exports = function(app) {
 
     // authenticate user
     user.authenticate (username, password, function (authenticated) {
+      console.log("Authenticated? " + authenticated);
       if (authenticated) {
-        
+        console.log("ngga bakalan muncul");
         // get sessionId for retrieving token
         session.login( username, position, function(sessionId, reason) {
-          
+          console.log("reason" + reason);
           if (reason > 0) {
             return next (false);  
           }
 
+          req.username = req.body.username;
           next();
           
         });
@@ -322,7 +328,7 @@ module.exports = function(app) {
         // TODO: check clientId and clientSecret
       }
       else {
-        next(false);
+        res.end("Invalid username/password");
       }
 
     });

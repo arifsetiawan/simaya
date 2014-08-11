@@ -178,12 +178,15 @@ module.exports = function(app) {
 
   var newJSON = function(req, res)
   {
+    // console.log('HERE NEWJSON!');
+    // console.log(req.body);
+    // console.log('HERE HEADERS');
+    // console.log(req.headers);
     if (req.body.title &&
         req.body.startDate &&
         req.body.startTime &&
         req.body.endDate &&
         req.body.endTime) {
-      
       var start = new Date(moment(req.body.startDate, "DD/MM/YYYY").toDate());
       start.setHours(parseInt(req.body.startTime[0] + req.body.startTime[1], 10));
       start.setMinutes(parseInt(req.body.startTime[2] + req.body.startTime[3], 10));
@@ -211,6 +214,10 @@ module.exports = function(app) {
           reminder: req.body.reminder || 0,
           recurrence: req.body.recurrence || 0,
         }
+        console.log("HERE DATA");
+        console.log(data);
+        console.log("HERE req.files");
+        console.log(req.files);
         if (req.body.id && req.body.id != "") {
           calendar.edit(req.body.id, data, function(v) {
             if (v.hasErrors() > 0) {
@@ -306,7 +313,9 @@ module.exports = function(app) {
           ]
       }
     }
+    //console.log(search.search);
     calendar.list(search, function(result) {
+      //console.log(result);
       var recipientHash = {};
       for (var i = 0; i < result.length; i++) {
         var r = result[i].recipients;
@@ -548,6 +557,10 @@ module.exports = function(app) {
     }
   }
 
+  var redirectToCalendarDay = function(req, res) {
+    res.redirect('/calendar/day');
+  }
+
 
 
   return {
@@ -567,5 +580,6 @@ module.exports = function(app) {
     cancelInvitationJSON: cancelInvitationJSON,
     declineInvitationJSON: declineInvitationJSON,
     removeInvitationJSON: removeInvitationJSON,
+    redirectToCalendarDay: redirectToCalendarDay,
   }
 };

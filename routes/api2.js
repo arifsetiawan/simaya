@@ -1,8 +1,13 @@
 module.exports = function(app){
+  // ob
+  var ob = require("../simaya/controller/ob.js")(app);
 
   // oauth2 and api2
   var oauth2 = require('../simaya/controller/oauth2/oauth2.js')(app)
-  var api2 = require("../simaya/controller/api/2.0")(app);
+  var api2 = require("../simaya/controller/api/2.0")(app)
+
+  // khusus timeline
+  var timeline = require("../simaya/controller/api/2.0/timeline.js")(app)
 
   // oauth2 handlers
   app.get('/oauth2/authorize', oauth2.authorization);
@@ -34,10 +39,9 @@ module.exports = function(app){
   app.get(prefix + "/letters/cc-candidates-selection", oauth2.protectedResource, api2.letter.ccCandidatesSelection);
   app.get(prefix + "/letters/reviewer-candidates-selection", oauth2.protectedResource, api2.letter.reviewerCandidatesSelection);
   app.post(prefix + "/letters/reject", oauth2.protectedResource, api2.letter.rejectLetter);
-  app.get(prefix + "/letters/:id", oauth2.protectedResource, api2.letter.read);
+  app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/:id/documents", oauth2.protectedResource, api2.letter.attachments);
   app.post(prefix + "/letters/new", oauth2.protectedResource, api2.letter.sendLetter);
-
 
   // documents
   app.get(prefix + "/documents/:id", oauth2.protectedResource, api2.letter.attachment);
@@ -55,13 +59,15 @@ module.exports = function(app){
   // profile
   app.get(prefix + "/profile/view", oauth2.protectedResource, api2.profile.view);
   app.get(prefix + "/profile/avatar", oauth2.protectedResource, api2.profile.getAvatar);
+  app.post(prefix + "/profile/save", oauth2.protectedResource, api2.profile.save);
 
   // calendar
   app.get(prefix + "/calendar", oauth2.protectedResource, api2.calendar.list);
+  app.post(prefix + "/calendar/create", oauth2.protectedResource, api2.calendar.create);
 
   // notification
   app.get(prefix + "/notifications", oauth2.protectedResource, api2.notification.list);
-  app.get(prefix + "/notifications/:id", oauth2.protectedResource, api2.notification.view);
+  app.get(prefix + "/notifications/view/:id", oauth2.protectedResource, api2.notification.view);
   
   //contacts
   app.get(prefix + "/contacts/waiting", oauth2.protectedResource, api2.contacts.waiting);
@@ -70,4 +76,10 @@ module.exports = function(app){
   app.get(prefix + "/contacts/request", oauth2.protectedResource, api2.contacts.request);
   app.get(prefix + "/contacts/remove", oauth2.protectedResource, api2.contacts.remove);
   app.get(prefix + "/contacts/establish", oauth2.protectedResource, api2.contacts.establish);
+
+  // timeline
+  app.get(prefix + "/timeline/list", oauth2.protectedResource, timeline.listJSON);
+
+  // ob
+  app.get(prefix + "/ob/get/:id", oauth2.protectedResource, ob.simpleDownload);
 }

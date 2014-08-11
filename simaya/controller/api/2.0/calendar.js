@@ -20,6 +20,8 @@ module.exports = function(app){
    * @apiName ListCalendar
    * @apiGroup Calendar
    *
+   * @apiVersion 0.1.0
+   *
    * @apiParam {Date} date Start date in ISO format
    * @apiParam {Number} num-days Number of days to get
    *
@@ -33,7 +35,7 @@ module.exports = function(app){
    * @apiSuccess {Number} events.status Status of the event
    * @apiSuccess {Number} events.visibility Visibility of the event
    * @apiSuccess {Number} events.reminder The reminder of the event
-   * @apiSuccess {Number} events.recurrence The recurrence of the event  
+   * @apiSuccess {Number} events.recurrence The recurrence of the event   
    */
   var list = function(req, res) {
     if (isNaN(new Date(req.query.date).valueOf())) {
@@ -58,7 +60,31 @@ module.exports = function(app){
     calendarWeb.listDayJSON(req, r);
   }
 
-  return {
-    list: list
+  /**
+   * @api {post} /calendar/create Creating calendar using necessary data
+   * @apiVersion 0.1.0
+   * @apiName CreateCalendar
+   * @apiGroup Calendar
+   *
+   *
+   */
+
+  var create = function(req, res) {
+    var r = ResWrapper(function(data) {
+      var obj = {
+        meta: {
+          code: 200,
+        },
+        data: JSON.parse(data)
+      }
+      res.send(obj);
+    });
+    calendarWeb.newJSON(req, r);
   }
+
+  return {
+    list: list,
+    create: create
+  }
+
 }

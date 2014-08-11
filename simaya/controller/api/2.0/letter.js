@@ -38,7 +38,6 @@ module.exports = function(app){
     letterWeb.populateSearch(req, search, function(search) {
 
       letter.list(search, function(result){
-        
         if (result == null) {
 
           var obj = {
@@ -48,7 +47,6 @@ module.exports = function(app){
           obj.meta.code = 404;
           obj.meta.errorMessage = "Letters Not Found";
           return res.send(obj.meta.code, obj);
-
         }
         
         letterAPI.extractData(result, req, res, function(result) {
@@ -119,7 +117,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/incomings Incoming Letters
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName GetIncomingLetters
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -132,10 +132,10 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/letters/incomings
+   * http://simaya.cloudapp.net/api/2/letters/incomings
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/incomings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/letters/incomings?access_token=f3fyGRRoKZ...
    */
   var incomings = function (req, res) {
     var search = letterWeb.buildSearchForIncoming(req, res);
@@ -148,7 +148,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/outgoings Outgoing Letters
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName GetOutgoingLetters
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -161,13 +163,13 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/letters/outgoings
+   * http://simaya.cloudapp.net/api/2/letters/outgoings
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
    */
   var outgoings = function (req, res) {
-    var search = letterWeb.buildSearchForOutgoing(req, res); 
+    var search = letterWeb.buildSearchForOutgoing(req, res);
     search.fields = {title: 1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
@@ -176,7 +178,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /letter/read/:id Read a letter or agenda
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName GetReadLetter
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -188,10 +192,10 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/letters/:id
+   * http://simaya.cloudapp.net/api/2/letters/:id
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
    */
   var read = function(req, res) {
 
@@ -247,7 +251,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /agendas/incomings Incoming Agendas
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName GetIncomingAgendas
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -260,10 +266,10 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/agendas/incomings
+   * http://simaya.cloudapp.net/api/2/agendas/incomings
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
    */
   var agendaIncomings = function (req, res){
     var search = {
@@ -282,7 +288,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /agendas/outgoings Outgoing Agendas
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName GetOutgoingAgendas
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -295,10 +303,10 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/agendas/outgoings
+   * http://simaya.cloudapp.net/api/2/agendas/outgoings
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
    */
   var agendaOutgoings = function (req, res){
     var search = {}
@@ -377,7 +385,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/new Send a new letter for inspection 
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName SendNewLetter
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -405,10 +415,10 @@ module.exports = function(app){
    * @apiSuccess {Object} result.data Cause of error if error 
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/letters/new
+   * http://simaya.cloudapp.net/api/2/letters/new
    * 
    * @apiExample Example usage:
-   * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://ayam.vps1.kodekreatif.co.id/api/2/letters/new?access_token=f3fyGRRoKZ...
+   * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net/api/2/letters/new?access_token=f3fyGRRoKZ...
    */
   var sendLetter = function(req, res) {
     var vals = {
@@ -438,7 +448,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/sender-selection Get a sender candidates selection list 
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName SenderSelection
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -452,10 +464,10 @@ module.exports = function(app){
    * 
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/letters/sender-selection
+   * http://simaya.cloudapp.net/api/2/letters/sender-selection
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
    */
   var senderSelection = function(req, res) {
     var myOrganization = req.session.currentUserProfile.organization;
@@ -484,7 +496,9 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/recipient-organization-selection Get a recipient candidates organization selection list 
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName RecipientOrganizationSelection
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -500,10 +514,10 @@ module.exports = function(app){
    * 
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://ayam.vps1.kodekreatif.co.id/api/2/letters/recipient-organization-selection
+   * http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection
    * 
    * @apiExample Example usage:
-   * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
    */
   var orgSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
@@ -532,8 +546,10 @@ module.exports = function(app){
   /**
    * @api {get} /letter/recipient-candidates-selection Gets recipient candidates when composing a letter
    * @apiName RecipientCandidatesSelection
-   * @apiVersion 0.3.0
-   * @apiGroup Letter And Agendas
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiGroup Letters And Agendas
    * @apiPermission token
    * @apiParam {String} org Organization of the candidates
    * @apiSuccess {Object[]} result List of candidates
@@ -570,8 +586,10 @@ module.exports = function(app){
   /**
    * @api {get} /letter/cc-candidates-selection Gets Cc candidates when composing a letter
    * @apiName CcCandidatesSelection
-   * @apiVersion 0.3.0
-   * @apiGroup Letter And Agendas
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiGroup Letters And Agendas
    * @apiPermission token
    * @apiParam {String} org Organization of the candidates
    * @apiSuccess {Object[]} result List of candidates
@@ -608,8 +626,10 @@ module.exports = function(app){
   /**
    * @api {get} /letter/reviewer-candidates-selection Get reviewer candidates when composing a letter
    * @apiName ReviewerCandidatesSelection
-   * @apiVersion 0.3.0
-   * @apiGroup Letter And Agendas
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiGroup Letters And Agendas
    * @apiPermission token
    * @apiParam {String} org Organization of the candidates
    * @apiSuccess {Object[]} result List of candidates
@@ -644,9 +664,11 @@ module.exports = function(app){
 
   /**
    * @api {post} /letter/reject Rejects an incoming letter
-   * @apiVersion 0.3.0
+   *
+   * @apiVersion 0.1.0
+   *
    * @apiName RejectLetter
-   * @apiGroup Letter And Agendas
+   * @apiGroup Letters And Agendas
    * @apiParam {String} id Object Id of the letter
    * @apiSuccess {Object} status Status of the request
    * @apiSuccess {Boolean} status.ok "true" if success 

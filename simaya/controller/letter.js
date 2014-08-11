@@ -140,7 +140,7 @@ Letter = module.exports = function(app) {
       vals.isAdministration = true;
     }
     var data = data || {};
-
+    console.log("create" + req.body);
     if (typeof(req.body.letter) !== "undefined") {
       Object.keys(req.body.letter).forEach(function(key){
           vals[key] = req.body.letter[key];
@@ -461,7 +461,6 @@ Letter = module.exports = function(app) {
   }
 
   var createNormal = function(req, res) {
-
     var vals = {
       title: "Surat Keluar",
     }
@@ -524,6 +523,7 @@ Letter = module.exports = function(app) {
         vals.letter.reviewers = req.body.letter["reviewers"] || ""
       }
 
+      console.log(req.body);
       create(data, vals, "letter-outgoing-new", letter.createNormal, req, res);
     });
   }
@@ -753,6 +753,7 @@ Letter = module.exports = function(app) {
   }
 
   var view = function(vals, template, req, res) {
+    console.log(vals);
     var organization = req.session.currentUserProfile.organization;
     vals.unsuccessful = vals.successful = false;
 
@@ -1309,11 +1310,14 @@ Letter = module.exports = function(app) {
   }
 
   var buildSearchForIncoming = function(req, res) {
+    console.log("masuk buildSearchForIncoming");
     var search = {
       search: {}
     };
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+      console.log("masuk currentUserHasRoles");
       var o = "receivingOrganizations." + req.session.currentUserProfile.organization;
+      console.log("o "+o);
       var normalCase = {
         status: letter.Stages.SENT, // displays SENT and ready to be received
         creation: "normal",
@@ -1328,6 +1332,7 @@ Letter = module.exports = function(app) {
       search.search["$or"].push(normalCase);
       search.search["$or"].push(externalCase);
     } else {
+      console.log("masuk else");
       search.search = {
         recipients: {
           $in: [req.session.currentUser]
@@ -1380,6 +1385,8 @@ Letter = module.exports = function(app) {
     }
     var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
     search[o] = letter.Stages.RECEIVED;
+    console.log("SEARCH[o]", search[o]);
+    console.log("SEARCH", search);
     list(vals, "letter-cc", { search: search }, req, res);
   }
 
@@ -1405,6 +1412,8 @@ Letter = module.exports = function(app) {
 
   var buildSearchForOutgoing = function(req, res) {
     var search = {};
+    console.log("ADMINISTRATION ROLE: " + app.simaya.administrationRole);
+    console.log(req.session.currentUserRoles);
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
       search.search = {
           senderOrganization: req.session.currentUserProfile.organization,
@@ -1413,6 +1422,7 @@ Letter = module.exports = function(app) {
       }
 
     } else {
+      console.log("else");
       search.search = {
         $and: [
         { $or: [
@@ -1812,7 +1822,7 @@ Letter = module.exports = function(app) {
 
   // Gets the Cc candidates
   var getCc = function(req, res) {
-    if (req.query.org) {
+    if (req.query.org) { 
       var search = {
         search: {
           "profile.organization": req.query.org,
@@ -2028,7 +2038,6 @@ Letter = module.exports = function(app) {
 
   var preview = function(req, res) {
     var vals = {};
-
     if (typeof(req.body.letter) !== "undefined") {
       var body;
       if (req.body.letter.letterhead != null) {
@@ -2047,6 +2056,7 @@ Letter = module.exports = function(app) {
       vals.body = body;
       req.session.letterBody = body
       utils.render(req, res, "pdf-viewer-preview", vals, "base-popup-window");
+      console.log("preview " + req.body);
     }
   }
 
@@ -2135,7 +2145,7 @@ Letter = module.exports = function(app) {
 
   var populateSearch = function(req, search, callback) {
     if (req.query.search && req.query.search.string) {
-      var searchStrings = req.query.search["string"]
+      var searchStrings = req.query.search["string"];
       user.list({search: { "profile.fullName" : { $regex: searchStrings, $options: "i" }}}, function(r) {
         var userSearch = [];
         if (r != null) {
