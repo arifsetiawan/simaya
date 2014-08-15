@@ -65,7 +65,8 @@ module.exports = function(app){
    * @apiVersion 0.1.0
    * @apiName CreateCalendar
    * @apiGroup Calendar
-   *
+   * @apiExample Example usage: 
+   * curl -v "http://localhost:3000/api/2/calendar/create?access_token=glmzf8I5vN0O9CNMNNyFE2KWQaYecqkX8SF5srTUFyt5ManCYYPxX31UmQTZSnsfdJaLtbM8VaKgCKLKbXmSbWbM4lK01bW9ybrSmr8qaSrkry5RK9IXFz36cA6SVFWC" -F "fileAttachments=@C:\Users\beningranum\Desktop\simaya.txt" -F "id=" -F "title=ada deh 1" -F "startDate=20/07/2014" -F "startTime=0200" -F "endDate=20/07/2014" -F "endTime=0230" -F "recipients=testuser3,testuser4"
    *
    */
 
@@ -86,5 +87,4 @@ module.exports = function(app){
     list: list,
     create: create
   }
-
 }

@@ -1,4 +1,8 @@
 module.exports = function(app){
+  // box
+  var boxC = require("../simaya/controller/box.js")(app);
+  var box = require("../simaya/controller/api/2.0/box.js")(app);
+
   // ob
   var ob = require("../simaya/controller/ob.js")(app);
 
@@ -82,4 +86,18 @@ module.exports = function(app){
 
   // ob
   app.get(prefix + "/ob/get/:id", oauth2.protectedResource, ob.simpleDownload);
+
+  // box
+  app.get(prefix + "/box/users", oauth2.protectedResource, boxC.findUser);
+  app.get(prefix + "/box/users/org", oauth2.protectedResource, boxC.findUserOrg);
+  app.get(prefix + "/box/dir", oauth2.protectedResource, box.readDir);
+  app.get(prefix + "/box/dir/*", oauth2.protectedResource, box.readDir);
+  app.get(prefix + "/box/file/*", oauth2.protectedResource, box.readFile);
+  app.post(prefix + "/box/dir", oauth2.protectedResource, boxC.createDir);
+  app.post(prefix + "/box/file", oauth2.protectedResource, box.writeFile);
+  app.post(prefix + "/box/revisions", oauth2.protectedResource, boxC.revisions);
+  app.post(prefix + "/box/share/file", oauth2.protectedResource, boxC.shareFile);
+  app.post(prefix + "/box/share/dir", oauth2.protectedResource, boxC.shareDir);
+  app.post(prefix + "/box/delete/file", oauth2.protectedResource, boxC.deleteFile);
+  app.post(prefix + "/box/delete/dir", oauth2.protectedResource, boxC.deleteDir);
 }

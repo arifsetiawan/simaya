@@ -59,7 +59,7 @@ module.exports = function(app) {
     // generate authorization code
     var authorizationCode = uid(16);
 
-    console.log('USER', user);
+    // console.log('USER', user);
 
     delete client.secret;
 
@@ -194,8 +194,8 @@ module.exports = function(app) {
 
     client.get(clientId, function(err, clientApp) {
 
-      console.log('CLIENT APP');
-      console.log(clientApp);
+      // console.log('CLIENT APP');
+      // console.log(clientApp);
 
       if (err) { 
         return done(new Error("Client not found")); 
@@ -315,7 +315,7 @@ module.exports = function(app) {
         console.log("ngga bakalan muncul");
         // get sessionId for retrieving token
         session.login( username, position, function(sessionId, reason) {
-          console.log("reason" + reason);
+          // console.log("reason" + reason);
           if (reason > 0) {
             return next (false);  
           }

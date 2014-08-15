@@ -64,13 +64,15 @@ module.exports = function(app) {
   }
 
   var readDir = function (req, res) {
-
+    // console.log(req.path);
     var currentPath = req.path.substr("/box/dir/".length, req.path.length) || req.session.currentUser;
+    // console.log(currentPath);
     currentPath = "/" + currentPath;
 
     var shared = isSharedDir(currentPath, req.session.currentUser);
 
     if(req.accepted && req.accepted.length > 0 && req.accepted[0].value != "application/json") {
+      // console.log("test req.accepted");
       return renderIndex(req, res, { isPersonal : !shared, currentPath : currentPath });
     }
 
@@ -123,6 +125,7 @@ module.exports = function(app) {
           return res.send(404, {});
         } else {
           var items = packedItems(result);
+          // console.log(items);
           res.send({ items : items, currentPath : currentPath });
         }
       });
@@ -187,6 +190,8 @@ module.exports = function(app) {
     var dirname = req.body.dirname;
     var box = own.box(req.session);
 
+    // console.log(uploaded, dirname);
+
     var source = fs.createReadStream(uploaded.path);
 
     process.nextTick(function(){
@@ -207,6 +212,7 @@ module.exports = function(app) {
     item = decodeURI(item);
     var box = own.box(req.session);
     var filename = path.basename(item);
+    // console.log(u, item, box, filename);
     res.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
 
     var dirname = path.dirname(item);
@@ -220,7 +226,8 @@ module.exports = function(app) {
         box = own.box({ currentUser : ownerUser, currentUserProfile : {}});
       }
     } 
-
+    // console.log("HELP");
+    // console.log(dirname, parts);
     // download from the right path
     box.directory(path.dirname(item)).file(filename).read({ to : res }, function(err){
       if (err) {
@@ -248,6 +255,7 @@ module.exports = function(app) {
     var body = req.body;
     var box = own.box(req.session);
     var names = body.users.split(",");
+    console.log(names);
 
     function getUserProfile(usr, cb){
       // list user
@@ -294,6 +302,7 @@ module.exports = function(app) {
   var findUser = function (req, res) {
     var phrase = req.query.q;
     var expr = new RegExp(phrase);
+    // console.log(expr);
     var query = phrase ? { $or : [ { "profile.fullName" : expr}, { "username" : expr } ] } : {};
     user.list({ search : query}, function(users){
       var ret = [];

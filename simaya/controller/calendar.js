@@ -214,10 +214,10 @@ module.exports = function(app) {
           reminder: req.body.reminder || 0,
           recurrence: req.body.recurrence || 0,
         }
-        console.log("HERE DATA");
-        console.log(data);
-        console.log("HERE req.files");
-        console.log(req.files);
+        // console.log("HERE DATA");
+        // console.log(data);
+        // console.log("HERE req.files");
+        // console.log(req.files);
         if (req.body.id && req.body.id != "") {
           calendar.edit(req.body.id, data, function(v) {
             if (v.hasErrors() > 0) {

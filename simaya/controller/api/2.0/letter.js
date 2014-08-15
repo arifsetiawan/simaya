@@ -639,7 +639,7 @@ module.exports = function(app){
   var reviewerCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
-        console.log(vals);
+        // console.log(vals);
         var obj = {
           meta: {
             code: 200

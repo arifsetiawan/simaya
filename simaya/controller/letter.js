@@ -140,7 +140,7 @@ Letter = module.exports = function(app) {
       vals.isAdministration = true;
     }
     var data = data || {};
-    console.log("create" + req.body);
+    // console.log("create" + req.body);
     if (typeof(req.body.letter) !== "undefined") {
       Object.keys(req.body.letter).forEach(function(key){
           vals[key] = req.body.letter[key];
@@ -523,7 +523,7 @@ Letter = module.exports = function(app) {
         vals.letter.reviewers = req.body.letter["reviewers"] || ""
       }
 
-      console.log(req.body);
+      // console.log(req.body);
       create(data, vals, "letter-outgoing-new", letter.createNormal, req, res);
     });
   }
@@ -753,7 +753,7 @@ Letter = module.exports = function(app) {
   }
 
   var view = function(vals, template, req, res) {
-    console.log(vals);
+    // console.log(vals);
     var organization = req.session.currentUserProfile.organization;
     vals.unsuccessful = vals.successful = false;
 
@@ -929,7 +929,7 @@ Letter = module.exports = function(app) {
               }
             } else if (result[0].creation == "external") {
               var o = Object.keys(result[0].receivingOrganizations);
-              console.log(o);
+              // console.log(o);
               for (var i = 0; i < o.length; i ++) {
                 if (req.session.currentUserProfile.organization ==o[i] && result[0].receivingOrganizations[o[i]].status == letter.Stages.SENT) {
                   vals.receiving = true;
@@ -1310,14 +1310,14 @@ Letter = module.exports = function(app) {
   }
 
   var buildSearchForIncoming = function(req, res) {
-    console.log("masuk buildSearchForIncoming");
+    // console.log("masuk buildSearchForIncoming");
     var search = {
       search: {}
     };
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
-      console.log("masuk currentUserHasRoles");
+      // console.log("masuk currentUserHasRoles");
       var o = "receivingOrganizations." + req.session.currentUserProfile.organization;
-      console.log("o "+o);
+      // console.log("o "+o);
       var normalCase = {
         status: letter.Stages.SENT, // displays SENT and ready to be received
         creation: "normal",
@@ -1332,7 +1332,7 @@ Letter = module.exports = function(app) {
       search.search["$or"].push(normalCase);
       search.search["$or"].push(externalCase);
     } else {
-      console.log("masuk else");
+      // console.log("masuk else");
       search.search = {
         recipients: {
           $in: [req.session.currentUser]
@@ -1346,7 +1346,7 @@ Letter = module.exports = function(app) {
   }
 
   var listIncoming = function(req, res) {
-    console.log(req.session);
+    // console.log(req.session);
     return listIncomingBase(req, res);
   }
 
@@ -1385,8 +1385,8 @@ Letter = module.exports = function(app) {
     }
     var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
     search[o] = letter.Stages.RECEIVED;
-    console.log("SEARCH[o]", search[o]);
-    console.log("SEARCH", search);
+    // console.log("SEARCH[o]", search[o]);
+    // console.log("SEARCH", search);
     list(vals, "letter-cc", { search: search }, req, res);
   }
 
@@ -1412,8 +1412,8 @@ Letter = module.exports = function(app) {
 
   var buildSearchForOutgoing = function(req, res) {
     var search = {};
-    console.log("ADMINISTRATION ROLE: " + app.simaya.administrationRole);
-    console.log(req.session.currentUserRoles);
+    // console.log("ADMINISTRATION ROLE: " + app.simaya.administrationRole);
+    // console.log(req.session.currentUserRoles);
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
       search.search = {
           senderOrganization: req.session.currentUserProfile.organization,
@@ -1422,7 +1422,7 @@ Letter = module.exports = function(app) {
       }
 
     } else {
-      console.log("else");
+      // console.log("else");
       search.search = {
         $and: [
         { $or: [
@@ -1779,9 +1779,13 @@ Letter = module.exports = function(app) {
   // Gets the reviewer candidates
   var getReviewer = function(req, res) {
     var p = req.session.currentUserProfile;
+    var pquery = req.query.org;
     var me = req.session.currentUser;
+
     // expand organizations
-    var org = p.organization;
+    // var org = p.organization;
+    console.log(p.organization, p.echelon);
+    var org = pquery || p.organization;
     var orgs = [ org ];
     var i = org.lastIndexOf(";");
     while (i > 0) {
@@ -1792,6 +1796,7 @@ Letter = module.exports = function(app) {
 
     // Only look into the organization of level 2
     var queryOrganization = org;
+    console.log(queryOrganization);
     if (orgs.length > 2) {
       queryOrganization = orgs[(orgs.length - 1)- 2];
     } else if (orgs.length > 1) {
@@ -1799,12 +1804,19 @@ Letter = module.exports = function(app) {
       queryOrganization = orgs[(orgs.length - 1)- 1];
     }
 
-    var search = {
+    /*var search = {
       search: {
         "profile.organization": { $regex: "^" + queryOrganization },
         "profile.echelon": {$lt: (parseInt(p.echelon) + "z")},
         "username": {$ne: me}
-        }
+      }
+    }*/
+
+    var search = {
+      search: {
+        "profile.organization": p.organization,
+        "profile.echelon": {$lt: 5 + "z"}
+      }
     }
     user.list(search, function(r) {
       if (r == null) {
@@ -1814,7 +1826,7 @@ Letter = module.exports = function(app) {
       if (req.query) {
         added = req.query.added
       }
-
+      
       var copy = cUtils.stripCopy(r, added);
       res.send(JSON.stringify(copy));
     });
@@ -2056,7 +2068,7 @@ Letter = module.exports = function(app) {
       vals.body = body;
       req.session.letterBody = body
       utils.render(req, res, "pdf-viewer-preview", vals, "base-popup-window");
-      console.log("preview " + req.body);
+      // console.log("preview " + req.body);
     }
   }
 
