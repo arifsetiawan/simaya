@@ -5,6 +5,9 @@ module.exports = function(app){
   var letter = require("../../../models/letter.js")(app);
   var cUtils = require("../../utils.js")(app)
   var orgWeb = require("../../organization.js")(app)
+  var db = app.db('letter');
+  var dbdis = app.db('disposition');
+  var utils = require("../../../../sinergis/controller/utils.js")(app)
 
   function isValidObjectID(str) {
     str = str + '';
@@ -115,6 +118,164 @@ module.exports = function(app){
     });
   }
 
+  var countSuratMasuk = function(req, res, callback) {
+    var search = letterWeb.buildSearchForIncoming(req, res);
+    db.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countTembusan = function(req, res, callback) {
+    var search = {
+      ccList: {
+        $in: [req.session.currentUser]
+      },
+    }
+    var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
+    search[o] = letter.Stages.RECEIVED;
+    db.find(search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countDisposisiMasuk = function(req, res, callback) {
+    var search = {
+      search : {
+        "recipients.recipient" : req.session.currentUser
+      }
+    }
+    dbdis.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          console.log("CDM", n);
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countSuratKeluar = function(req, res, callback) {
+    var search = letterWeb.buildSearchForOutgoing(req, res);
+    db.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countKonsep = function(req, res, callback) {
+    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+      var search = {
+        $or: [
+          {
+            senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
+            status: letter.Stages.APPROVED, // displays APPROVED and ready to be received
+          },
+          {
+            $and: [
+              {$or: [
+                { originator: req.session.currentUser},
+                { reviewers:
+                  { $in: [req.session.currentUser] }
+                }
+              ]},
+              {$or: [
+                { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+                { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+              ]},
+            ],
+          }
+          ],
+
+
+          creation: "normal",
+      }
+    } else {
+      var search = {
+        $and: [
+        {$or: [
+          { originator: req.session.currentUser},
+          { reviewers:
+            { $in: [req.session.currentUser] }
+          }
+        ]},
+        {$or: [
+          { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+          { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+        ]},
+        ],
+
+        creation: "normal",
+      }
+    }
+    db.find(search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countBatal = function(req, res, callback) {
+    var search = {
+      $or: [
+        { originator: req.session.currentUser},
+        { reviewers:
+          { $in: [req.session.currentUser] }
+        }
+      ],
+      status: letter.Stages.DEMOTED,
+      creation: "normal",
+    }
+    db.find(search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countDisposisiKeluar = function(req, res, callback) {
+    var search = {
+      search : {
+        sender : req.session.currentUser
+      }
+    }
+    dbdis.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
   /**
    * @api {get} /letters/incomings Incoming Letters
    *
@@ -139,12 +300,75 @@ module.exports = function(app){
    */
   var incomings = function (req, res) {
     var search = letterWeb.buildSearchForIncoming(req, res);
+    // console.log("Search1", JSON.stringify(search));
     search = letterWeb.populateSortForIncoming(req, search);
+    // console.log("Search2", JSON.stringify(search));
     search.fields = { title : 1, date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
+    // console.log("Search3", JSON.stringify(search));
     list(search, req, res);
   }
+
+  /**
+   * @api {get} /letter/incomingcount Getting number of how many incoming letters does the user have
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName IncomingCount
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   * @apiSuccess {Object} status Status of the request
+   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiError {Object} status Status of the request
+   * @apiError {Boolean} status.ok "false" if success 
+   */
+
+    var incomingcount = function(req, res) {
+      var data = {};
+      data.meta = {};
+      data.count = {};
+      var incoming = cc = dispositionIncoming = 0;
+      countSuratMasuk(req, res, function(err,result) {
+        if (err) {
+          console.log(err);
+          data.meta = 500;
+          data.error = err;
+          res.send(500, data);
+        }
+        else {
+          incoming = result;
+        }
+        countTembusan(req, res, function(err, result) {
+          if (err) {
+            console.log(err);
+            data.meta = 500;
+            data.error = err;
+            res.send(500, data);
+          }
+          else {
+            cc = result;
+          }
+          countDisposisiMasuk(req, res, function(err, result) {
+            if (err) {
+              console.log(err);
+              data.meta = 500;
+              data.error = err;
+              res.send(500, data);
+            }
+            else {
+              dispositionIncoming = result;
+            }
+            console.log(incoming, cc, dispositionIncoming);
+            data.meta.code = 200;
+            data.count.incoming = incoming;
+            data.count.cc = cc;
+            data.count.dispositionIncoming = dispositionIncoming;
+            res.send(200, data);
+          });
+        });
+      });
+    }
 
   /**
    * @api {get} /letters/outgoings Outgoing Letters
@@ -175,6 +399,77 @@ module.exports = function(app){
     search.limit = 20;
     list(search, req, res);
   }
+
+  /**
+   * @api {get} /letter/outgoingcount Getting number of how many outgoing letters does the user have
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName OutgoingCount
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   * @apiSuccess {Object} status Status of the request
+   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiError {Object} status Status of the request
+   * @apiError {Boolean} status.ok "false" if success 
+   */
+
+   var outgoingcount = function(req, res) {
+    var data = {};
+      data.meta = {};
+      data.count = {};
+      var outgoing = draft = demoted = dispositionOutgoing = 0;
+      countSuratKeluar(req, res, function(err,result) {
+        if (err) {
+          console.log(err);
+          data.meta = 500;
+          data.error = err;
+          res.send(500, data);
+        }
+        else {
+          outgoing = result;
+        }
+        countKonsep(req, res, function(err, result) {
+          if (err) {
+            console.log(err);
+            data.meta = 500;
+            data.error = err;
+            res.send(500, data);
+          }
+          else {
+            draft = result;
+          }
+          countBatal(req, res, function(err, result) {
+            if (err) {
+              console.log(err);
+              data.meta = 500;
+              data.error = err;
+              res.send(500, data);
+            }
+            else {
+              demoted = result;
+            }
+            countDisposisiKeluar(req, res, function(err, result) {
+              if (err) {
+                console.log(err);
+                data.meta = 500;
+                data.error = err;
+                res.send(500, data);
+              }else {
+                dispositionOutgoing = result;
+              }
+              // console.log(incoming, cc, dispositionIncoming);
+              data.meta.code = 200;
+              data.count.outgoing = outgoing;
+              data.count.draft = draft;
+              data.count.demoted = demoted;
+              data.count.dispositionOutgoing = dispositionOutgoing;
+              res.send(200, data);
+            });
+          });
+        });
+      });
+   }
 
   /**
    * @api {get} /letter/read/:id Read a letter or agenda
@@ -693,12 +988,11 @@ module.exports = function(app){
     letterWeb.reject(req, r);
   }
 
-
-
-
   return {
     incomings : incomings,
+    incomingcount : incomingcount,
     outgoings : outgoings,
+    outgoingcount : outgoingcount,
     read : read,
     sendLetter: sendLetter,
 

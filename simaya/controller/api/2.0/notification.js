@@ -58,7 +58,7 @@ module.exports = function(app) {
   var view = function(req, res) {
     if (req.params.id) {
       notification.view(req.params.id, function(r) {
-      console.log(r)
+        console.log(r)
         res.send({
           meta: {
             code: 200,

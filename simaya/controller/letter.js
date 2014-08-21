@@ -13,7 +13,8 @@ Letter = module.exports = function(app) {
     , ObjectID = app.ObjectID
     , moment = require("moment")
     , spawn = require('child_process').spawn
-    , ob = require("../../ob/file.js")(app);
+    , ob = require("../../ob/file.js")(app)
+    , azuresettings = require("../../azure-settings.js");
 
   var dispositionController = null;
   if (typeof(Disposition) === "undefined") {
@@ -1098,6 +1099,7 @@ Letter = module.exports = function(app) {
           message = message.replace(/{{organization}}/g, resolved[0].organization);
           message = message.replace(/{{mailId}}/g, data.mailId);
 
+          azuresettings.makeNotification(message);
           notification.set(data.sender, data.originator, message, url);
           notification.set(data.originator, data.sender, message, url);
         });
@@ -1340,6 +1342,7 @@ Letter = module.exports = function(app) {
       }
       var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
       search.search[o] = letter.Stages.RECEIVED;
+      // console.log(search.search[o]);
     }
 
     return search;
@@ -1558,6 +1561,7 @@ Letter = module.exports = function(app) {
     data.senderResolved = data.senderResolved || {};
     var sender = req.session.currentUser;
     if (nextReviewer != "") {
+      azuresettings.makeNotification("Ada surat baru perlu diperiksa, perihal: " + data.title);
       notification.set(sender, nextReviewer, "Ada surat baru perlu diperiksa, perihal: " + data.title, "/letter/read/" + data._id);
     } else {
       if (status == letter.Stages.APPROVED) {
@@ -1575,6 +1579,7 @@ Letter = module.exports = function(app) {
           }
           user.list({search: search}, function(r) {
             for (var j = 0; j < r.length; j ++) {
+              azuresettings.makeNotification("Ada surat baru perlu diterima, nomor surat: " + data.mailId);
               notification.set(sender, r[j].username, "Ada surat baru perlu diterima, nomor surat: " + data.mailId, "/letter/read/" + data._id);
             }
           });
@@ -1586,8 +1591,10 @@ Letter = module.exports = function(app) {
           for (var i = 0; i < data.ccList.length; i ++) {
             if (data.ccList[i] != "") {
               if (data.senderResolved.title && data.senderResolved.title.length > 0) {
+                azuresettings.makeNotification("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan");
                 notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
               } else if (data.senderManual) {
+                azuresettings.makeNotification("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan");
                 notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
               }
             }
@@ -1596,13 +1603,16 @@ Letter = module.exports = function(app) {
 
         for (var i = 0; i < data.recipients.length; i ++) {
           if (data.senderResolved.title && data.senderResolved.title.length > 0) {
+            azuresettings.makeNotification("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization);
             notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization, "/letter/read/" + data._id);
           } else if (data.senderManual) {
+            azuresettings.makeNotification("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization);
             notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization, "/letter/read/" + data._id);
           }
         }
       }
       else if (status == letter.Stages.DEMOTED) {
+        azuresettings.makeNotification("Ada surat yang dibatalkan");
         notification.set(sender, req.body.originator, "Ada surat yang dibatalkan", "/letter/read/" + data._id);
       }
     }

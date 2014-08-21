@@ -14,6 +14,7 @@ module.exports = function(app) {
   var path = require("path");
   var url = require("url");
   var fs = require("fs");
+  var azuresettings = require("../../azure-settings.js");
 
   // define content types for comparison
   var contentTypes = {
@@ -288,6 +289,7 @@ module.exports = function(app) {
             message += body.message ? (" Pesan: " + body.message) : "";
             
             for (var i = 0; i < users.length; i++) {
+              azuresettings.makeNotification(message);
               notification.set(sender, users[i].user, message, "/box/dir/" + users[i].user + "/shared");
             }
           }

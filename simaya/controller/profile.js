@@ -386,7 +386,7 @@ module.exports = function(app) {
           var store = app.store(ObjectID(item[0].profile.avatar + ""), "r");
           store.open(function(error, gridStore) {
             if (gridStore) {
-            var gridStream = gridStore.stream(true);
+              var gridStream = gridStore.stream(true);
               if (base64) {
                 gridStream.pipe(base64Stream.encode()).pipe(res);
               } else {
@@ -414,7 +414,7 @@ module.exports = function(app) {
   }
   
   var getAvatarStream = function(req, res) {
-    //getAvatarStreamBase(false, req, res);
+    // getAvatarStreamBase(false, req, res);
     res.end();
   }
 
