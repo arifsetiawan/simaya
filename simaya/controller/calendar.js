@@ -214,7 +214,7 @@ module.exports = function(app) {
           recurrence: req.body.recurrence || 0,
         }
         // console.log("HERE DATA");
-        console.log("HERE", data);
+        // console.log("HERE", data);
         // console.log("HERE req.files");
         // console.log(req.files);
         if (req.body.id && req.body.id != "") {

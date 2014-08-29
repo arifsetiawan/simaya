@@ -346,7 +346,7 @@ Letter = module.exports = function(app) {
 
       })
     } else {
-
+      console.log("DraftID", req.body.draftId);
       // creates draft
       letter.createDraft({ username : req.session.currentUser, draftId : req.body.draftId }, function(err, item){
 
@@ -358,6 +358,8 @@ Letter = module.exports = function(app) {
 
           if (item) {
             vals.draftId = item._id
+            // req.body.idDraft = item._id
+            // console.log("reqbody", req.body);
           } else {
 
             // safety belt, try a second bet and force creating new draftId
@@ -368,20 +370,24 @@ Letter = module.exports = function(app) {
                 vals.error = "Error creating draft. Please reload";
               } else {
                 vals.draftId = item._id
+                // req.body.idDraft = item._id
+                // console.log("reqbody", req.body);
               }
+              if (vals.jsonRequest) {
+                if (err) {
+                  res.send({status: "ERROR", data: vals});
+                } else {
+                  // req.body.idDraft = vals.draftId;
+                  // console.log("idDraft", req.body.idDraft);
+                  res.send({status: "OK",data: {
+                    draftId: vals.draftId
+                  }});
+                }
+              } else {
+                utils.render(req, res, template, vals, "base-authenticated");
+              }              
             });
           }
-        }
-        if (vals.jsonRequest) {
-          if (err) {
-            res.send({status: "ERROR", data: vals});
-          } else {
-            res.send({status: "OK",data: {
-              draftId: vals.draftId
-            }});
-          }
-        } else {
-          utils.render(req, res, template, vals, "base-authenticated");
         }
       })
     }
@@ -462,6 +468,7 @@ Letter = module.exports = function(app) {
   }
 
   var createNormal = function(req, res) {
+    // console.log("reqbody", req.body)
     var vals = {
       title: "Surat Keluar",
     }
@@ -524,8 +531,9 @@ Letter = module.exports = function(app) {
         vals.letter.reviewers = req.body.letter["reviewers"] || ""
       }
 
-      // console.log(req.body);
+      // console.log(req.files);
       create(data, vals, "letter-outgoing-new", letter.createNormal, req, res);
+      // console.log("reqbody", req.body);
     });
   }
 
@@ -1794,7 +1802,7 @@ Letter = module.exports = function(app) {
 
     // expand organizations
     // var org = p.organization;
-    console.log(p.organization, p.echelon);
+    // console.log(p.organization, p.echelon);
     var org = pquery || p.organization;
     var orgs = [ org ];
     var i = org.lastIndexOf(";");
@@ -1806,7 +1814,7 @@ Letter = module.exports = function(app) {
 
     // Only look into the organization of level 2
     var queryOrganization = org;
-    console.log(queryOrganization);
+    // console.log(queryOrganization);
     if (orgs.length > 2) {
       queryOrganization = orgs[(orgs.length - 1)- 2];
     } else if (orgs.length > 1) {
@@ -2373,12 +2381,13 @@ Letter = module.exports = function(app) {
           var bundles = { files : []}
           file.letterId = req.body.draftId
           bundles.files.push(file)
+          // console.log(bundles);
 
           // sends the bundles!
-          res.send(bundles);
-        })
+          res.send(200, bundles);
+        });
 
-      })
+      });
 
     }
   }

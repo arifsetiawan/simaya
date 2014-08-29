@@ -8,6 +8,9 @@ module.exports = function(app){
   var db = app.db('letter');
   var dbdis = app.db('disposition');
   var utils = require("../../../../sinergis/controller/utils.js")(app)
+  var ObjectID = app.ObjectID;
+  var tempDraftId = "";
+  // var letterMod = require("../../../model/letter.js")(app);
 
   function isValidObjectID(str) {
     str = str + '';
@@ -159,7 +162,7 @@ module.exports = function(app){
     dbdis.find(search.search, function(err, cursor) {
       if (cursor != null) {
         cursor.count(function(e, n) {
-          console.log("CDM", n);
+          // console.log("CDM", n);
           callback(e,n);
         });
       }else {
@@ -331,7 +334,7 @@ module.exports = function(app){
       var incoming = cc = dispositionIncoming = 0;
       countSuratMasuk(req, res, function(err,result) {
         if (err) {
-          console.log(err);
+          // console.log(err);
           data.meta = 500;
           data.error = err;
           res.send(500, data);
@@ -341,7 +344,7 @@ module.exports = function(app){
         }
         countTembusan(req, res, function(err, result) {
           if (err) {
-            console.log(err);
+            // console.log(err);
             data.meta = 500;
             data.error = err;
             res.send(500, data);
@@ -351,7 +354,7 @@ module.exports = function(app){
           }
           countDisposisiMasuk(req, res, function(err, result) {
             if (err) {
-              console.log(err);
+              // console.log(err);
               data.meta = 500;
               data.error = err;
               res.send(500, data);
@@ -359,7 +362,7 @@ module.exports = function(app){
             else {
               dispositionIncoming = result;
             }
-            console.log(incoming, cc, dispositionIncoming);
+            // console.log(incoming, cc, dispositionIncoming);
             data.meta.code = 200;
             data.count.incoming = incoming;
             data.count.cc = cc;
@@ -421,7 +424,7 @@ module.exports = function(app){
       var outgoing = draft = demoted = dispositionOutgoing = 0;
       countSuratKeluar(req, res, function(err,result) {
         if (err) {
-          console.log(err);
+          // console.log(err);
           data.meta = 500;
           data.error = err;
           res.send(500, data);
@@ -431,7 +434,7 @@ module.exports = function(app){
         }
         countKonsep(req, res, function(err, result) {
           if (err) {
-            console.log(err);
+            // console.log(err);
             data.meta = 500;
             data.error = err;
             res.send(500, data);
@@ -441,7 +444,7 @@ module.exports = function(app){
           }
           countBatal(req, res, function(err, result) {
             if (err) {
-              console.log(err);
+              // console.log(err);
               data.meta = 500;
               data.error = err;
               res.send(500, data);
@@ -451,7 +454,7 @@ module.exports = function(app){
             }
             countDisposisiKeluar(req, res, function(err, result) {
               if (err) {
-                console.log(err);
+                // console.log(err);
                 data.meta = 500;
                 data.error = err;
                 res.send(500, data);
@@ -672,6 +675,46 @@ module.exports = function(app){
 
   var attachment = function (req, res) {
     // TODO: get attachment metadata, depends of its mime type
+    // if (req.files) {
+    //   var files = req.files.files;
+
+    // if (files && files.length > 0) {
+
+    //   var file = files[0];
+    //   var metadata = {
+    //     path : file.path,
+    //     name : file.name,
+    //     type : file.type
+    //   };
+
+    //   // uploads file to gridstore
+    //   letterMod.saveAttachmentFile(metadata, function(err, result) {
+
+    //     var file = {
+    //       path : result.fileId,
+    //       name : metadata.name,
+    //       type : metadata.type
+    //     };
+
+    //     letter.addFileAttachment({ _id : ObjectID(req.body.draftId)}, file, function(err) {
+    //       if(err) {
+    //         file.error = "Failed to upload file";
+    //       }
+
+    //       // wraps the file
+    //       var bundles = { files : []}
+    //       file.letterId = req.body.draftId
+    //       bundles.files.push(file)
+    //       console.log(bundles);
+
+    //       // sends the bundles!
+    //       res.send(bundles);
+    //     })
+
+    //   })
+
+    // }
+    // }
   }
 
   var attachmentStream = function (req, res) {
@@ -724,7 +767,7 @@ module.exports = function(app){
         meta: {
         }
       }
-      console.log(data);
+      // console.log(data);
       if (data.status == "ERROR" || data.result == "ERROR") {
         obj.meta.code = 400;
         obj.meta.data = "Invalid parameters: " + data.data.error;
@@ -735,10 +778,16 @@ module.exports = function(app){
         obj.meta.code = 500;
         obj.meta.data = "Server error";
       }
-
+      console.log(obj);
+      // req.body.idDraft = obj.data.id;
+      tempDraftId = obj.data.id;
       res.send(obj.meta.code, obj);
+      // console.log("reqbody", req.body, "reqbodyiddraft", req.body.idDraft);
     });
+
     letterWeb.create({}, vals, "", letter.createNormal, req, r);
+    // var files = req.files.files;
+
   }
 
   /**
@@ -855,7 +904,7 @@ module.exports = function(app){
   var recipientCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
-        console.log(vals);
+        // console.log(vals);
         var obj = {
           meta: {
             code: 200
@@ -895,7 +944,7 @@ module.exports = function(app){
   var ccCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
-        console.log(vals);
+        // console.log(vals);
         var obj = {
           meta: {
             code: 200
@@ -982,10 +1031,120 @@ module.exports = function(app){
       } else {
         obj.meta.code = data.code;
       }
-      console.log(data.code);
+      // console.log(data.code);
       res.send(obj);
     });
     letterWeb.reject(req, r);
+  }
+
+  var uploadAttachment = function(req, res){
+
+    var files = [];
+    files.push(req.files.files);
+    // console.log("files", files);
+    console.log("idDraft", tempDraftId);
+
+    if (files && files.length > 0) {
+
+      var file = files[0];
+      var metadata = {
+        path : file.path,
+        name : file.name,
+        type : file.type,
+        letterId : tempDraftId
+      };
+
+      // uploads file to gridstore
+      letter.saveAttachmentFile(metadata, function(err, result) {
+
+        var file = {
+          path : result.fileId,
+          name : metadata.name,
+          type : metadata.type,
+          letterId : metadata.letterId
+        };
+
+        letter.addFileAttachment({ _id : ObjectID(tempDraftId)}, file, function(err) {
+          if(err) {
+            file.error = "Failed to upload file";
+          }
+
+          // wraps the file
+          var bundles = { files : []};
+          // file.letterId = req.body.idDraft;
+          bundles.files.push(file);
+          // console.log(bundles);
+
+          // sends the bundles!
+          res.send(200, bundles);
+        });
+
+      });
+
+    }else {
+      res.send(500, {ok : false});
+    }
+  }
+
+  var deleteAttachment = function(req, res){
+
+    var file = {}
+
+    function fileStatus(message) {
+
+      file.deleted = true;
+
+      if (message) {
+        file.deleted = false;
+        file.error = message;
+      }
+
+      // wraps the file
+      var bundles = { files : []}
+      file.letterId = req.params.draftId
+      file.attachmentId = req.params.attachmentId
+      bundles.files.push(file)
+
+      return res.send(bundles);
+    }
+
+    // if undefined returns an error
+    if(!req.params.letterId && !req.params.attachmentId) {
+      return fileError("Unable to delete file");
+    }
+
+    var letterId = ObjectID(req.params.letterId)
+
+    letter.list({ search : { _id : letterId} }, function(letters) {
+      if (letters.length > 0) {
+
+        var fileAttachments = letters[0].fileAttachments
+        var fileTobeDeleted;
+        for (var i = 0; i < fileAttachments.length; i++) {
+          if (fileAttachments[i].path == req.params.attachmentId) {
+            fileTobeDeleted = fileAttachments[i];
+            break;
+          }
+        }
+
+        if (fileTobeDeleted) {
+
+          // delete
+          letter.removeFileAttachment({ _id : ObjectID(req.params.letterId)}, fileTobeDeleted, function(err) {
+
+            if (err) {
+              return fileStatus("File not found");
+            }
+
+            // returns file status OK
+            return fileStatus();
+
+          })
+        } else {
+          return fileStatus("File not found");
+        }
+      }
+    })
   }
 
   return {
@@ -996,6 +1155,8 @@ module.exports = function(app){
     read : read,
     sendLetter: sendLetter,
 
+    uploadAttachment : uploadAttachment,
+    deleteAttachment : deleteAttachment,
     attachments : attachments,
     attachment : attachment,
     attachmentStream : attachmentStream,

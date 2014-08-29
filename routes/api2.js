@@ -12,6 +12,10 @@ module.exports = function(app){
 
   // khusus timeline
   var timeline = require("../simaya/controller/api/2.0/timeline.js")(app)
+  var timelineC = require("../simaya/controller/timeline.js")(app)
+
+  // khusus letter - uploadAttachments
+  var letterC = require("../simaya/controller/letter.js")(app)
 
   // oauth2 handlers
   app.get('/oauth2/authorize', oauth2.authorization);
@@ -48,6 +52,8 @@ module.exports = function(app){
   app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/:id/documents", oauth2.protectedResource, api2.letter.attachments);
   app.post(prefix + "/letters/new", oauth2.protectedResource, api2.letter.sendLetter);
+  app.post(prefix + "/letters/uploadAttachments", oauth2.protectedResource, api2.letter.uploadAttachment);
+  app.del(prefix + "/letters/attachments/:letterId/:attachmentId", oauth2.protectedResource, api2.letter.deleteAttachment);
 
   // documents
   app.get(prefix + "/documents/:id", oauth2.protectedResource, api2.letter.attachment);
@@ -85,6 +91,11 @@ module.exports = function(app){
 
   // timeline
   app.get(prefix + "/timeline/list", oauth2.protectedResource, timeline.listJSON);
+  app.post(prefix + "/timeline/post", oauth2.protectedResource, timelineC.post);
+  app.post(prefix + "/timeline/comment", oauth2.protectedResource, timelineC.postComment);
+  app.post(prefix + "/timeline/love", oauth2.protectedResource, timelineC.love);
+  app.post(prefix + "/timeline/unlove", oauth2.protectedResource, timelineC.unlove);
+  app.post(prefix + "/timeline/upload", oauth2.protectedResource, timeline.uploadMedia);
 
   // ob
   app.get(prefix + "/ob/get/:id", oauth2.protectedResource, ob.simpleDownload);
