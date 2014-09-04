@@ -485,6 +485,7 @@ module.exports = function(app) {
 
         db.find(search.search, fields, function(error, cursor) {
           cursor.sort(search.sort || {date:-1,priority:-1}).toArray(function(error, result) {
+            console.log("Models result", result);
             if (result != null && result.length == 1) {
               resolveUsersFromData(result[0], function(data) {
                 callback([data]);

@@ -119,7 +119,7 @@ module.exports = function(app) {
         callback();
       } else {
         modelUtils.resolveUsers([me], function(resolved) {
-          azuresettings.makeNotification("Sekarang Anda telah terhubung ke " + resolved[0].name, + "/contacts");
+          azuresettings.makeNotification("Sekarang Anda telah terhubung ke " + resolved[0].name, + "/contacts", app.req.session.currentUserProfile.id);
           notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
             callback();
           })
@@ -219,7 +219,7 @@ module.exports = function(app) {
             ]
             notification.setWithActions(req.session.currentUser, req.query.username, message, "/contacts/to-be-approved", actions);
             // test
-            azuresettings.makeNotification(message);
+            azuresettings.makeNotification(message, req.session.currentUserProfile.id);
             res.send(JSON.stringify("OK"));
           })
         }

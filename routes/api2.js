@@ -51,7 +51,7 @@ module.exports = function(app){
   app.post(prefix + "/letters/reject", oauth2.protectedResource, api2.letter.rejectLetter);
   app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/:id/documents", oauth2.protectedResource, api2.letter.attachments);
-  app.post(prefix + "/letters/new", oauth2.protectedResource, api2.letter.sendLetter);
+  app.all(prefix + "/letters/new", oauth2.protectedResource, api2.letter.sendLetter);
   app.post(prefix + "/letters/uploadAttachments", oauth2.protectedResource, api2.letter.uploadAttachment);
   app.del(prefix + "/letters/attachments/:letterId/:attachmentId", oauth2.protectedResource, api2.letter.deleteAttachment);
 

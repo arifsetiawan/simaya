@@ -370,11 +370,15 @@ module.exports = function(app) {
     var defaultAvatar = "/img/default-avatar-" + gender + ".png";
     if (base64) {
       var e = new base64Stream.encode();
+      console.log("e", e);
       e.pipe(res);
       // Always gets from localhost
-      //openUri("http://127.0.0.1:" + app.get("port") + defaultAvatar, e);
+      openUri("static"+ defaultAvatar, e);
+      
     } else {
-      //openUri("http://127.0.0.1:" + app.get("port") + defaultAvatar, res);
+      openUri("static"+ defaultAvatar, res);
+      // openUri("http://127.0.0.1:" + app.get("port") + defaultAvatar, res);
+      
     }
   }
 
@@ -414,8 +418,8 @@ module.exports = function(app) {
   }
   
   var getAvatarStream = function(req, res) {
-    // getAvatarStreamBase(false, req, res);
-    res.end();
+    getAvatarStreamBase(false, req, res);
+    // res.end();
   }
 
   var getAvatarBase64Stream = function(req, res) {

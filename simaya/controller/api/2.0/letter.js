@@ -9,7 +9,7 @@ module.exports = function(app){
   var dbdis = app.db('disposition');
   var utils = require("../../../../sinergis/controller/utils.js")(app)
   var ObjectID = app.ObjectID;
-  var tempDraftId = "";
+  var wrapper = null;
   // var letterMod = require("../../../model/letter.js")(app);
 
   function isValidObjectID(str) {
@@ -510,7 +510,7 @@ module.exports = function(app){
 
     
     var search = letterWeb.buildSearchForViewing(id, req, res); 
-
+    // console.log("search", JSON.stringify(search));
     letter.list(search, function(result){
 
       if (!result || result.length == 0) {
@@ -521,7 +521,7 @@ module.exports = function(app){
 
         return res.send(obj.meta.code, obj);
       }
-
+      // console.log("result", result);
       letterAPI.extractData(result, req, res, function(result) {
 
         if (!result || result.length == 0) {
@@ -759,6 +759,39 @@ module.exports = function(app){
    * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net/api/2/letters/new?access_token=f3fyGRRoKZ...
    */
   var sendLetter = function(req, res) {
+    /*console.log("reqbody",req.body);
+    if (JSON.stringify(req.body) == '{}') {
+      console.log("masuk!");
+      var vals = {
+        jsonRequest: true
+      };
+      var r = ResWrapper(function(data) {
+        var obj = {
+          meta: {
+          }
+        }
+        // console.log(data);
+        if (data.status == "ERROR" || data.result == "ERROR") {
+          obj.meta.code = 400;
+          obj.meta.data = "Invalid parameters: " + data.data.error;
+        } else if (data.status == "OK" || data.result == "OK") {
+          obj.meta.code = 200;
+          obj.data = data.data;
+        } else {
+          obj.meta.code = 500;
+          obj.meta.data = "Server error";
+        }
+        console.log(obj);
+        // req.body.idDraft = obj.data.id;
+        tempDraftId = obj.data.id;
+        res.send(obj.meta.code, obj);
+        // console.log("reqbody", req.body, "reqbodyiddraft", req.body.idDraft);
+      });
+    }else {
+      console.log("masuk?");
+      letterWeb.create({}, vals, "", letter.createNormal, req, r);      
+    }*/
+
     var vals = {
       jsonRequest: true
     };
@@ -778,16 +811,11 @@ module.exports = function(app){
         obj.meta.code = 500;
         obj.meta.data = "Server error";
       }
-      console.log(obj);
-      // req.body.idDraft = obj.data.id;
-      tempDraftId = obj.data.id;
+      // console.log(obj);
       res.send(obj.meta.code, obj);
       // console.log("reqbody", req.body, "reqbodyiddraft", req.body.idDraft);
     });
-
     letterWeb.create({}, vals, "", letter.createNormal, req, r);
-    // var files = req.files.files;
-
   }
 
   /**
@@ -1037,12 +1065,14 @@ module.exports = function(app){
     letterWeb.reject(req, r);
   }
 
+  // uploading attachment by user after the draftId has been created
   var uploadAttachment = function(req, res){
 
     var files = [];
     files.push(req.files.files);
     // console.log("files", files);
-    console.log("idDraft", tempDraftId);
+    console.log("idDraft", req.body.tempDraftId);
+    tempDraftId = req.body.tempDraftId;
 
     if (files && files.length > 0) {
 
@@ -1086,6 +1116,7 @@ module.exports = function(app){
     }
   }
 
+  // deleting the uploaded attachment one by one
   var deleteAttachment = function(req, res){
 
     var file = {}

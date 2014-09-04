@@ -14,7 +14,7 @@ Letter = module.exports = function(app) {
     , moment = require("moment")
     , spawn = require('child_process').spawn
     , ob = require("../../ob/file.js")(app)
-    , azuresettings = require("../../azure-settings.js");
+    , azuresettings = require("../../azure-settings.js")
 
   var dispositionController = null;
   if (typeof(Disposition) === "undefined") {
@@ -141,8 +141,9 @@ Letter = module.exports = function(app) {
       vals.isAdministration = true;
     }
     var data = data || {};
-    // console.log("create" + req.body);
-    if (typeof(req.body.letter) !== "undefined") {
+    console.log("create", req.body);
+    if (JSON.stringify(req.body) !== '{}') {
+      console.log("masuk!");
       Object.keys(req.body.letter).forEach(function(key){
           vals[key] = req.body.letter[key];
       });
@@ -270,7 +271,7 @@ Letter = module.exports = function(app) {
 
       // Searches the current draft
       letter.list( { search : { _id : ObjectID(req.body.letter.draftId), username : req.session.currentUser, status : letter.Stages.WAITING } }, function(drafts){
-
+        console.log("draft",drafts);
         if (drafts.length > 0) {
           // if the draft has attachments, copy it
           data.fileAttachments = drafts[0].fileAttachments || [];
@@ -346,37 +347,63 @@ Letter = module.exports = function(app) {
 
       })
     } else {
-      console.log("DraftID", req.body.draftId);
+      // console.log("DraftID", req.body.draftId);
       // creates draft
+      console.log("masuk?");
+      console.log("reqbodydraft", req.body.draftId);
       letter.createDraft({ username : req.session.currentUser, draftId : req.body.draftId }, function(err, item){
-
+        console.log("1");
         if (err) {
           vals.unsuccessful = true;
           vals.error = "Error creating draft. Please reload";
+          console.log("2");
         }
         else {
-
+          console.log("3");
           if (item) {
+            console.log("4");
             vals.draftId = item._id
+            if (vals.jsonRequest) {
+                console.log("13");
+                if (err) {
+                  console.log("14");
+                  res.send({status: "ERROR", data: vals});
+                } else {
+                  console.log("15");
+                  // req.body.tempDraftId = vals.draftId;
+                  // console.log("req.body.tempDraftId", req.body.tempDraftId);
+                  res.send({status: "OK",data: {
+                    draftId: vals.draftId
+                  }});
+                }
+            } else {
+              utils.render(req, res, template, vals, "base-authenticated");
+            }
             // req.body.idDraft = item._id
             // console.log("reqbody", req.body);
           } else {
-
+            console.log("5");
             // safety belt, try a second bet and force creating new draftId
             letter.createDraft({ username : req.session.currentUser, draftId : null }, function(err, item){
-
+              console.log("6");
               if (err || !item) {
+                console.log("7");
                 vals.unsuccessful = true;
                 vals.error = "Error creating draft. Please reload";
               } else {
+                console.log("8");
                 vals.draftId = item._id
                 // req.body.idDraft = item._id
                 // console.log("reqbody", req.body);
               }
+              console.log("9");
               if (vals.jsonRequest) {
+                console.log("10");
                 if (err) {
+                  console.log("11");
                   res.send({status: "ERROR", data: vals});
                 } else {
+                  console.log("12");
                   // req.body.idDraft = vals.draftId;
                   // console.log("idDraft", req.body.idDraft);
                   res.send({status: "OK",data: {
@@ -392,7 +419,6 @@ Letter = module.exports = function(app) {
       })
     }
   }
-
 
   var createExternal = function(req, res) {
     var vals = {
@@ -1832,7 +1858,7 @@ Letter = module.exports = function(app) {
 
     var search = {
       search: {
-        "profile.organization": p.organization,
+        "profile.organization": pquery,
         "profile.echelon": {$lt: 5 + "z"}
       }
     }

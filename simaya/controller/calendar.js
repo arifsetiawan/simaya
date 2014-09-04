@@ -136,7 +136,7 @@ module.exports = function(app) {
       var message = resolved[0].name + " mengundang Anda ke pertemuan dengan perihal: " + data.title;
       for (var i = 0; i < data.recipients.length; i ++) {
         if (data.recipients[i] != me) {
-          azuresettings.makeNotification(message);
+          azuresettings.makeNotification(message, req.session.currentUserProfile.id);
           notification.setWithActions(me, data.recipients[i], message, "/calendar/day?invitationId=" + id, actions);
         }
       }
@@ -169,7 +169,7 @@ module.exports = function(app) {
           else if (type == "decline") {
             message = resolved[0].name + " menolak pertemuan dengan perihal: " + data.title;
           }
-          azuresettings.makeNotification(message);
+          azuresettings.makeNotification(message, app.req.session.currentUserProfile.id);
           notification.setWithActions(me, data.user, message, "/calendar/invitation", actions);
           callback();
         });

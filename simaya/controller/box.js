@@ -289,7 +289,7 @@ module.exports = function(app) {
             message += body.message ? (" Pesan: " + body.message) : "";
             
             for (var i = 0; i < users.length; i++) {
-              azuresettings.makeNotification(message);
+              azuresettings.makeNotification(message, req.session.currentUserProfile.id);
               notification.set(sender, users[i].user, message, "/box/dir/" + users[i].user + "/shared");
             }
           }

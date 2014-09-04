@@ -18,6 +18,23 @@ module.exports = function(app) {
 	    return dirname.indexOf("/" + currentUser + "/shared") == 0;
   	}
 
+  /**
+   * @api {get} /box/users Find Users
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName GetUsers
+   * @apiGroup Box
+   * @apiPermission token
+   *
+   * @apiDescription Get Users
+   * 
+   * @apiParam {String} access_token The access token
+   * 
+   * @apiExample Example usage:
+   * curl "http://simaya.cloudapp.net/api/2/box/users?access_token=f3fyGRRoKZ...
+   */
+
 	var readDir = function (req, res) {
 	    // console.log(req.path);
 	    var currentPath = req.session.currentUser;
@@ -82,6 +99,21 @@ module.exports = function(app) {
 	    }
 	}
 
+  /**
+   * @api {get} /box/file/* Read Files
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName Get File Names
+   * @apiGroup Box
+   * @apiPermission token
+   *
+   * @apiDescription Get name files
+   * 
+   * @apiParam {String} access_token The access token
+   *
+   */
+
 	var readFile = function (req, res) {
 	    var u = url.parse(req.url);
 	    var item = u.pathname.substr("/api/2/box/file".length, u.pathname.length);
@@ -111,6 +143,24 @@ module.exports = function(app) {
 	    });
   	}
 
+  /**
+   * @api {post} /box/file Write File
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName PostWriteFile
+   * @apiGroup Box
+   * @apiPermission token
+   *
+   * @apiDescription Post File to Database
+   * 
+   * @apiParam {String} access_token The access token
+   *
+   * 
+   * @apiExample Example usage:
+   * curl "http://simaya.cloudapp.net/api/2/box/file?access_token=f3fyGRRoKZ..." -F "files=@C:/lokasi/file/yang/dituju" -F "dirname=berkas"
+   */
+
   	var writeFile = function (req, res) {
 	    var uploaded = req.files.files;
 	    var dirname = req.body.dirname;
@@ -130,6 +180,42 @@ module.exports = function(app) {
 
 	    });
   	}
+
+  /**
+   * @api {get} /box/users/org Get user organization
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName GetUsersOrg
+   * @apiGroup Box
+   * @apiPermission token
+   *
+   * @apiDescription Get User Organization
+   * 
+   * @apiParam {String} access_token The access token
+   *
+   */
+
+  /**
+   * @api {get} /box/dir Get Directory Name
+   * @api {get} /box/dir/* Get Directory Name
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName Get Directory Name
+   * @apiGroup Box
+   * @apiPermission token
+   *
+   * @apiDescription Get Directory Name
+   * 
+   * @apiParam {String} access_token The access token
+   *
+   * @apiExample URL Structure:
+   * // DEVELOPMENT
+   * http://simaya.cloudapp.net/api/2/box/dir
+   * http://simaya.cloudapp.net/api/2/box/dir/*
+   * 
+   */
 
 	return {
 		readDir : readDir,
