@@ -9,7 +9,7 @@ var app = {
 }
 var user = require('../sinergis/models/user.js')(app);
 settings.db.open(function(){
-  user.create({username : 'admin', password : 'new admin', password2 : 'new admin', profile : {}}, function(v) {
+  user.create({username : 'admin', password : 'test1234', password2 : 'test1234', profile : {}}, function(v) {
     if (v.hasErrors() == false) {
       user.addRole("admin", "admin", function(r) {
         user.setActive("admin", function() {

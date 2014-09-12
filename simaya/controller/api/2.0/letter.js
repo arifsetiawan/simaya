@@ -5,6 +5,12 @@ module.exports = function(app){
   var letter = require("../../../models/letter.js")(app);
   var cUtils = require("../../utils.js")(app)
   var orgWeb = require("../../organization.js")(app)
+  var db = app.db('letter');
+  var dbdis = app.db('disposition');
+  var utils = require("../../../../sinergis/controller/utils.js")(app)
+  var ObjectID = app.ObjectID;
+  var wrapper = null;
+  // var letterMod = require("../../../model/letter.js")(app);
 
   function isValidObjectID(str) {
     str = str + '';
@@ -38,7 +44,7 @@ module.exports = function(app){
     letterWeb.populateSearch(req, search, function(search) {
 
       letter.list(search, function(result){
-        
+
         if (result == null) {
 
           var obj = {
@@ -48,7 +54,6 @@ module.exports = function(app){
           obj.meta.code = 404;
           obj.meta.errorMessage = "Letters Not Found";
           return res.send(obj.meta.code, obj);
-
         }
         
         letterAPI.extractData(result, req, res, function(result) {
@@ -117,9 +122,175 @@ module.exports = function(app){
     });
   }
 
+<<<<<<< HEAD
   /**
    * @api {get} /letters/incomings Incoming Letters
    * @apiVersion 0.3.0
+=======
+  var countSuratMasuk = function(req, res, callback) {
+    var search = letterWeb.buildSearchForIncoming(req, res);
+    db.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countTembusan = function(req, res, callback) {
+    var search = {
+      ccList: {
+        $in: [req.session.currentUser]
+      },
+    }
+    var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
+    search[o] = letter.Stages.RECEIVED;
+    db.find(search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countDisposisiMasuk = function(req, res, callback) {
+    var search = {
+      search : {
+        "recipients.recipient" : req.session.currentUser
+      }
+    }
+    dbdis.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          // console.log("CDM", n);
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countSuratKeluar = function(req, res, callback) {
+    var search = letterWeb.buildSearchForOutgoing(req, res);
+    db.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countKonsep = function(req, res, callback) {
+    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+      var search = {
+        $or: [
+          {
+            senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
+            status: letter.Stages.APPROVED, // displays APPROVED and ready to be received
+          },
+          {
+            $and: [
+              {$or: [
+                { originator: req.session.currentUser},
+                { reviewers:
+                  { $in: [req.session.currentUser] }
+                }
+              ]},
+              {$or: [
+                { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+                { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+              ]},
+            ],
+          }
+          ],
+
+
+          creation: "normal",
+      }
+    } else {
+      var search = {
+        $and: [
+        {$or: [
+          { originator: req.session.currentUser},
+          { reviewers:
+            { $in: [req.session.currentUser] }
+          }
+        ]},
+        {$or: [
+          { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+          { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+        ]},
+        ],
+
+        creation: "normal",
+      }
+    }
+    db.find(search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countBatal = function(req, res, callback) {
+    var search = {
+      $or: [
+        { originator: req.session.currentUser},
+        { reviewers:
+          { $in: [req.session.currentUser] }
+        }
+      ],
+      status: letter.Stages.DEMOTED,
+      creation: "normal",
+    }
+    db.find(search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  var countDisposisiKeluar = function(req, res, callback) {
+    var search = {
+      search : {
+        sender : req.session.currentUser
+      }
+    }
+    dbdis.find(search.search, function(err, cursor) {
+      if (cursor != null) {
+        cursor.count(function(e, n) {
+          callback(e,n);
+        });
+      }else {
+        callback(0);
+      }
+    });
+  }
+
+  /**
+   * @api {get} /letters/incomings Incoming Letters
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName GetIncomingLetters
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -132,6 +303,7 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/letters/incomings
    * 
    * @apiExample Example usage:
@@ -143,12 +315,95 @@ module.exports = function(app){
     search.fields = { title : 1, date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
+=======
+   * http://simaya.cloudapp.net/api/2/letters/incomings
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/letters/incomings?access_token=f3fyGRRoKZ...
+   */
+  var incomings = function (req, res) {
+    var search = letterWeb.buildSearchForIncoming(req, res);
+    // console.log("Search1", JSON.stringify(search));
+    search = letterWeb.populateSortForIncoming(req, search);
+    // console.log("Search2", JSON.stringify(search));
+    search.fields = { title : 1, date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1};
+    search.page = req.query["page"] || 1;
+    search.limit = 20;
+    // console.log("Search3", JSON.stringify(search));
+>>>>>>> bitbucket/newapi
     list(search, req, res);
   }
 
   /**
+<<<<<<< HEAD
    * @api {get} /letters/outgoings Outgoing Letters
    * @apiVersion 0.3.0
+=======
+   * @api {get} /letter/incomingcount Getting number of how many incoming letters does the user have
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName IncomingCount
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   * @apiSuccess {Object} status Status of the request
+   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiError {Object} status Status of the request
+   * @apiError {Boolean} status.ok "false" if success 
+   */
+
+    var incomingcount = function(req, res) {
+      var data = {};
+      data.meta = {};
+      data.count = {};
+      var incoming = cc = dispositionIncoming = 0;
+      countSuratMasuk(req, res, function(err,result) {
+        if (err) {
+          // console.log(err);
+          data.meta = 500;
+          data.error = err;
+          res.send(500, data);
+        }
+        else {
+          incoming = result;
+        }
+        countTembusan(req, res, function(err, result) {
+          if (err) {
+            // console.log(err);
+            data.meta = 500;
+            data.error = err;
+            res.send(500, data);
+          }
+          else {
+            cc = result;
+          }
+          countDisposisiMasuk(req, res, function(err, result) {
+            if (err) {
+              // console.log(err);
+              data.meta = 500;
+              data.error = err;
+              res.send(500, data);
+            }
+            else {
+              dispositionIncoming = result;
+            }
+            // console.log(incoming, cc, dispositionIncoming);
+            data.meta.code = 200;
+            data.count.incoming = incoming;
+            data.count.cc = cc;
+            data.count.dispositionIncoming = dispositionIncoming;
+            res.send(200, data);
+          });
+        });
+      });
+    }
+
+  /**
+   * @api {get} /letters/outgoings Outgoing Letters
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName GetOutgoingLetters
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -161,6 +416,7 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/letters/outgoings
    * 
    * @apiExample Example usage:
@@ -168,6 +424,15 @@ module.exports = function(app){
    */
   var outgoings = function (req, res) {
     var search = letterWeb.buildSearchForOutgoing(req, res); 
+=======
+   * http://simaya.cloudapp.net/api/2/letters/outgoings
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
+   */
+  var outgoings = function (req, res) {
+    var search = letterWeb.buildSearchForOutgoing(req, res);
+>>>>>>> bitbucket/newapi
     search.fields = {title: 1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
@@ -175,8 +440,86 @@ module.exports = function(app){
   }
 
   /**
+<<<<<<< HEAD
    * @api {get} /letter/read/:id Read a letter or agenda
    * @apiVersion 0.3.0
+=======
+   * @api {get} /letter/outgoingcount Getting number of how many outgoing letters does the user have
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName OutgoingCount
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   * @apiSuccess {Object} status Status of the request
+   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiError {Object} status Status of the request
+   * @apiError {Boolean} status.ok "false" if success 
+   */
+
+   var outgoingcount = function(req, res) {
+    var data = {};
+      data.meta = {};
+      data.count = {};
+      var outgoing = draft = demoted = dispositionOutgoing = 0;
+      countSuratKeluar(req, res, function(err,result) {
+        if (err) {
+          // console.log(err);
+          data.meta = 500;
+          data.error = err;
+          res.send(500, data);
+        }
+        else {
+          outgoing = result;
+        }
+        countKonsep(req, res, function(err, result) {
+          if (err) {
+            // console.log(err);
+            data.meta = 500;
+            data.error = err;
+            res.send(500, data);
+          }
+          else {
+            draft = result;
+          }
+          countBatal(req, res, function(err, result) {
+            if (err) {
+              // console.log(err);
+              data.meta = 500;
+              data.error = err;
+              res.send(500, data);
+            }
+            else {
+              demoted = result;
+            }
+            countDisposisiKeluar(req, res, function(err, result) {
+              if (err) {
+                // console.log(err);
+                data.meta = 500;
+                data.error = err;
+                res.send(500, data);
+              }else {
+                dispositionOutgoing = result;
+              }
+              // console.log(incoming, cc, dispositionIncoming);
+              data.meta.code = 200;
+              data.count.outgoing = outgoing;
+              data.count.draft = draft;
+              data.count.demoted = demoted;
+              data.count.dispositionOutgoing = dispositionOutgoing;
+              res.send(200, data);
+            });
+          });
+        });
+      });
+   }
+
+  /**
+   * @api {get} /letter/read/:id Read a letter or agenda
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName GetReadLetter
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -188,10 +531,17 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/letters/:id
    * 
    * @apiExample Example usage:
    * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
+=======
+   * http://simaya.cloudapp.net/api/2/letters/:id
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
+>>>>>>> bitbucket/newapi
    */
   var read = function(req, res) {
 
@@ -208,7 +558,11 @@ module.exports = function(app){
 
     
     var search = letterWeb.buildSearchForViewing(id, req, res); 
+<<<<<<< HEAD
 
+=======
+    // console.log("search", JSON.stringify(search));
+>>>>>>> bitbucket/newapi
     letter.list(search, function(result){
 
       if (!result || result.length == 0) {
@@ -219,7 +573,11 @@ module.exports = function(app){
 
         return res.send(obj.meta.code, obj);
       }
+<<<<<<< HEAD
 
+=======
+      // console.log("result", result);
+>>>>>>> bitbucket/newapi
       letterAPI.extractData(result, req, res, function(result) {
 
         if (!result || result.length == 0) {
@@ -247,7 +605,13 @@ module.exports = function(app){
 
   /**
    * @api {get} /agendas/incomings Incoming Agendas
+<<<<<<< HEAD
    * @apiVersion 0.3.0
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName GetIncomingAgendas
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -260,10 +624,17 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/agendas/incomings
    * 
    * @apiExample Example usage:
    * curl http://ayam.vps1.kodekreatif.co.id/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
+=======
+   * http://simaya.cloudapp.net/api/2/agendas/incomings
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
+>>>>>>> bitbucket/newapi
    */
   var agendaIncomings = function (req, res){
     var search = {
@@ -282,7 +653,13 @@ module.exports = function(app){
 
   /**
    * @api {get} /agendas/outgoings Outgoing Agendas
+<<<<<<< HEAD
    * @apiVersion 0.3.0
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName GetOutgoingAgendas
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -295,10 +672,17 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/agendas/outgoings
    * 
    * @apiExample Example usage:
    * curl http://ayam.vps1.kodekreatif.co.id/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
+=======
+   * http://simaya.cloudapp.net/api/2/agendas/outgoings
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
+>>>>>>> bitbucket/newapi
    */
   var agendaOutgoings = function (req, res){
     var search = {}
@@ -369,6 +753,49 @@ module.exports = function(app){
 
   var attachment = function (req, res) {
     // TODO: get attachment metadata, depends of its mime type
+<<<<<<< HEAD
+=======
+    // if (req.files) {
+    //   var files = req.files.files;
+
+    // if (files && files.length > 0) {
+
+    //   var file = files[0];
+    //   var metadata = {
+    //     path : file.path,
+    //     name : file.name,
+    //     type : file.type
+    //   };
+
+    //   // uploads file to gridstore
+    //   letterMod.saveAttachmentFile(metadata, function(err, result) {
+
+    //     var file = {
+    //       path : result.fileId,
+    //       name : metadata.name,
+    //       type : metadata.type
+    //     };
+
+    //     letter.addFileAttachment({ _id : ObjectID(req.body.draftId)}, file, function(err) {
+    //       if(err) {
+    //         file.error = "Failed to upload file";
+    //       }
+
+    //       // wraps the file
+    //       var bundles = { files : []}
+    //       file.letterId = req.body.draftId
+    //       bundles.files.push(file)
+    //       console.log(bundles);
+
+    //       // sends the bundles!
+    //       res.send(bundles);
+    //     })
+
+    //   })
+
+    // }
+    // }
+>>>>>>> bitbucket/newapi
   }
 
   var attachmentStream = function (req, res) {
@@ -377,7 +804,13 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/new Send a new letter for inspection 
+<<<<<<< HEAD
    * @apiVersion 0.3.0
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName SendNewLetter
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -405,12 +838,54 @@ module.exports = function(app){
    * @apiSuccess {Object} result.data Cause of error if error 
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/letters/new
    * 
    * @apiExample Example usage:
    * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://ayam.vps1.kodekreatif.co.id/api/2/letters/new?access_token=f3fyGRRoKZ...
    */
   var sendLetter = function(req, res) {
+=======
+   * http://simaya.cloudapp.net/api/2/letters/new
+   * 
+   * @apiExample Example usage:
+   * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net/api/2/letters/new?access_token=f3fyGRRoKZ...
+   */
+  var sendLetter = function(req, res) {
+    /*console.log("reqbody",req.body);
+    if (JSON.stringify(req.body) == '{}') {
+      console.log("masuk!");
+      var vals = {
+        jsonRequest: true
+      };
+      var r = ResWrapper(function(data) {
+        var obj = {
+          meta: {
+          }
+        }
+        // console.log(data);
+        if (data.status == "ERROR" || data.result == "ERROR") {
+          obj.meta.code = 400;
+          obj.meta.data = "Invalid parameters: " + data.data.error;
+        } else if (data.status == "OK" || data.result == "OK") {
+          obj.meta.code = 200;
+          obj.data = data.data;
+        } else {
+          obj.meta.code = 500;
+          obj.meta.data = "Server error";
+        }
+        console.log(obj);
+        // req.body.idDraft = obj.data.id;
+        tempDraftId = obj.data.id;
+        res.send(obj.meta.code, obj);
+        // console.log("reqbody", req.body, "reqbodyiddraft", req.body.idDraft);
+      });
+    }else {
+      console.log("masuk?");
+      letterWeb.create({}, vals, "", letter.createNormal, req, r);      
+    }*/
+
+>>>>>>> bitbucket/newapi
     var vals = {
       jsonRequest: true
     };
@@ -419,7 +894,11 @@ module.exports = function(app){
         meta: {
         }
       }
+<<<<<<< HEAD
       console.log(data);
+=======
+      // console.log(data);
+>>>>>>> bitbucket/newapi
       if (data.status == "ERROR" || data.result == "ERROR") {
         obj.meta.code = 400;
         obj.meta.data = "Invalid parameters: " + data.data.error;
@@ -430,15 +909,27 @@ module.exports = function(app){
         obj.meta.code = 500;
         obj.meta.data = "Server error";
       }
+<<<<<<< HEAD
 
       res.send(obj.meta.code, obj);
+=======
+      // console.log(obj);
+      res.send(obj.meta.code, obj);
+      // console.log("reqbody", req.body, "reqbodyiddraft", req.body.idDraft);
+>>>>>>> bitbucket/newapi
     });
     letterWeb.create({}, vals, "", letter.createNormal, req, r);
   }
 
   /**
    * @api {get} /letters/sender-selection Get a sender candidates selection list 
+<<<<<<< HEAD
    * @apiVersion 0.3.0
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName SenderSelection
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -452,10 +943,17 @@ module.exports = function(app){
    * 
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/letters/sender-selection
    * 
    * @apiExample Example usage:
    * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
+=======
+   * http://simaya.cloudapp.net/api/2/letters/sender-selection
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
+>>>>>>> bitbucket/newapi
    */
   var senderSelection = function(req, res) {
     var myOrganization = req.session.currentUserProfile.organization;
@@ -484,7 +982,13 @@ module.exports = function(app){
 
   /**
    * @api {get} /letters/recipient-organization-selection Get a recipient candidates organization selection list 
+<<<<<<< HEAD
    * @apiVersion 0.3.0
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+>>>>>>> bitbucket/newapi
    * @apiName RecipientOrganizationSelection
    * @apiGroup Letters And Agendas
    * @apiPermission token
@@ -500,10 +1004,17 @@ module.exports = function(app){
    * 
    * @apiExample URL Structure:
    * // DEVELOPMENT
+<<<<<<< HEAD
    * http://ayam.vps1.kodekreatif.co.id/api/2/letters/recipient-organization-selection
    * 
    * @apiExample Example usage:
    * curl http://ayam.vps1.kodekreatif.co.id/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
+=======
+   * http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection
+   * 
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
+>>>>>>> bitbucket/newapi
    */
   var orgSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
@@ -532,8 +1043,15 @@ module.exports = function(app){
   /**
    * @api {get} /letter/recipient-candidates-selection Gets recipient candidates when composing a letter
    * @apiName RecipientCandidatesSelection
+<<<<<<< HEAD
    * @apiVersion 0.3.0
    * @apiGroup Letter And Agendas
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiGroup Letters And Agendas
+>>>>>>> bitbucket/newapi
    * @apiPermission token
    * @apiParam {String} org Organization of the candidates
    * @apiSuccess {Object[]} result List of candidates
@@ -544,7 +1062,11 @@ module.exports = function(app){
   var recipientCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
+<<<<<<< HEAD
         console.log(vals);
+=======
+        // console.log(vals);
+>>>>>>> bitbucket/newapi
         var obj = {
           meta: {
             code: 200
@@ -570,8 +1092,15 @@ module.exports = function(app){
   /**
    * @api {get} /letter/cc-candidates-selection Gets Cc candidates when composing a letter
    * @apiName CcCandidatesSelection
+<<<<<<< HEAD
    * @apiVersion 0.3.0
    * @apiGroup Letter And Agendas
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiGroup Letters And Agendas
+>>>>>>> bitbucket/newapi
    * @apiPermission token
    * @apiParam {String} org Organization of the candidates
    * @apiSuccess {Object[]} result List of candidates
@@ -582,7 +1111,11 @@ module.exports = function(app){
   var ccCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
+<<<<<<< HEAD
         console.log(vals);
+=======
+        // console.log(vals);
+>>>>>>> bitbucket/newapi
         var obj = {
           meta: {
             code: 200
@@ -608,8 +1141,15 @@ module.exports = function(app){
   /**
    * @api {get} /letter/reviewer-candidates-selection Get reviewer candidates when composing a letter
    * @apiName ReviewerCandidatesSelection
+<<<<<<< HEAD
    * @apiVersion 0.3.0
    * @apiGroup Letter And Agendas
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiGroup Letters And Agendas
+>>>>>>> bitbucket/newapi
    * @apiPermission token
    * @apiParam {String} org Organization of the candidates
    * @apiSuccess {Object[]} result List of candidates
@@ -619,7 +1159,11 @@ module.exports = function(app){
   var reviewerCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
+<<<<<<< HEAD
         console.log(vals);
+=======
+        // console.log(vals);
+>>>>>>> bitbucket/newapi
         var obj = {
           meta: {
             code: 200
@@ -644,9 +1188,17 @@ module.exports = function(app){
 
   /**
    * @api {post} /letter/reject Rejects an incoming letter
+<<<<<<< HEAD
    * @apiVersion 0.3.0
    * @apiName RejectLetter
    * @apiGroup Letter And Agendas
+=======
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName RejectLetter
+   * @apiGroup Letters And Agendas
+>>>>>>> bitbucket/newapi
    * @apiParam {String} id Object Id of the letter
    * @apiSuccess {Object} status Status of the request
    * @apiSuccess {Boolean} status.ok "true" if success 
@@ -665,12 +1217,17 @@ module.exports = function(app){
       } else {
         obj.meta.code = data.code;
       }
+<<<<<<< HEAD
       console.log(data.code);
+=======
+      // console.log(data.code);
+>>>>>>> bitbucket/newapi
       res.send(obj);
     });
     letterWeb.reject(req, r);
   }
 
+<<<<<<< HEAD
 
 
 
@@ -680,6 +1237,131 @@ module.exports = function(app){
     read : read,
     sendLetter: sendLetter,
 
+=======
+  // uploading attachment by user after the draftId has been created
+  var uploadAttachment = function(req, res){
+
+    var files = [];
+    files.push(req.files.files);
+    // console.log("files", files);
+    console.log("idDraft", req.body.tempDraftId);
+    tempDraftId = req.body.tempDraftId;
+
+    if (files && files.length > 0) {
+
+      var file = files[0];
+      var metadata = {
+        path : file.path,
+        name : file.name,
+        type : file.type,
+        letterId : tempDraftId
+      };
+
+      // uploads file to gridstore
+      letter.saveAttachmentFile(metadata, function(err, result) {
+
+        var file = {
+          path : result.fileId,
+          name : metadata.name,
+          type : metadata.type,
+          letterId : metadata.letterId
+        };
+
+        letter.addFileAttachment({ _id : ObjectID(tempDraftId)}, file, function(err) {
+          if(err) {
+            file.error = "Failed to upload file";
+          }
+
+          // wraps the file
+          var bundles = { files : []};
+          // file.letterId = req.body.idDraft;
+          bundles.files.push(file);
+          // console.log(bundles);
+
+          // sends the bundles!
+          res.send(200, bundles);
+        });
+
+      });
+
+    }else {
+      res.send(500, {ok : false});
+    }
+  }
+
+  // deleting the uploaded attachment one by one
+  var deleteAttachment = function(req, res){
+
+    var file = {}
+
+    function fileStatus(message) {
+
+      file.deleted = true;
+
+      if (message) {
+        file.deleted = false;
+        file.error = message;
+      }
+
+      // wraps the file
+      var bundles = { files : []}
+      file.letterId = req.params.draftId
+      file.attachmentId = req.params.attachmentId
+      bundles.files.push(file)
+
+      return res.send(bundles);
+    }
+
+    // if undefined returns an error
+    if(!req.params.letterId && !req.params.attachmentId) {
+      return fileError("Unable to delete file");
+    }
+
+    var letterId = ObjectID(req.params.letterId)
+
+    letter.list({ search : { _id : letterId} }, function(letters) {
+      if (letters.length > 0) {
+
+        var fileAttachments = letters[0].fileAttachments
+        var fileTobeDeleted;
+        for (var i = 0; i < fileAttachments.length; i++) {
+          if (fileAttachments[i].path == req.params.attachmentId) {
+            fileTobeDeleted = fileAttachments[i];
+            break;
+          }
+        }
+
+        if (fileTobeDeleted) {
+
+          // delete
+          letter.removeFileAttachment({ _id : ObjectID(req.params.letterId)}, fileTobeDeleted, function(err) {
+
+            if (err) {
+              return fileStatus("File not found");
+            }
+
+            // returns file status OK
+            return fileStatus();
+
+          })
+        } else {
+          return fileStatus("File not found");
+        }
+      }
+    })
+  }
+
+  return {
+    incomings : incomings,
+    incomingcount : incomingcount,
+    outgoings : outgoings,
+    outgoingcount : outgoingcount,
+    read : read,
+    sendLetter: sendLetter,
+
+    uploadAttachment : uploadAttachment,
+    deleteAttachment : deleteAttachment,
+>>>>>>> bitbucket/newapi
     attachments : attachments,
     attachment : attachment,
     attachmentStream : attachmentStream,

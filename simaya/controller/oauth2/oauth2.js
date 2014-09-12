@@ -59,6 +59,11 @@ module.exports = function(app) {
     // generate authorization code
     var authorizationCode = uid(16);
 
+<<<<<<< HEAD
+=======
+    // console.log('USER', user);
+
+>>>>>>> bitbucket/newapi
     delete client.secret;
 
     var data = {
@@ -113,9 +118,18 @@ module.exports = function(app) {
           }, 
 
           function(err, result){
+<<<<<<< HEAD
             var date = new Date();
             date.setDate(date.getDate() + MONTH);
             date = result.date || date;
+=======
+            
+            var date = new Date();
+            date.setDate(date.getDate() + MONTH);
+
+            date = result.date || date;
+
+>>>>>>> bitbucket/newapi
             done(err, accessToken, null, { 'expired_at': date });
           });
 
@@ -142,10 +156,19 @@ module.exports = function(app) {
     filter,
     function (req, res, next) {
 
+<<<<<<< HEAD
       user.list({ search: { username: req.user.id } }, function(r) {
 
         if (!r || r.length == 0) {
           return res.send(403, { error_type : "access_denied", error_message : "Access denied" }); // user invalid
+=======
+      // console.log('req.user.id = ', req.user.id);
+
+      user.list({ search: { username: req.user.id } }, function(r) {
+
+        if (!r || r.length == 0) {
+          return res.send(403, { error_type : "access_denied", error_message : "Access denied. Who?" }); // user invalid
+>>>>>>> bitbucket/newapi
         }
 
         req.session.currentUser = req.user.id;
@@ -187,6 +210,12 @@ module.exports = function(app) {
 
     client.get(clientId, function(err, clientApp) {
 
+<<<<<<< HEAD
+=======
+      // console.log('CLIENT APP');
+      // console.log(clientApp);
+
+>>>>>>> bitbucket/newapi
       if (err) { 
         return done(new Error("Client not found")); 
       }
@@ -210,8 +239,16 @@ module.exports = function(app) {
 
   function pre (req, res, next) {
 
+<<<<<<< HEAD
     client.get(req.query.client_id, function(err, clientApp) {
 
+=======
+    console.log('req.query.client_id', req.query.client_id);
+
+    client.get(req.query.client_id, function(err, clientApp) {
+
+      console.log('clientApp', clientApp);
+>>>>>>> bitbucket/newapi
       req.query.client_title = clientApp.title;
 
       if (err) { 
@@ -237,7 +274,16 @@ module.exports = function(app) {
       // do following procedures
 
       // hack
+<<<<<<< HEAD
       req.user = req.user || req.session.currentUser || req.oauth2.req.state;
+=======
+      console.log("req.user - here");
+      console.log(req.user, req.session.currentUser, req.oauth2.req.state);
+      console.log(req.username);
+      req.user = req.user || req.session.currentUser || req.username;
+      console.log("renderDecision - req.user");
+      console.log(req.user);
+>>>>>>> bitbucket/newapi
 
       req.body = {
         transaction_id : req.oauth2.transactionID,
@@ -245,6 +291,11 @@ module.exports = function(app) {
         user : req.user
       }
 
+<<<<<<< HEAD
+=======
+      console.log("renderDecision - req.body");
+      console.log(req.body);
+>>>>>>> bitbucket/newapi
       next();
 
     }
@@ -277,10 +328,17 @@ module.exports = function(app) {
       || !password 
       || !position ) 
     {
+<<<<<<< HEAD
       return res.send(401, {"error":"unauthorized","error_description":"not authorized"});
     }
 
     req.query.state = username;
+=======
+      return next(false);
+    }
+    console.log(req.body);
+    console.log('AUTH', username, password);
+>>>>>>> bitbucket/newapi
 
     // simulate mobile
     position.ip = position.ip || "0.0.0.0";
@@ -290,6 +348,7 @@ module.exports = function(app) {
 
     // authenticate user
     user.authenticate (username, password, function (authenticated) {
+<<<<<<< HEAD
       if (authenticated) {
         
         // get sessionId for retrieving token
@@ -299,6 +358,19 @@ module.exports = function(app) {
             return res.send(401, {"error":"unauthorized","error_description":"not authorized"});
           }
 
+=======
+      console.log("Authenticated? " + authenticated);
+      if (authenticated) {
+        console.log("ngga bakalan muncul");
+        // get sessionId for retrieving token
+        session.login( username, position, function(sessionId, reason) {
+          // console.log("reason" + reason);
+          if (reason > 0) {
+            return next (false);  
+          }
+
+          req.username = req.body.username;
+>>>>>>> bitbucket/newapi
           next();
           
         });
@@ -306,7 +378,11 @@ module.exports = function(app) {
         // TODO: check clientId and clientSecret
       }
       else {
+<<<<<<< HEAD
         return res.send(401, {"error":"unauthorized","error_description":"not authorized"});
+=======
+        res.end("Invalid username/password");
+>>>>>>> bitbucket/newapi
       }
 
     });
@@ -316,7 +392,11 @@ module.exports = function(app) {
     // delete session
     session.logout(req.session.authId, function(err){
       if (err) {
+<<<<<<< HEAD
         return res.send(500, err);
+=======
+        return res.send(404, err);
+>>>>>>> bitbucket/newapi
       }
       res.send(JSON.parse(req.session.body));  
     })
@@ -445,6 +525,10 @@ module.exports = function(app) {
   ]
 
   // xauth
+<<<<<<< HEAD
+=======
+  // curl -L -u "1:ayam" -d "username=sri.mulyani&password=password" "http://localhost:3000/xauth/authorize?response_type=code&redirect_uri=/xauth/callback&client_id=1&state=sri.mulyani"
+>>>>>>> bitbucket/newapi
   var xauthorization = [
     filter,
     userAuth,

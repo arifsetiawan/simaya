@@ -10,6 +10,7 @@ module.exports = function(app) {
   var mode = process.env.PUSHMODE || "dev";
 
   var apn = new notify.apn({
+  //var apn = new notify.apn.Sender({
     gateway: (mode == "dev") ? "gateway.sandbox.push.apple.com" : "gateway.push.apple.com",
     passphrase: process.env.CERTPASSPHRASE,
     key: __dirname + "/../../certs/" + mode + "/private.pem",

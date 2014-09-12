@@ -267,7 +267,13 @@ module.exports = function(app) {
       }
 
       db.findOne(search, function(err, item) { 
-        callback(item);
+        if (err) {
+          console.log(err);
+          callback(err);
+        }
+        else {
+          callback(item); 
+        }
       });
     },
 
@@ -299,6 +305,7 @@ module.exports = function(app) {
         } else {
           var doc = { _id: id};
           var validator = app.validator(doc, doc);
+          console.log(validator);
           validator.addError('data', 'Non-existant id');
           callback(validator);
         }
@@ -358,13 +365,20 @@ module.exports = function(app) {
           search.search.cacheId = cacheId;
             
           if (typeof(search.page) !== "undefined") {
-            var offset = ((search.page - 1) * search.limit);
+//<<<<<<< HEAD
+//          var offset = ((search.page - 1) * search.limit);
+//=======
+            var offset = ((search.page) * search.limit);
+//>>>>>>> bitbucket/newapi
             var limit = search.limit;
             if (typeof(limit) === "undefined") {
               limit = 10; // default limit
             }
 
+            console.log(offset, limit);
             cachedb.find(search.search, function(error, cursor) {
+              console.log("Cursor");
+              console.log(cursor);
               cursor.sort(search.sort || {date:-1}).limit(limit).skip(offset).toArray(function (error, result) {
                 callback(result);
               });

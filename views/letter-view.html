@@ -104,17 +104,28 @@
 	<table class="table">
 		<tbody>
 			<tr> <!-- nomor -->
+<<<<<<< HEAD
+=======
+				{{#isSendingOrganization}}
+>>>>>>> bitbucket/newapi
 				  {{#outgoingAgenda}}
 				  <td>
 					Nomor Agenda Surat Keluar
 				  </td>
 				  {{/outgoingAgenda}}
+<<<<<<< HEAD
 
+=======
+				  {{/isSendingOrganization}}
+					
+				  {{^isSendingOrganization}}
+>>>>>>> bitbucket/newapi
 				  {{#incomingAgenda}}
 				  <td>
 					Nomor Agenda Surat Masuk
 				  </td>
 				  {{/incomingAgenda}}
+<<<<<<< HEAD
 				<td>:&nbsp;&nbsp;&nbsp;&nbsp;
 				  		{{#outgoingAgenda}}
 				    		{{outgoingAgenda}}
@@ -123,6 +134,21 @@
 				  		{{#incomingAgenda}}
 							{{incomingAgenda}}
 				  		{{/incomingAgenda}}
+=======
+				{{/isSendingOrganization}}
+				<td>:&nbsp;&nbsp;&nbsp;&nbsp;
+					{{#isSendingOrganization}}
+				  		{{#outgoingAgenda}}
+				    		{{outgoingAgenda}}
+				  		{{/outgoingAgenda}}
+				  	{{/isSendingOrganization}}
+					
+				  	{{^isSendingOrganization}}
+				  		{{#incomingAgenda}}
+							{{incomingAgenda}}
+				  		{{/incomingAgenda}}
+					{{/isSendingOrganization}}
+>>>>>>> bitbucket/newapi
 				</td>
 				<td class="span3">Tanggal Penerimaan Surat</td>
 				{{#receivedDate}}
