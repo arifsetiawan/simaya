@@ -95,11 +95,8 @@ module.exports = function(app) {
     vals.user = {
       profile: Object.clone(req.session.currentUserProfile, true)
     } 
-<<<<<<< HEAD
-=======
     // console.log("REQBODY = " + JSON.stringify(req.body));
     // console.log("REQBODY PROFILE = " + JSON.stringify(req.body["profile.phones"]));
->>>>>>> bitbucket/newapi
     if (Object.keys(req.body).length > 0) {
       var oldProfile = req.session.currentUserProfile;
       if (req.body["profile.phones"]) {
@@ -107,10 +104,7 @@ module.exports = function(app) {
           req.body["profile.phones"] = [ req.body["profile.phones"] ];
         }
         oldProfile.phones = req.body["profile.phones"];
-<<<<<<< HEAD
-=======
         // console.log("OLDPROFILE = " + JSON.stringify(oldProfile));
->>>>>>> bitbucket/newapi
       }
       if (req.body["profile.address"]) {
         oldProfile.address = req.body["profile.address"];
@@ -223,10 +217,7 @@ module.exports = function(app) {
       }
     } else {
       user.list({ search: {username: vals.username}}, function(r) {
-<<<<<<< HEAD
-=======
         console.log("r[0] = " + JSON.stringify(r[0]));
->>>>>>> bitbucket/newapi
         vals.user = r[0];
         if (typeof(vals.user.profile.dates) === "undefined" || 
             (vals.user.profile.dates && typeof(vals.user.profile.dates.birthday) === "undefined")) {
@@ -379,7 +370,6 @@ module.exports = function(app) {
     var defaultAvatar = "/img/default-avatar-" + gender + ".png";
     if (base64) {
       var e = new base64Stream.encode();
-<<<<<<< HEAD
       e.pipe(res);
       // Always gets from localhost
       // TODO : Error: socket hang up on Windows
@@ -392,17 +382,6 @@ module.exports = function(app) {
         res.end();
       else
         openUri("http://127.0.0.1:" + app.get("port") + defaultAvatar, res);
-=======
-      console.log("e", e);
-      e.pipe(res);
-      // Always gets from localhost
-      openUri("static"+ defaultAvatar, e);
-      
-    } else {
-      openUri("static"+ defaultAvatar, res);
-      // openUri("http://127.0.0.1:" + app.get("port") + defaultAvatar, res);
-      
->>>>>>> bitbucket/newapi
     }
   }
 
@@ -414,11 +393,7 @@ module.exports = function(app) {
           var store = app.store(ObjectID(item[0].profile.avatar + ""), "r");
           store.open(function(error, gridStore) {
             if (gridStore) {
-<<<<<<< HEAD
-            var gridStream = gridStore.stream(true);
-=======
               var gridStream = gridStore.stream(true);
->>>>>>> bitbucket/newapi
               if (base64) {
                 gridStream.pipe(base64Stream.encode()).pipe(res);
               } else {
@@ -447,10 +422,6 @@ module.exports = function(app) {
   
   var getAvatarStream = function(req, res) {
     getAvatarStreamBase(false, req, res);
-<<<<<<< HEAD
-=======
-    // res.end();
->>>>>>> bitbucket/newapi
   }
 
   var getAvatarBase64Stream = function(req, res) {

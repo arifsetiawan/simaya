@@ -13,20 +13,14 @@ Letter = module.exports = function(app) {
     , ObjectID = app.ObjectID
     , moment = require("moment")
     , spawn = require('child_process').spawn
-<<<<<<< HEAD
-    , ob = require("../../ob/file.js")(app);
-=======
     , ob = require("../../ob/file.js")(app)
     , azuresettings = require("../../azure-settings.js")
->>>>>>> bitbucket/newapi
 
   var dispositionController = null;
   if (typeof(Disposition) === "undefined") {
     dispositionController = require("../controller/disposition.js")(app)
   }
 
-<<<<<<< HEAD
-=======
   // deprecated
   var collectAttachments = function(req, res) {
     // Parse fullpath of uploaded files and push to array
@@ -57,7 +51,6 @@ Letter = module.exports = function(app) {
     return fileAttachments;
   }
 
->>>>>>> bitbucket/newapi
   var populateReceivingOrganizations = function(source, data, cb) {
    // Get all organizations
     var recipients = [];
@@ -148,14 +141,15 @@ Letter = module.exports = function(app) {
       vals.isAdministration = true;
     }
     var data = data || {};
+/*
 <<<<<<< HEAD
-
     if (typeof(req.body.letter) !== "undefined") {
 =======
+*/
     console.log("create", req.body);
     if (JSON.stringify(req.body) !== '{}') {
       console.log("masuk!");
->>>>>>> bitbucket/newapi
+//>>>>>>> bitbucket/newapi
       Object.keys(req.body.letter).forEach(function(key){
           vals[key] = req.body.letter[key];
       });
@@ -283,11 +277,7 @@ Letter = module.exports = function(app) {
 
       // Searches the current draft
       letter.list( { search : { _id : ObjectID(req.body.letter.draftId), username : req.session.currentUser, status : letter.Stages.WAITING } }, function(drafts){
-<<<<<<< HEAD
-
-=======
         console.log("draft",drafts);
->>>>>>> bitbucket/newapi
         if (drafts.length > 0) {
           // if the draft has attachments, copy it
           data.fileAttachments = drafts[0].fileAttachments || [];
@@ -363,6 +353,8 @@ Letter = module.exports = function(app) {
 
       })
     } else {
+
+/*      
 <<<<<<< HEAD
 
       // creates draft
@@ -402,6 +394,7 @@ Letter = module.exports = function(app) {
           utils.render(req, res, template, vals, "base-authenticated");
         }
 =======
+*/
       // console.log("DraftID", req.body.draftId);
       // creates draft
       console.log("masuk?");
@@ -471,15 +464,11 @@ Letter = module.exports = function(app) {
             });
           }
         }
->>>>>>> bitbucket/newapi
+//>>>>>>> bitbucket/newapi
       })
     }
   }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> bitbucket/newapi
   var createExternal = function(req, res) {
     var vals = {
       title: "Surat Masuk Manual",
@@ -554,11 +543,7 @@ Letter = module.exports = function(app) {
   }
 
   var createNormal = function(req, res) {
-<<<<<<< HEAD
 
-=======
-    // console.log("reqbody", req.body)
->>>>>>> bitbucket/newapi
     var vals = {
       title: "Surat Keluar",
     }
@@ -621,7 +606,6 @@ Letter = module.exports = function(app) {
         vals.letter.reviewers = req.body.letter["reviewers"] || ""
       }
 
-<<<<<<< HEAD
       create(data, vals, "letter-outgoing-new", letter.createNormal, req, res);
     });
   }
@@ -674,11 +658,6 @@ Letter = module.exports = function(app) {
     cUtils.populateSenderSelection(req.session.currentUserProfile.organization, vals.sender, vals, req, res, function(vals) {
 
       create(data, vals, "letter-outgoing-external", letter.createExternal, req, res);
-=======
-      // console.log(req.files);
-      create(data, vals, "letter-outgoing-new", letter.createNormal, req, res);
-      // console.log("reqbody", req.body);
->>>>>>> bitbucket/newapi
     });
   }
 
@@ -795,7 +774,7 @@ Letter = module.exports = function(app) {
           });
         });
 
-/*
+        /*
         modelUtils.resolveUsers([req.session.currentUser], function(resolved) {
           // Async, fire and forget
           if (req.session.currentUser != result[0].originator[0]) {
@@ -907,10 +886,7 @@ Letter = module.exports = function(app) {
   }
 
   var view = function(vals, template, req, res) {
-<<<<<<< HEAD
-=======
-    // console.log(vals);
->>>>>>> bitbucket/newapi
+
     var organization = req.session.currentUserProfile.organization;
     vals.unsuccessful = vals.successful = false;
 
@@ -1085,7 +1061,7 @@ Letter = module.exports = function(app) {
                 break;
               }
             } else if (result[0].creation == "external") {
-<<<<<<< HEAD
+//<<<<<<< HEAD
                 console.log(result[0]);
                 if (result[0] && result[0].receivingOrganizations) {
                     var o = Object.keys(result[0].receivingOrganizations);
@@ -1097,6 +1073,7 @@ Letter = module.exports = function(app) {
                         }
                     }
                 }
+/*
 =======
               var o = Object.keys(result[0].receivingOrganizations);
               // console.log(o);
@@ -1107,6 +1084,7 @@ Letter = module.exports = function(app) {
                 }
               }
 >>>>>>> bitbucket/newapi
+*/
             }
           }
 
@@ -1269,10 +1247,8 @@ Letter = module.exports = function(app) {
           message = message.replace(/{{organization}}/g, resolved[0].organization);
           message = message.replace(/{{mailId}}/g, data.mailId);
 
-<<<<<<< HEAD
-=======
-          azuresettings.makeNotification(message);
->>>>>>> bitbucket/newapi
+          // TODO :: add notif target?
+          //azuresettings.makeNotification(message);
           notification.set(data.sender, data.originator, message, url);
           notification.set(data.originator, data.sender, message, url);
         });
@@ -1485,21 +1461,11 @@ Letter = module.exports = function(app) {
   }
 
   var buildSearchForIncoming = function(req, res) {
-<<<<<<< HEAD
-=======
-    // console.log("masuk buildSearchForIncoming");
->>>>>>> bitbucket/newapi
     var search = {
       search: {}
     };
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
-<<<<<<< HEAD
       var o = "receivingOrganizations." + req.session.currentUserProfile.organization;
-=======
-      // console.log("masuk currentUserHasRoles");
-      var o = "receivingOrganizations." + req.session.currentUserProfile.organization;
-      // console.log("o "+o);
->>>>>>> bitbucket/newapi
       var normalCase = {
         status: letter.Stages.SENT, // displays SENT and ready to be received
         creation: "normal",
@@ -1514,10 +1480,6 @@ Letter = module.exports = function(app) {
       search.search["$or"].push(normalCase);
       search.search["$or"].push(externalCase);
     } else {
-<<<<<<< HEAD
-=======
-      // console.log("masuk else");
->>>>>>> bitbucket/newapi
       search.search = {
         recipients: {
           $in: [req.session.currentUser]
@@ -1525,21 +1487,12 @@ Letter = module.exports = function(app) {
       }
       var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
       search.search[o] = letter.Stages.RECEIVED;
-<<<<<<< HEAD
-=======
-      // console.log(search.search[o]);
->>>>>>> bitbucket/newapi
     }
 
     return search;
   }
 
   var listIncoming = function(req, res) {
-<<<<<<< HEAD
-    console.log(req.session);
-=======
-    // console.log(req.session);
->>>>>>> bitbucket/newapi
     return listIncomingBase(req, res);
   }
 
@@ -1578,11 +1531,6 @@ Letter = module.exports = function(app) {
     }
     var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
     search[o] = letter.Stages.RECEIVED;
-<<<<<<< HEAD
-=======
-    // console.log("SEARCH[o]", search[o]);
-    // console.log("SEARCH", search);
->>>>>>> bitbucket/newapi
     list(vals, "letter-cc", { search: search }, req, res);
   }
 
@@ -1608,11 +1556,8 @@ Letter = module.exports = function(app) {
 
   var buildSearchForOutgoing = function(req, res) {
     var search = {};
-<<<<<<< HEAD
-=======
     // console.log("ADMINISTRATION ROLE: " + app.simaya.administrationRole);
     // console.log(req.session.currentUserRoles);
->>>>>>> bitbucket/newapi
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
       search.search = {
           senderOrganization: req.session.currentUserProfile.organization,
@@ -1621,10 +1566,6 @@ Letter = module.exports = function(app) {
       }
 
     } else {
-<<<<<<< HEAD
-=======
-      // console.log("else");
->>>>>>> bitbucket/newapi
       search.search = {
         $and: [
         { $or: [
@@ -1760,10 +1701,7 @@ Letter = module.exports = function(app) {
     data.senderResolved = data.senderResolved || {};
     var sender = req.session.currentUser;
     if (nextReviewer != "") {
-<<<<<<< HEAD
-=======
       azuresettings.makeNotification("Ada surat baru perlu diperiksa, perihal: " + data.title);
->>>>>>> bitbucket/newapi
       notification.set(sender, nextReviewer, "Ada surat baru perlu diperiksa, perihal: " + data.title, "/letter/read/" + data._id);
     } else {
       if (status == letter.Stages.APPROVED) {
@@ -1781,10 +1719,7 @@ Letter = module.exports = function(app) {
           }
           user.list({search: search}, function(r) {
             for (var j = 0; j < r.length; j ++) {
-<<<<<<< HEAD
-=======
               azuresettings.makeNotification("Ada surat baru perlu diterima, nomor surat: " + data.mailId);
->>>>>>> bitbucket/newapi
               notification.set(sender, r[j].username, "Ada surat baru perlu diterima, nomor surat: " + data.mailId, "/letter/read/" + data._id);
             }
           });
@@ -1796,15 +1731,11 @@ Letter = module.exports = function(app) {
           for (var i = 0; i < data.ccList.length; i ++) {
             if (data.ccList[i] != "") {
               if (data.senderResolved.title && data.senderResolved.title.length > 0) {
-<<<<<<< HEAD
-                notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
-              } else if (data.senderManual) {
-=======
                 azuresettings.makeNotification("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan");
                 notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
-              } else if (data.senderManual) {
+              } 
+              else if (data.senderManual) {
                 azuresettings.makeNotification("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan");
->>>>>>> bitbucket/newapi
                 notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
               }
             }
@@ -1813,24 +1744,16 @@ Letter = module.exports = function(app) {
 
         for (var i = 0; i < data.recipients.length; i ++) {
           if (data.senderResolved.title && data.senderResolved.title.length > 0) {
-<<<<<<< HEAD
-            notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization, "/letter/read/" + data._id);
-          } else if (data.senderManual) {
-=======
             azuresettings.makeNotification("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization);
             notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization, "/letter/read/" + data._id);
           } else if (data.senderManual) {
             azuresettings.makeNotification("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization);
->>>>>>> bitbucket/newapi
             notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization, "/letter/read/" + data._id);
           }
         }
       }
       else if (status == letter.Stages.DEMOTED) {
-<<<<<<< HEAD
-=======
         azuresettings.makeNotification("Ada surat yang dibatalkan");
->>>>>>> bitbucket/newapi
         notification.set(sender, req.body.originator, "Ada surat yang dibatalkan", "/letter/read/" + data._id);
       }
     }
@@ -2007,11 +1930,6 @@ Letter = module.exports = function(app) {
   // Gets the reviewer candidates
   var getReviewer = function(req, res) {
     var p = req.session.currentUserProfile;
-<<<<<<< HEAD
-    var me = req.session.currentUser;
-    // expand organizations
-    var org = p.organization;
-=======
     var pquery = req.query.org;
     var me = req.session.currentUser;
 
@@ -2019,7 +1937,6 @@ Letter = module.exports = function(app) {
     // var org = p.organization;
     // console.log(p.organization, p.echelon);
     var org = pquery || p.organization;
->>>>>>> bitbucket/newapi
     var orgs = [ org ];
     var i = org.lastIndexOf(";");
     while (i > 0) {
@@ -2030,10 +1947,6 @@ Letter = module.exports = function(app) {
 
     // Only look into the organization of level 2
     var queryOrganization = org;
-<<<<<<< HEAD
-=======
-    // console.log(queryOrganization);
->>>>>>> bitbucket/newapi
     if (orgs.length > 2) {
       queryOrganization = orgs[(orgs.length - 1)- 2];
     } else if (orgs.length > 1) {
@@ -2041,28 +1954,24 @@ Letter = module.exports = function(app) {
       queryOrganization = orgs[(orgs.length - 1)- 1];
     }
 
-<<<<<<< HEAD
+    /*
     var search = {
-=======
-    /*var search = {
->>>>>>> bitbucket/newapi
       search: {
         "profile.organization": { $regex: "^" + queryOrganization },
         "profile.echelon": {$lt: (parseInt(p.echelon) + "z")},
         "username": {$ne: me}
-<<<<<<< HEAD
         }
-=======
       }
-    }*/
+    }
+    */
 
     var search = {
       search: {
         "profile.organization": pquery,
         "profile.echelon": {$lt: 5 + "z"}
       }
->>>>>>> bitbucket/newapi
     }
+
     user.list(search, function(r) {
       if (r == null) {
         r = [];
@@ -2071,11 +1980,7 @@ Letter = module.exports = function(app) {
       if (req.query) {
         added = req.query.added
       }
-<<<<<<< HEAD
 
-=======
-      
->>>>>>> bitbucket/newapi
       var copy = cUtils.stripCopy(r, added);
       res.send(JSON.stringify(copy));
     });
@@ -2083,11 +1988,7 @@ Letter = module.exports = function(app) {
 
   // Gets the Cc candidates
   var getCc = function(req, res) {
-<<<<<<< HEAD
-    if (req.query.org) {
-=======
     if (req.query.org) { 
->>>>>>> bitbucket/newapi
       var search = {
         search: {
           "profile.organization": req.query.org,
@@ -2303,10 +2204,6 @@ Letter = module.exports = function(app) {
 
   var preview = function(req, res) {
     var vals = {};
-<<<<<<< HEAD
-
-=======
->>>>>>> bitbucket/newapi
     if (typeof(req.body.letter) !== "undefined") {
       var body;
       if (req.body.letter.letterhead != null) {
@@ -2325,10 +2222,6 @@ Letter = module.exports = function(app) {
       vals.body = body;
       req.session.letterBody = body
       utils.render(req, res, "pdf-viewer-preview", vals, "base-popup-window");
-<<<<<<< HEAD
-=======
-      // console.log("preview " + req.body);
->>>>>>> bitbucket/newapi
     }
   }
 
@@ -2417,11 +2310,7 @@ Letter = module.exports = function(app) {
 
   var populateSearch = function(req, search, callback) {
     if (req.query.search && req.query.search.string) {
-<<<<<<< HEAD
-      var searchStrings = req.query.search["string"]
-=======
       var searchStrings = req.query.search["string"];
->>>>>>> bitbucket/newapi
       user.list({search: { "profile.fullName" : { $regex: searchStrings, $options: "i" }}}, function(r) {
         var userSearch = [];
         if (r != null) {
@@ -2627,22 +2516,11 @@ Letter = module.exports = function(app) {
           var bundles = { files : []}
           file.letterId = req.body.draftId
           bundles.files.push(file)
-<<<<<<< HEAD
-
           // sends the bundles!
           res.send(bundles);
         })
 
       })
-=======
-          // console.log(bundles);
-
-          // sends the bundles!
-          res.send(200, bundles);
-        });
-
-      });
->>>>>>> bitbucket/newapi
 
     }
   }
@@ -2712,10 +2590,7 @@ Letter = module.exports = function(app) {
   return {
     createExternal: createExternal
     , createNormal: createNormal
-<<<<<<< HEAD
     , createOutgoindExternal: createOutgoindExternal
-=======
->>>>>>> bitbucket/newapi
     , create: create
     , viewLetter: viewLetter
     , viewSingleLetter: viewSingleLetter

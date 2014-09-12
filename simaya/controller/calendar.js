@@ -9,10 +9,7 @@ module.exports = function(app) {
     , moment = require("moment")
     , utils = require("../../sinergis/controller/utils.js")(app)
     , calendar = require("../../simaya/models/calendar.js")(app)
-<<<<<<< HEAD
-=======
     , azuresettings = require("../../azure-settings.js");
->>>>>>> bitbucket/newapi
 
   var monthView = function(req, res)
   {
@@ -139,10 +136,7 @@ module.exports = function(app) {
       var message = resolved[0].name + " mengundang Anda ke pertemuan dengan perihal: " + data.title;
       for (var i = 0; i < data.recipients.length; i ++) {
         if (data.recipients[i] != me) {
-<<<<<<< HEAD
-=======
           azuresettings.makeNotification(message, req.session.currentUserProfile.id);
->>>>>>> bitbucket/newapi
           notification.setWithActions(me, data.recipients[i], message, "/calendar/day?invitationId=" + id, actions);
         }
       }
@@ -175,10 +169,7 @@ module.exports = function(app) {
           else if (type == "decline") {
             message = resolved[0].name + " menolak pertemuan dengan perihal: " + data.title;
           }
-<<<<<<< HEAD
-=======
           azuresettings.makeNotification(message, app.req.session.currentUserProfile.id);
->>>>>>> bitbucket/newapi
           notification.setWithActions(me, data.user, message, "/calendar/invitation", actions);
           callback();
         });
@@ -190,20 +181,11 @@ module.exports = function(app) {
 
   var newJSON = function(req, res)
   {
-<<<<<<< HEAD
     if (req.body.title &&
         req.body.startDate &&
         req.body.startTime &&
         req.body.endDate &&
         req.body.endTime) {
-      
-=======
-    // console.log('HERE NEWJSON!');
-    // console.log(req.body);
-    // console.log('HERE HEADERS');
-    // console.log(req.headers);
-    if (req.body.title && req.body.startDate && req.body.startTime && req.body.endDate && req.body.endTime) {
->>>>>>> bitbucket/newapi
       var start = new Date(moment(req.body.startDate, "DD/MM/YYYY").toDate());
       start.setHours(parseInt(req.body.startTime[0] + req.body.startTime[1], 10));
       start.setMinutes(parseInt(req.body.startTime[2] + req.body.startTime[3], 10));
@@ -231,13 +213,7 @@ module.exports = function(app) {
           reminder: req.body.reminder || 0,
           recurrence: req.body.recurrence || 0,
         }
-<<<<<<< HEAD
-=======
-        // console.log("HERE DATA");
-        // console.log("HERE", data);
-        // console.log("HERE req.files");
-        // console.log(req.files);
->>>>>>> bitbucket/newapi
+
         if (req.body.id && req.body.id != "") {
           calendar.edit(req.body.id, data, function(v) {
             if (v.hasErrors() > 0) {
@@ -333,13 +309,8 @@ module.exports = function(app) {
           ]
       }
     }
-<<<<<<< HEAD
+
     calendar.list(search, function(result) {
-=======
-    //console.log(search.search);
-    calendar.list(search, function(result) {
-      //console.log(result);
->>>>>>> bitbucket/newapi
       var recipientHash = {};
       for (var i = 0; i < result.length; i++) {
         var r = result[i].recipients;
@@ -581,14 +552,9 @@ module.exports = function(app) {
     }
   }
 
-<<<<<<< HEAD
-=======
   var redirectToCalendarDay = function(req, res) {
     res.redirect('/calendar/day');
   }
-
->>>>>>> bitbucket/newapi
-
 
   return {
     dayView: dayView, 
@@ -607,9 +573,6 @@ module.exports = function(app) {
     cancelInvitationJSON: cancelInvitationJSON,
     declineInvitationJSON: declineInvitationJSON,
     removeInvitationJSON: removeInvitationJSON,
-<<<<<<< HEAD
-=======
     redirectToCalendarDay: redirectToCalendarDay,
->>>>>>> bitbucket/newapi
   }
 };

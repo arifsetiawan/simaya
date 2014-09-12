@@ -6,11 +6,8 @@ module.exports = function(app) {
   var fs = require('fs');
   var moment = require('moment');
   var utils = require('./utils')(app);
-<<<<<<< HEAD
   var filePreview = require("file-preview");
-=======
   var base64Stream = require("base64-stream");
->>>>>>> bitbucket/newapi
   
   var stages = {
     NEW: 0,
@@ -20,11 +17,7 @@ module.exports = function(app) {
     DEMOTED: 4,
     SENT: 5,
     RECEIVED: 6,
-<<<<<<< HEAD
     REJECTED: 7
-=======
-    REJECTED: 7,
->>>>>>> bitbucket/newapi
   }
 
    // Validation function
@@ -78,7 +71,8 @@ module.exports = function(app) {
       }
         
       if (update.creation == "external") {
-<<<<<<< HEAD
+
+//<<<<<<< HEAD
           if (typeof(update.date) == "undefined" || update.date == null || update.date == "") {
               validator.addError('Data', 'date is not set');
           }
@@ -110,6 +104,7 @@ module.exports = function(app) {
 
           }
       }
+/*
 =======
         if (typeof(update.date) == "undefined" || update.date== null || update.date == "") {
           validator.addError('Data', 'date is not set');
@@ -135,6 +130,7 @@ module.exports = function(app) {
       }
       
 >>>>>>> bitbucket/newapi
+*/
       if (typeof(update.creationDate) == "undefined" || update.creationDate == null) {
         validator.addError('Data', 'creationDate is not set');
       }
@@ -329,11 +325,11 @@ module.exports = function(app) {
       if (item != null) {
         item.fileAttachments.forEach(function(e) {
           if (e.path == fileId) {
-<<<<<<< HEAD
+//<<<<<<< HEAD
             stream.contentType("image/png");
-=======
-            stream.contentType("image/jpeg");
->>>>>>> bitbucket/newapi
+//=======
+//          stream.contentType("image/jpeg");
+//>>>>>>> bitbucket/newapi
             var store = app.store(ObjectID(fileId), e.name, 'r');
             store.open(function(error, gridStore) {
               if (!gridStore || error) {
@@ -342,10 +338,11 @@ module.exports = function(app) {
               }
               // Grab the read stream
               var gridStream = gridStore.stream(true);
-<<<<<<< HEAD
+//<<<<<<< HEAD
               // filePreview accepts page starts from 1
               filePreview.preview(gridStream, { encoding: (base64? "base64": ""), page: page + 1}, stream, function(size) {
               });
+/*
 =======
               var spawn = require("child_process").spawn;
               var args = ["convert", "-density", "200", "-resize", "50%", "-flatten", "-[" + page + "]", "jpg:-"];
@@ -358,6 +355,7 @@ module.exports = function(app) {
               }
               gridStream.pipe(convert.stdin);
 >>>>>>> bitbucket/newapi
+*/
             }); 
           }
         });
@@ -459,7 +457,6 @@ module.exports = function(app) {
         callback(validator);
       });
     },
-<<<<<<< HEAD
 
     // Creates a letter
     // Returns a callback
@@ -472,8 +469,6 @@ module.exports = function(app) {
         callback(validator);
       });
     },
-=======
->>>>>>> bitbucket/newapi
     
     // Creates a internal letter (nota dinas)
     // Returns a callback
@@ -494,11 +489,7 @@ module.exports = function(app) {
 
       var data = { 
         username : draft.username, 
-<<<<<<< HEAD
         status : stages.WAITING
-=======
-        status : stages.WAITING, 
->>>>>>> bitbucket/newapi
       }; // for draft letters
 
       if (draft.draftId) {
@@ -556,10 +547,7 @@ module.exports = function(app) {
 
         db.find(search.search, fields, function(error, cursor) {
           cursor.sort(search.sort || {date:-1,priority:-1}).toArray(function(error, result) {
-<<<<<<< HEAD
-=======
             console.log("Models result", result);
->>>>>>> bitbucket/newapi
             if (result != null && result.length == 1) {
               resolveUsersFromData(result[0], function(data) {
                 callback([data]);
@@ -642,11 +630,7 @@ module.exports = function(app) {
             }
 
             var set = {
-<<<<<<< HEAD
                 readStates: data
-=======
-                readStates: data,
->>>>>>> bitbucket/newapi
             }
            
             db.validateAndUpdate( {
@@ -666,11 +650,7 @@ module.exports = function(app) {
     reject: function (id, who, organization, reason, callback) {
       var search = {
         _id: ObjectID(id),
-<<<<<<< HEAD
         recipients: { $in: [who]}
-=======
-        recipients: { $in: [who]}, 
->>>>>>> bitbucket/newapi
       }
 
       who = who.replace(/\./g,"___"); // mangle user name 
@@ -680,11 +660,7 @@ module.exports = function(app) {
           var data = {};
           data[who] = {
             date: new Date(),
-<<<<<<< HEAD
             reason: reason
-=======
-            reason: reason,
->>>>>>> bitbucket/newapi
           }
           item.rejections = data;
           item.receivingOrganizations[organization].status = stages.REJECTED;
@@ -716,7 +692,7 @@ module.exports = function(app) {
                 }
                 // Grab the read stream
                 var gridStream = gridStore.stream(true);
-<<<<<<< HEAD
+//<<<<<<< HEAD
                 filePreview.info(gridStream, function(data){
                   if (!data){
                     return stream.send(400, {});
@@ -727,6 +703,7 @@ module.exports = function(app) {
               });
             }
           });
+/*
 =======
                 var spawn = require("child_process").spawn;
                 var args = ["pdfinfo", "-"];
@@ -743,6 +720,7 @@ module.exports = function(app) {
             stream.end();
           }
 >>>>>>> bitbucket/newapi
+*/
         } else {
           stream.end();
         }
@@ -777,17 +755,10 @@ module.exports = function(app) {
     // It should be narrowed with some criteria,
     // for draft-with-attachment letter, we can use { username : req.session.currentUser, status : 1}
     //
-<<<<<<< HEAD
     // e.g. removing { path : '0abc', type : 'application/pdf', name : 'a.jpg'} from a draft of user, would be
     //
     // removeFileAttachment( 
     //    { username : 'user', status : 1}, 
-=======
-    // e.g. removing { path : '0abc', type : 'application/pdf', name : 'a.jpg'} from a draft of sri.mulyani, would be
-    //
-    // removeFileAttachment( 
-    //    { username : 'sri.mulyani', status : 1}, 
->>>>>>> bitbucket/newapi
     //    { path : '0abc', type : 'application/pdf', name : 'a.jpg'}, 
     //    function(err){})
     //
@@ -808,17 +779,10 @@ module.exports = function(app) {
     // It should be narrowed with some criteria,
     // for draft-with-attachment letter, we can use { username : req.session.currentUser, status : 1}
     //
-<<<<<<< HEAD
     // e.g. adding { path : '0abc', type : 'application/pdf', name : 'a.jpg'} to a draft of user, would be
     //
     // addFileAttachment( 
     //    { username : 'user', status : 1}, 
-=======
-    // e.g. adding { path : '0abc', type : 'application/pdf', name : 'a.jpg'} to a draft of sri.mulyani, would be
-    //
-    // addFileAttachment( 
-    //    { username : 'sri.mulyani', status : 1}, 
->>>>>>> bitbucket/newapi
     //    { path : '0abc', type : 'application/pdf', name : 'a.jpg'}, 
     //    function(err){})
     //

@@ -11,10 +11,7 @@ module.exports = function(app) {
  
   var view = function(req, res) {
     notification.view(req.params.id, function(r) {
-<<<<<<< HEAD
-=======
       console.log("r " + r.url);
->>>>>>> bitbucket/newapi
       if (r == null) {
         res.redirect('/notification');
       } else {

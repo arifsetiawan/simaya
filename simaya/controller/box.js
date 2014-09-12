@@ -14,10 +14,7 @@ module.exports = function(app) {
   var path = require("path");
   var url = require("url");
   var fs = require("fs");
-<<<<<<< HEAD
-=======
   var azuresettings = require("../../azure-settings.js");
->>>>>>> bitbucket/newapi
 
   // define content types for comparison
   var contentTypes = {
@@ -68,23 +65,16 @@ module.exports = function(app) {
   }
 
   var readDir = function (req, res) {
-<<<<<<< HEAD
 
-    var currentPath = req.path.substr("/box/dir/".length, req.path.length) || req.session.currentUser;
-=======
     // console.log(req.path);
     var currentPath = req.path.substr("/box/dir/".length, req.path.length) || req.session.currentUser;
     // console.log(currentPath);
->>>>>>> bitbucket/newapi
     currentPath = "/" + currentPath;
 
     var shared = isSharedDir(currentPath, req.session.currentUser);
 
     if(req.accepted && req.accepted.length > 0 && req.accepted[0].value != "application/json") {
-<<<<<<< HEAD
-=======
-      // console.log("test req.accepted");
->>>>>>> bitbucket/newapi
+
       return renderIndex(req, res, { isPersonal : !shared, currentPath : currentPath });
     }
 
@@ -137,10 +127,6 @@ module.exports = function(app) {
           return res.send(404, {});
         } else {
           var items = packedItems(result);
-<<<<<<< HEAD
-=======
-          // console.log(items);
->>>>>>> bitbucket/newapi
           res.send({ items : items, currentPath : currentPath });
         }
       });
@@ -204,12 +190,6 @@ module.exports = function(app) {
     var uploaded = req.files.files[0];
     var dirname = req.body.dirname;
     var box = own.box(req.session);
-
-<<<<<<< HEAD
-=======
-    // console.log(uploaded, dirname);
-
->>>>>>> bitbucket/newapi
     var source = fs.createReadStream(uploaded.path);
 
     process.nextTick(function(){
@@ -230,10 +210,7 @@ module.exports = function(app) {
     item = decodeURI(item);
     var box = own.box(req.session);
     var filename = path.basename(item);
-<<<<<<< HEAD
-=======
-    // console.log(u, item, box, filename);
->>>>>>> bitbucket/newapi
+
     res.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
 
     var dirname = path.dirname(item);
@@ -247,12 +224,7 @@ module.exports = function(app) {
         box = own.box({ currentUser : ownerUser, currentUserProfile : {}});
       }
     } 
-<<<<<<< HEAD
 
-=======
-    // console.log("HELP");
-    // console.log(dirname, parts);
->>>>>>> bitbucket/newapi
     // download from the right path
     box.directory(path.dirname(item)).file(filename).read({ to : res }, function(err){
       if (err) {
@@ -280,10 +252,6 @@ module.exports = function(app) {
     var body = req.body;
     var box = own.box(req.session);
     var names = body.users.split(",");
-<<<<<<< HEAD
-=======
-    console.log(names);
->>>>>>> bitbucket/newapi
 
     function getUserProfile(usr, cb){
       // list user
@@ -316,10 +284,7 @@ module.exports = function(app) {
             message += body.message ? (" Pesan: " + body.message) : "";
             
             for (var i = 0; i < users.length; i++) {
-<<<<<<< HEAD
-=======
               azuresettings.makeNotification(message, req.session.currentUserProfile.id);
->>>>>>> bitbucket/newapi
               notification.set(sender, users[i].user, message, "/box/dir/" + users[i].user + "/shared");
             }
           }
@@ -334,10 +299,6 @@ module.exports = function(app) {
   var findUser = function (req, res) {
     var phrase = req.query.q;
     var expr = new RegExp(phrase);
-<<<<<<< HEAD
-=======
-    // console.log(expr);
->>>>>>> bitbucket/newapi
     var query = phrase ? { $or : [ { "profile.fullName" : expr}, { "username" : expr } ] } : {};
     user.list({ search : query}, function(users){
       var ret = [];

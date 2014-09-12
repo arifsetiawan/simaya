@@ -58,11 +58,7 @@ module.exports = function(app) {
   var view = function(req, res) {
     if (req.params.id) {
       notification.view(req.params.id, function(r) {
-<<<<<<< HEAD
-      console.log(r)
-=======
         console.log(r)
->>>>>>> bitbucket/newapi
         res.send({
           meta: {
             code: 200,

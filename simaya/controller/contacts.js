@@ -5,11 +5,7 @@ module.exports = function(app) {
     , modelUtils = require("../models/utils.js")(app)
     , utils = require("../../sinergis/controller/utils.js")(app)
     , session = require("../../sinergis/models/session.js")(app)
-<<<<<<< HEAD
-=======
     , azuresettings = require("../../azure-settings.js");
->>>>>>> bitbucket/newapi
-
 
   var listBase = function(search, template, vals, req, res) {
     var me = req.session.currentUser
@@ -122,10 +118,7 @@ module.exports = function(app) {
         callback();
       } else {
         modelUtils.resolveUsers([me], function(resolved) {
-<<<<<<< HEAD
-=======
           azuresettings.makeNotification("Sekarang Anda telah terhubung ke " + resolved[0].name, + "/contacts", app.req.session.currentUserProfile.id);
->>>>>>> bitbucket/newapi
           notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
             callback();
           })
@@ -224,11 +217,7 @@ module.exports = function(app) {
               }
             ]
             notification.setWithActions(req.session.currentUser, req.query.username, message, "/contacts/to-be-approved", actions);
-<<<<<<< HEAD
-=======
-            // test
             azuresettings.makeNotification(message, req.session.currentUserProfile.id);
->>>>>>> bitbucket/newapi
             res.send(JSON.stringify("OK"));
           })
         }
