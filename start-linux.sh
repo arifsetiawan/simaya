@@ -14,5 +14,6 @@ else
     export PORT=3000
     export DBHOST=10.0.1.5
     export DB=simaya
+    export SIMAYASETTING=settings.prod.js
     forever start ~/apps/simaya/app.js > /dev/null
 fi

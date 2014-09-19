@@ -26,6 +26,7 @@ module.exports = Utils = function() {
 
   return {
     db: db
+    , dbOb: db
     , model: model
     , validator: validator
     , store: store

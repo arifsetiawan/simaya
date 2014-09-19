@@ -9,7 +9,7 @@ module.exports = function(app) {
   var mongo = require("mongodb");
 
   // the connected db client, exposed from the app
-  var db = app.dbClient;
+  var db = app.dbClientOb;
 
   // Return a new handle for a box, using current user's session
   var box = function (session) {

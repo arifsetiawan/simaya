@@ -17,6 +17,34 @@
 
 A bit complicated due to some modules are native and will need to be compiled. 
 
-== Documentation about How To Install located on folder docs/
+* Make sure Nodejs and MongoDB installed (It is recommended to run MongoDB as daemon)
+* Install Visul Studio 2012 (or any other version. Express is fine)
+* Install module node-gyp and nodemon (both globally)
+* cd simaya
+* npm install
+* cb ownbox -> npm install -> cd ..
+* cb sinergis-base -> npm install -> cd ..
+* mkdir uploads
+* node toos/init-admin.js to add the first user!
+* run the app with start-windows.cmd
 
-More information: https://simaya.layanan.go.id/pages/tentang.html
+## Setup on Linux
+
+* Make sure Nodejs and MongoDB installed
+* Install gcc
+* Install module node-gyp and forever (both globally)
+* cd simaya
+* npm install
+* cb ownbox -> npm install -> cd ..
+* cb sinergis-base -> npm install -> cd ..
+* mkdir uploads
+* node toos/init-admin.js to add the first user!
+
+Before running with start-linux.sh make note that start-linux.sh assume following things:
+
+* The application folder is $HOME/apps/simaya
+* Database use Replica set (It is for production). Change the value to settings.js to use locally hosted MongoDB
+
+
+
+

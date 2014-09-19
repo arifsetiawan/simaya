@@ -2,7 +2,9 @@
 /**
  * Module dependencies.
  */
-var settings = require('./settings.js')
+
+var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
+var settings = require('./' + settingsFile);
 
 var package = require("./package.json");
 
@@ -55,6 +57,7 @@ app.isWindows = os.platform().indexOf('win') > -1;
 
 // set ref to settings.db from app
 app.dbClient = settings.db;
+app.dbClientOb = settings.dbOb;
 
 app.configure('development', function(){
   var MemStore = express.session.MemoryStore;
