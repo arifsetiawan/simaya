@@ -311,6 +311,7 @@ module.exports = function(app) {
             return res.send(401, {"error":"unauthorized","error_description":"not authorized"});
           }
 
+          req.username = req.body.username;
           next();
           
         });

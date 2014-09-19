@@ -13,6 +13,9 @@
 * Lots of updates in API v.2
 * Use forever instead of nohup in deployment
 
+## Setup on Windows
+
+A bit complicated due to some modules are native and will need to be compiled. 
 
 == Documentation about How To Install located on folder docs/
 
