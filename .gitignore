@@ -14,3 +14,6 @@ sinergis
 
 #ignore webstorm project directory
 .idea
+
+# settings production
+settings.prod.js
