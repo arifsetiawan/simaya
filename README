@@ -31,7 +31,7 @@ A bit complicated due to some modules are native and will need to be compiled.
 ## Setup on Linux
 
 * Make sure Nodejs and MongoDB installed
-* Install gcc
+* Install gcc and other stuff (See docs/id/CARA-PASANG.txt)
 * Install module node-gyp and forever (both globally)
 * cd simaya
 * npm install
@@ -44,6 +44,7 @@ Before running with start-linux.sh make note that start-linux.sh assume followin
 
 * The application folder is $HOME/apps/simaya
 * Database use Replica set (It is for production). Change the value to settings.js to use locally hosted MongoDB
+* For development, you might want to use nodemon too. 
 
 
 

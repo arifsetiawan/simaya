@@ -12,8 +12,8 @@ then
 else
     echo "Simaya is not running"
     export PORT=3000
-    export DBHOST=10.0.1.5
+    export DBHOST=localhost
     export DB=simaya
-    export SIMAYASETTING=settings.prod.js
+    export SIMAYASETTING=settings.js
     forever start ~/apps/simaya/app.js > /dev/null
 fi

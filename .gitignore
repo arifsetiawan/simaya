@@ -17,3 +17,4 @@ sinergis
 
 # settings production
 settings.prod.js
+start-linux-prod.sh
