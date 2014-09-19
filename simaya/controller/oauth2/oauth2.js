@@ -115,7 +115,9 @@ module.exports = function(app) {
           function(err, result){
             var date = new Date();
             date.setDate(date.getDate() + MONTH);
-            date = result.date || date;
+            if (result.hasOwnProperty('date')) {
+              date = result.date;
+            }
 
             done(err, accessToken, null, { 'expired_at': date });
           });
