@@ -43,8 +43,7 @@ A bit complicated due to some modules are native and will need to be compiled.
 Before running with start-linux.sh make note that start-linux.sh assume following things:
 
 * The application folder is $HOME/apps/simaya
-* Database use Replica set (It is for production). Change the value to settings.js to use locally hosted MongoDB
-* For development, you might want to use nodemon too. 
+* For development, you might want to use nodemon too instead of forever
 
 
 
