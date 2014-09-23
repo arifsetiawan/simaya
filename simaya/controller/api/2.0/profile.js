@@ -9,7 +9,8 @@ module.exports = function(app){
       , contacts = require('../../../models/contacts.js')(app)
       , mUtils = require('../../../models/utils.js')(app)
       , db = app.db('user')
-      , settings = require("../../../../settings.js");
+      , settings = require("../../../../settings.js")
+      , profile = require("../../../models/profile.js")(app);
 
 
   /**
@@ -373,6 +374,23 @@ module.exports = function(app){
     }
   }
 
+  var edit = function(req,res){
+      var data = {};
+      data.meta = {};
+      profile.edit(req,res, function(r) {
+        if(r==="ok"){
+            data.meta.code = 200;
+            data.message = "OK";
+            res.send(200, data);
+        }else{
+            data.meta.code = 500;
+            data.error = "Internal Server Error"
+            res.send(500, data);
+        }
+           
+      });
+  }
+
   return {
     getAvatar: getAvatar
     , getAvatarBase64: getAvatarBase64
@@ -380,5 +398,6 @@ module.exports = function(app){
     , getLoginName: getLoginName
     , view: view
     , save: save
+    , edit:edit
   }
 }

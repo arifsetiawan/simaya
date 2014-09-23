@@ -1,6 +1,8 @@
 module.exports = function(app) {
   // Private 
   var db = app.db('calendar');
+  var dbFiles = app.db('fs.files');
+  var dbChunks = app.db('fs.chunks');
   var moment = require('moment');
   var fs = require('fs');
   var ObjectID = app.ObjectID;
@@ -114,13 +116,54 @@ module.exports = function(app) {
     // Returns via callback
     //    validator: The validator
     edit: function (id, data, callback) {
-      db.validateAndUpdate( {
-        _id: ObjectID(id + "")
-      }, {
-        '$set': data 
-      }, function (error, validator) {
-        callback(validator);
-      }) 
+        db.findOne({_id: ObjectID(id + "")}, function(err, item) { 
+        if (err == null && item != null) {
+       
+          db.validateAndUpdate( {
+            _id: item._id
+          }, {
+            '$set': data 
+          }, function (error, validator) {
+            callback(validator);
+          }); 
+       } else {
+          data.log = [ {date: new Date(), data: owl.deepCopy(data) } ] 
+          db.getCollection(function (error, collection) {
+            data._id = collection.pkFactory.createPk();
+
+            db.validateAndInsert(data, function (error, validator) {
+              validator.resultId = data._id;
+              callback(validator);
+            }); 
+          });
+       }
+      });
+
+
+    },
+
+    // Deletes calender
+    // Returns via a callback
+    remove: function (id, callback) {
+      this.getInfo(id, function(item) {
+        if (item != null) {
+           db.findOne({'_id': item._id}, function(error, item){
+              db.remove({_id: item._id}, function(r) {
+                if(item.fileAttachments!==null){
+                  for(var index in item.fileAttachments ){
+                     dbChunks.remove({files_id:item.fileAttachments[index].path }, function(e) {
+                       dbFiles.remove({files_id:item.fileAttachments[index].path }, function(f) {
+                        callback(true);
+                      });
+                    });
+                  }
+                } 
+            });
+          });
+        } else {
+          callback(false);
+        }
+      })
     },
 
     // Download file attachment
