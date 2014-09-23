@@ -75,10 +75,15 @@ module.exports = function(app){
   app.get(prefix + "/profile/view", oauth2.protectedResource, api2.profile.view);
   app.get(prefix + "/profile/avatar", oauth2.protectedResource, api2.profile.getAvatar);
   app.post(prefix + "/profile/save", oauth2.protectedResource, api2.profile.save);
+  app.put(prefix + "/profile/edit", oauth2.protectedResource, api2.profile.edit);
 
   // calendar
   app.get(prefix + "/calendar", oauth2.protectedResource, api2.calendar.list);
   app.post(prefix + "/calendar/create", oauth2.protectedResource, api2.calendar.create);
+
+  // calender issue with notification
+  app.del(prefix + "/calendar/remove", oauth2.protectedResource, api2.calendar.remove);
+  app.put(prefix + "/calendar/edit", oauth2.protectedResource, api2.calendar.edit);
 
   // notification
   app.get(prefix + "/notifications", oauth2.protectedResource, api2.notification.list);

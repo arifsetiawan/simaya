@@ -84,8 +84,64 @@ module.exports = function(app){
     calendarWeb.newJSON(req, r);
   }
 
+ var remove = function(req, res) {
+    var r = ResWrapper(function(data) {
+       if (data && data == "\"OK\"") {
+        res.send({
+          meta: {
+            code: 200
+          }
+        });
+      } else if (data && JSON.parse(data).Data) {
+        res.send(400, {
+          meta: {
+            code: 400,
+            data: "Invalid request: " + JSON.parse(data).Data.join(",")
+          }
+        });
+      } else {
+        res.send(400, {
+          meta: {
+            code: 400,
+            data: "Invalid request"
+          }
+        });
+      }
+    });
+     calendarWeb.removeCalender(req,r);
+  }
+
+   var edit = function(req, res) {
+    // var r = ResWrapper(function(data) {
+    //    if (data && data == "\"OK\"") {
+    //     res.send({
+    //       meta: {
+    //         code: 200
+    //       }
+    //     });
+    //   } else if (data && JSON.parse(data).Data) {
+    //     res.send(400, {
+    //       meta: {
+    //         code: 400,
+    //         data: "Invalid request: " + JSON.parse(data).Data.join(",")
+    //       }
+    //     });
+    //   } else {
+    //     res.send(400, {
+    //       meta: {
+    //         code: 400,
+    //         data: "Invalid request"
+    //       }
+    //     });
+    //   }
+    // });
+     calendarWeb.editCalender(req,res);
+  }
+
   return {
     list: list,
-    create: create
+    create: create,
+    remove: remove,
+    edit :edit
   }
 }

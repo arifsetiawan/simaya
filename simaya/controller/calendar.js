@@ -556,6 +556,31 @@ module.exports = function(app) {
     res.redirect('/calendar/day');
   }
 
+   // Remove Calender
+  var removeCalender = function(req, res) {
+    if (req.body.id) {
+      calendar.remove(req.body.id, function(r) {
+        res.send(JSON.stringify("OK"));
+      });
+    } else {
+      res.send(JSON.stringify("ERR"));
+    } 
+  }
+
+  // Edit Calender
+  var editCalender = function(req, res) {
+      var data = {
+        title: req.body.title
+      }
+    if (req.body.id) {
+      calendar.edit(req.body.id, data,function(r) {
+        res.send(r);
+      });
+    } else {
+      res.send(JSON.stringify("ERR"));
+    } 
+  }
+
   return {
     dayView: dayView, 
     list: listView, 
@@ -574,5 +599,7 @@ module.exports = function(app) {
     declineInvitationJSON: declineInvitationJSON,
     removeInvitationJSON: removeInvitationJSON,
     redirectToCalendarDay: redirectToCalendarDay,
+    removeCalender:removeCalender,
+    editCalender:editCalender
   }
 };
