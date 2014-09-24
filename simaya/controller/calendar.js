@@ -573,6 +573,6 @@ module.exports = function(app) {
     cancelInvitationJSON: cancelInvitationJSON,
     declineInvitationJSON: declineInvitationJSON,
     removeInvitationJSON: removeInvitationJSON,
-    redirectToCalendarDay: redirectToCalendarDay,
+    redirectToCalendarDay: redirectToCalendarDay
   }
 };
