@@ -307,7 +307,7 @@ module.exports = function(app){
     // console.log("Search1", JSON.stringify(search));
     search = letterWeb.populateSortForIncoming(req, search);
     // console.log("Search2", JSON.stringify(search));
-    search.fields = { title : 1, date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1};
+    search.fields = { title : 1,date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1, mailId : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
     // console.log("Search3", JSON.stringify(search));
@@ -398,7 +398,7 @@ module.exports = function(app){
    */
   var outgoings = function (req, res) {
     var search = letterWeb.buildSearchForOutgoing(req, res);
-    search.fields = {title: 1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1};
+    search.fields = {title: 1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1, mailId : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
     list(search, req, res);
