@@ -506,7 +506,7 @@ module.exports = function(app){
         meta : { code : 400, errorMessage : "Invalid Parameters"}
       }
 
-      return res.send(meta.obj.code, obj);
+      return res.send(obj.meta.code, obj);
     }
 
     
