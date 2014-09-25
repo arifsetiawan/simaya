@@ -102,7 +102,10 @@ module.exports = function(app){
       if (result[i].readStates) {
         if (result[i].readStates["recipients"]) {
           if (result[i].readStates.recipients[meMangled]) {
+
             result[i].isRead = true;
+            result[i].dateRead = (result[i].readStates.recipients[meMangled]);
+            result[i].dateReadDetail = (moment(result[i].readStates.recipients[meMangled]).format("DD-MM-YYYY"));
           }
         } else if (result[i].readStates["cc"]) {
           if (result[i].readStates.cc[meMangled]) {
