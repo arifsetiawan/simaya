@@ -106,8 +106,8 @@ module.exports = function(app){
             result[i].statusRead[index] =  { 
                                             name : result[i].recipients[index],
                                             isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
-                                            dateRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] ,
-                                            dateReadDetail : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : false
+                                            dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
+                                            dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
                                          };
         }
       } 
