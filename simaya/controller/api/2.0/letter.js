@@ -1254,7 +1254,8 @@ module.exports = function(app){
                         nomer_surat : callback[i].mailId,
                         jenis_surat : type[callback[i].type],
                         atas_nama : callback[i].sender,
-                        perihal : callback[i].title
+                        perihal : callback[i].title,
+                        next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false
                       };
       });
 
