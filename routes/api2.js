@@ -71,6 +71,7 @@ module.exports = function(app){
   app.get(prefix + "/dispositions/incomings", oauth2.protectedResource, api2.disposition.incomings);
   app.get(prefix + "/dispositions/outgoings", oauth2.protectedResource, api2.disposition.outgoings);
   app.get(prefix + "/dispositions/:id", oauth2.protectedResource, api2.disposition.read);
+  app.post(prefix + "/dispositions/addComments", oauth2.protectedResource, api2.disposition.addComments);
 
   // profile
   app.get(prefix + "/profile/view", oauth2.protectedResource, api2.profile.view);

@@ -1,10 +1,12 @@
 module.exports = function(app){
 
-  var moment = require("moment");
-
   var dispositionWeb = require("../../disposition.js")(app)
   var disposition = require("../../../models/disposition.js")(app)
   var letterUtils = require("../../../models/utils.js")(app)
+    , notification = require('../../../models/notification.js')(app)
+    , ObjectID = app.ObjectID
+    , moment= require('moment')
+    , azuresettings = require("../../../../azure-settings.js");
 
   function isValidObjectID(str) {
     str = str + '';
@@ -244,9 +246,75 @@ module.exports = function(app){
     });
   }
 
+    var sendNotificationComments = function(currentUser, recipients, index, comment, url, callback) {
+    if (typeof(recipients[index]) === "undefined") {
+      callback();
+      return;
+    }
+    if (currentUser != recipients[index].recipient) {
+      notification.set(currentUser, recipients[index].recipient, comment, url, function() {
+        sendNotificationComments(currentUser, recipients, index + 1, comment, url, callback); 
+      })
+    } else {
+      sendNotificationComments(currentUser, recipients, index + 1, comment, url, callback); 
+    }
+  }
+
+
+  var addComments = function(req,res){
+    var data = {};
+        data.meta = {};
+        data.data = {};
+
+    if (req.body && req.body.dispositionId && req.body.message) {
+      var search = {
+        search: {
+          _id: ObjectID(req.body.dispositionId),
+        }
+      }
+      disposition.list(search, function(result) { 
+        if (result != null && result.length == 1) {
+          disposition.addComments(ObjectID(req.body.dispositionId), req.session.currentUser, req.body.message, function(id) {
+            if (id) {
+              var message = req.session.currentUserProfile.fullName + ' mengomentari disposisi Anda.'
+              sendNotificationComments(req.session.currentUser, result[0].recipients, 0, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
+                if (req.session.currentUser != result[0].sender) {
+                  azuresettings.makeNotification(message, req.session.currentUserProfile.id);
+                  notification.set(req.session.currentUser, result[0].sender, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
+                        data.meta.code = 200;
+                        data.data.success = "ok";
+                        res.send(200, data);
+                  })
+                } else {
+                        data.meta.code = 200;
+                        data.data.success = "ok";
+                        res.send(200, data);
+                }
+              })
+            } else {
+                        data.meta.code = 400;
+                        data.data.error = "error";
+                        res.send(400, data);
+            }
+          });
+        } else {
+            data.meta.code = 400;
+            data.data.error = "error";
+            res.send(400, data);
+        }
+      });
+
+    } else {
+        data.meta.code = 400;
+        data.data.error = "error";
+        res.send(400, data);
+    }
+  }
+
   return {
     incomings : incomings,
     outgoings : outgoings,
-    read : read
+    read : read,
+    addComments : addComments
   }
 }
