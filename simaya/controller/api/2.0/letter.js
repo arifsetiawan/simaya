@@ -74,12 +74,12 @@ module.exports = function(app){
           var obj = {
             meta : {}
           }
-          
+
           obj.meta.code = 404;
           obj.meta.errorMessage = "Letters Not Found";
           return res.send(obj.meta.code, obj);
         }
-        
+
         letterAPI.extractData(result, req, res, function(result) {
 
           var obj = {
@@ -91,13 +91,13 @@ module.exports = function(app){
             obj.meta.errorMessage = "Letters Not Found";
             return res.send(obj.meta.code, obj);
           }
-          
+
           var data = result;
 
           var paginations = {
-            current : { 
+            current : {
               count : data.length,
-              limit : search.limit,  
+              limit : search.limit,
               page : parseInt(search.page),
             }
           }
@@ -114,7 +114,7 @@ module.exports = function(app){
               search.page++;
 
               letter.list(search, function (nextResult) {
-                
+
                 if (nextResult && nextResult.length > 0) {
                   paginations.next = {
                     count : nextResult.length,
@@ -132,12 +132,12 @@ module.exports = function(app){
               obj.data = data;
               obj.paginations = paginations;
               res.send(obj);
-            } 
+            }
           } else {
             obj.data = data;
             obj.paginations = paginations;
             res.send(obj);
-          } 
+          }
 
         });
 
@@ -313,7 +313,7 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get incoming letters
-   * 
+   *
    * @apiParam {String} access_token The access token
    * @apiParam {String} page The <code>page-th</code> of result group
    * @apiParam {String} limit The maximum number of letters per page
@@ -321,7 +321,7 @@ module.exports = function(app){
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/letters/incomings
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/incomings?access_token=f3fyGRRoKZ...
    */
@@ -346,9 +346,9 @@ module.exports = function(app){
    * @apiGroup Letters And Agendas
    * @apiPermission token
    * @apiSuccess {Object} status Status of the request
-   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiSuccess {Boolean} status.ok "true" if success
    * @apiError {Object} status Status of the request
-   * @apiError {Boolean} status.ok "false" if success 
+   * @apiError {Boolean} status.ok "false" if success
    */
 
     var incomingcount = function(req, res) {
@@ -407,7 +407,7 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get outgoing letters
-   * 
+   *
    * @apiParam {String} access_token The access token
    * @apiParam {String} page The <code>page-th</code> of result group
    * @apiParam {String} limit The maximum number of letters per page
@@ -415,7 +415,7 @@ module.exports = function(app){
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/letters/outgoings
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
    */
@@ -436,9 +436,9 @@ module.exports = function(app){
    * @apiGroup Letters And Agendas
    * @apiPermission token
    * @apiSuccess {Object} status Status of the request
-   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiSuccess {Boolean} status.ok "true" if success
    * @apiError {Object} status Status of the request
-   * @apiError {Boolean} status.ok "false" if success 
+   * @apiError {Boolean} status.ok "false" if success
    */
 
    var outgoingcount = function(req, res) {
@@ -508,14 +508,14 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get outgoing agendas
-   * 
+   *
    * @apiParam {String} access_token The access token
    * @apiParam {String} id The letter id
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/letters/:id
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
    */
@@ -532,13 +532,13 @@ module.exports = function(app){
       return res.send(obj.meta.code, obj);
     }
 
-    
-    var search = letterWeb.buildSearchForViewing(id, req, res); 
+
+    var search = letterWeb.buildSearchForViewing(id, req, res);
 
     letter.list(search, function(result){
 
       if (!result || result.length == 0) {
-        
+
         var obj = {
           meta : { code : 404, errorMessage : "Letter Not Found"}
         }
@@ -549,7 +549,7 @@ module.exports = function(app){
       letterAPI.extractData(result, req, res, function(result) {
 
         if (!result || result.length == 0) {
-        
+
           var obj = {
             meta : { code : 404, errorMessage : "Letter Not Found"}
           }
@@ -581,7 +581,7 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get incoming agendas
-   * 
+   *
    * @apiParam {String} access_token The access token
    * @apiParam {String} page The <code>page-th</code> of result group
    * @apiParam {String} limit The maximum number of letters per page
@@ -589,20 +589,20 @@ module.exports = function(app){
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/agendas/incomings
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
    */
   var agendaIncomings = function (req, res){
     var search = {
-      search: {} 
+      search: {}
     }
     search.fields = {title:1, date: 1, sender: 1, receivingOrganizations: 1, senderManual:1, readStates: 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
 
     var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
-    search.search[o] =  letter.Stages.RECEIVED; // The letter is received in this organization 
+    search.search[o] =  letter.Stages.RECEIVED; // The letter is received in this organization
     search = letterWeb.populateSortForIncoming(req, search);
 
     list(search, req, res);
@@ -618,7 +618,7 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get outgoing agendas
-   * 
+   *
    * @apiParam {String} access_token The access token
    * @apiParam {String} page The <code>page-th</code> of result group
    * @apiParam {String} limit The maximum number of letters per page
@@ -626,7 +626,7 @@ module.exports = function(app){
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/agendas/outgoings
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
    */
@@ -635,11 +635,11 @@ module.exports = function(app){
     search.fields = {title : 1, date : 1, sender: 1, receivingOrganizations: 1, senderManual:1, readStates: 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
-    search.search = { 
+    search.search = {
       senderOrganization: req.session.currentUserProfile.organization,
       $or: [
-        {status: letter.Stages.RECEIVED}, // displays SENT or RECEIVED 
-        {status: letter.Stages.SENT}, // displays SENT or RECEIVED 
+        {status: letter.Stages.RECEIVED}, // displays SENT or RECEIVED
+        {status: letter.Stages.SENT}, // displays SENT or RECEIVED
       ],
       outgoingAgenda: { $ne: null }
     }
@@ -659,12 +659,12 @@ module.exports = function(app){
       return res.send(obj);
     }
 
-    var search = letterWeb.buildSearchForViewing(id, req, res); 
+    var search = letterWeb.buildSearchForViewing(id, req, res);
 
     letter.list(search, function(result){
 
       if (!result || result.length == 0) {
-        
+
         var obj = {
           meta : { code : 404, errorMessage : "Letter Not Found"}
         }
@@ -675,7 +675,7 @@ module.exports = function(app){
       letterAPI.extractData(result, req, res, function(result) {
 
         if (!result || result.length == 0) {
-        
+
           var obj = {
             meta : { code : 404, errorMessage : "Letter Not Found"}
           }
@@ -746,7 +746,7 @@ module.exports = function(app){
   }
 
   /**
-   * @api {get} /letters/new Send a new letter for inspection 
+   * @api {get} /letters/new Send a new letter for inspection
    *
    * @apiVersion 0.1.0
    *
@@ -755,9 +755,9 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Send a new letter for inspection
-   * 
+   *
    * @apiParam {String} access_token The access token
-   * @apiParam {Object} letter Letter information 
+   * @apiParam {Object} letter Letter information
    * @apiParam {String} letter.sender Sender name
    * @apiParam {Date} letter.date Letter's date
    * @apiParam {String} letter.mailId Letter's id
@@ -770,15 +770,15 @@ module.exports = function(app){
    * @apiParam {String} ccList Comma separated CC's usernames
    * @apiParam {String} reviewers Comma separated reviewers' usernames
    *
-   * @apiSuccess {Object} result Result of the operation 
+   * @apiSuccess {Object} result Result of the operation
    * @apiSuccess {Number} result.code Code
    * @apiSuccess {Object} result.data Embedded data
-   * @apiSuccess {Object} result.data.id Letter id if success 
-   * @apiSuccess {Object} result.data Cause of error if error 
+   * @apiSuccess {Object} result.data.id Letter id if success
+   * @apiSuccess {Object} result.data Cause of error if error
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/letters/new
-   * 
+   *
    * @apiExample Example usage:
    * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net/api/2/letters/new?access_token=f3fyGRRoKZ...
    */
@@ -813,7 +813,7 @@ module.exports = function(app){
       });
     }else {
       console.log("masuk?");
-      letterWeb.create({}, vals, "", letter.createNormal, req, r);      
+      letterWeb.create({}, vals, "", letter.createNormal, req, r);
     }*/
 
     var vals = {
@@ -843,7 +843,7 @@ module.exports = function(app){
   }
 
   /**
-   * @api {get} /letters/sender-selection Get a sender candidates selection list 
+   * @api {get} /letters/sender-selection Get a sender candidates selection list
    *
    * @apiVersion 0.1.0
    *
@@ -852,16 +852,16 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get a sender selection candidates list
-   * 
+   *
    * @apiSuccess {Object[]} result List of candidates
    * @apiSuccess {String} result.username Username of the candidate
    * @apiSuccess {Boolean} result.deputyActive Whether the candidate is a deputy
    * @apiSuccess {Object} result.profile Candidate profile
-   * 
+   *
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/letters/sender-selection
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
    */
@@ -881,7 +881,7 @@ module.exports = function(app){
         var obj = {
           meta: {
             code: 500,
-            data: "Server error" 
+            data: "Server error"
           }
         }
         res.send(500, obj);
@@ -891,7 +891,7 @@ module.exports = function(app){
   }
 
   /**
-   * @api {get} /letters/recipient-organization-selection Get a recipient candidates organization selection list 
+   * @api {get} /letters/recipient-organization-selection Get a recipient candidates organization selection list
    *
    * @apiVersion 0.1.0
    *
@@ -900,18 +900,18 @@ module.exports = function(app){
    * @apiPermission token
    *
    * @apiDescription Get a recipient organization candidates selection list
-   * 
-   * @apiParam {String} onlyFirstLevel If the value is set, only first level of the organization is returned 
+   *
+   * @apiParam {String} onlyFirstLevel If the value is set, only first level of the organization is returned
    * @apiParam {String} prefix The organization prefix of a certain organization, usually set to the first level name obtained by setting onlyFirstLevel
    * @apiSuccess {Object[]} result List of candidates
    * @apiSuccess {String} result.username Username of the candidate
    * @apiSuccess {Boolean} result.deputyActive Whether the candidate is a deputy
    * @apiSuccess {Object} result.profile Candidate profile
-   * 
+   *
    * @apiExample URL Structure:
    * // DEVELOPMENT
    * http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection
-   * 
+   *
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
    */
@@ -929,13 +929,13 @@ module.exports = function(app){
         var obj = {
           meta: {
             code: 500,
-            data: "Server error" 
+            data: "Server error"
           }
         }
         res.send(500, obj);
       }
     });
-    
+
     orgWeb.list(req, r);
   }
 
@@ -967,14 +967,14 @@ module.exports = function(app){
         var obj = {
           meta: {
             code: 500,
-            data: "Server error" 
+            data: "Server error"
           }
         }
         res.send(500, obj);
       }
 
     });
-    
+
     letterWeb.getRecipientCandidates(req, r);
   }
 
@@ -1006,14 +1006,14 @@ module.exports = function(app){
         var obj = {
           meta: {
             code: 500,
-            data: "Server error" 
+            data: "Server error"
           }
         }
         res.send(500, obj);
       }
 
     });
-    
+
     letterWeb.getCcCandidates(req, r);
   }
 
@@ -1044,14 +1044,14 @@ module.exports = function(app){
         var obj = {
           meta: {
             code: 500,
-            data: "Server error" 
+            data: "Server error"
           }
         }
         res.send(500, obj);
       }
 
     });
-    
+
     letterWeb.getReviewerCandidates(req, r);
   }
 
@@ -1064,9 +1064,9 @@ module.exports = function(app){
    * @apiGroup Letters And Agendas
    * @apiParam {String} id Object Id of the letter
    * @apiSuccess {Object} status Status of the request
-   * @apiSuccess {Boolean} status.ok "true" if success 
+   * @apiSuccess {Boolean} status.ok "true" if success
    * @apiError {Object} status Status of the request
-   * @apiError {Boolean} status.ok "false" if success 
+   * @apiError {Boolean} status.ok "false" if success
    */
   var rejectLetter = function(req, res) {
     var obj = {
@@ -1250,6 +1250,7 @@ module.exports = function(app){
     letter.listOutgoingDraft(search,function(callback){
       callback.forEach(function(e, i) {
         callback[i] = {
+                        id_surat : callback[i]._id,
                         tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
                         nomer_surat : callback[i].mailId,
                         jenis_surat : type[callback[i].type],
@@ -1266,17 +1267,17 @@ module.exports = function(app){
          var data = callback;
 
             var paginations = {
-              current : { 
+              current : {
                 count : data.length,
-                limit : search.limit,  
+                limit : search.limit,
                 page : parseInt(search.page),
               }
-            } 
+            }
 
             obj.data = data;
             obj.paginations = paginations;
             res.send(obj);
-       
+
      });
   }
 
