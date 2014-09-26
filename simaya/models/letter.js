@@ -835,7 +835,46 @@ module.exports = function(app) {
           callback(0);
         }
       });
+    },
+
+    listOutgoingDraft: function(search,callback){
+       var fields = search["fields"] || {};
+      if (typeof(search.page) !== "undefined") {
+        var offset = ((search.page - 1) * search.limit);
+        var limit = search.limit;
+        if (typeof(limit) === "undefined") {
+          limit = 10; // default limit
+        }
+
+        db.find(search.search, fields, function(error, cursor) {
+          cursor.sort(search.sort || {date:-1,priority:-1}).limit(limit).skip(offset).toArray(function (error, result) {
+            if (result != null && result.length == 1) {
+              resolveUsersFromData(result[0], function(data) {
+                callback([data]);
+              });
+            } else {
+              callback(result);
+            }
+          });
+        });
+      } else {
+
+        db.find(search.search, fields, function(error, cursor) {
+          cursor.sort(search.sort || {date:-1,priority:-1}).toArray(function(error, result) {
+            console.log("Models result", result);
+            if (result != null && result.length == 1) {
+              resolveUsersFromData(result[0], function(data) {
+                callback([data]);
+              });
+            } else {
+              callback(result);
+            }
+          });
+        });
+      } 
     }
   }
+
+ 
 
 }

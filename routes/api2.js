@@ -50,7 +50,8 @@ module.exports = function(app){
   app.get(prefix + "/letters/cc-candidates-selection", oauth2.protectedResource, api2.letter.ccCandidatesSelection);
   app.get(prefix + "/letters/reviewer-candidates-selection", oauth2.protectedResource, api2.letter.reviewerCandidatesSelection);
   app.post(prefix + "/letters/reject", oauth2.protectedResource, api2.letter.rejectLetter);
-
+  app.get(prefix + "/letters/listOutgoingDraft", oauth2.protectedResource, api2.letter.listOutgoingDraft);
+  
   // app.get(prefix + "/letters/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/:id/documents", oauth2.protectedResource, api2.letter.attachments);

@@ -9,6 +9,7 @@ module.exports = function(app){
   var dbdis = app.db('disposition');
   var utils = require("../../../../sinergis/controller/utils.js")(app)
   var ObjectID = app.ObjectID;
+  var moment = require('moment');
   var wrapper = null;
   // var letterMod = require("../../../model/letter.js")(app);
 
@@ -38,7 +39,30 @@ module.exports = function(app){
     }
   };
 
- 
+ // List Type
+    var type = {
+      0 : "Peraturan",
+      1 : "Pedoman",
+      2 : "Petunjuk Pelaksanaan",
+      3 : "Instruksi",
+      4 : "Prosedur Tetap (SOP)",
+      5 : "Surat Edaran",
+      6 : "Keputusan",
+      7 : "Surat Perintah/Surat Tugas",
+      8 : "Nota Dinas",
+      9 : "Memorandum",
+      10 : "Surat Dinas",
+      11 : "Surat Undangan",
+      12 : "Surat Perjanjian",
+      13 : "Surat Kuasa",
+      14 : "Berita Acara",
+      15 : "Surat Keterangan",
+      16 : "Surat Pengantar",
+      17 : "Pengumuman",
+      18 : "Laporan",
+      19 : "Lain-lain"
+    }
+
   var list = function(search, req, res) {
 
     letterWeb.populateSearch(req, search, function(search) {
@@ -105,7 +129,6 @@ module.exports = function(app){
 
               });
             } else {
-              
               obj.data = data;
               obj.paginations = paginations;
               res.send(obj);
@@ -1176,6 +1199,87 @@ module.exports = function(app){
     })
   }
 
+  var listOutgoingDraft = function(req,res){
+    var search = {};
+    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+     search.search = {
+        $or: [
+          {
+            senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
+            status: letter.Stages.APPROVED, // displays APPROVED and ready to be received
+          },
+          {
+            $and: [
+              {$or: [
+                { originator: req.session.currentUser},
+                { reviewers:
+                  { $in: [req.session.currentUser] }
+                }
+              ]},
+              {$or: [
+                { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+                { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+              ]},
+            ],
+          }
+          ],
+
+          creation: "normal",
+      }
+    } else {
+     search.search = {
+        $and: [
+        {$or: [
+          { originator: req.session.currentUser},
+          { reviewers:
+            { $in: [req.session.currentUser] }
+          }
+        ]},
+        {$or: [
+          { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+          { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+        ]},
+        ],
+
+        creation: "normal",
+      }
+    }
+    search.page = req.query["page"] || 1;
+    search.limit = 20;
+
+    letter.listOutgoingDraft(search,function(callback){
+      callback.forEach(function(e, i) {
+        callback[i] = {
+                        tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
+                        nomer_surat : callback[i].mailId,
+                        jenis_surat : type[callback[i].type],
+                        atas_nama : callback[i].sender,
+                        perihal : callback[i].title
+                      };
+      });
+
+        var obj = {
+          meta : { code : 200 },
+        }
+
+         var data = callback;
+
+            var paginations = {
+              current : { 
+                count : data.length,
+                limit : search.limit,  
+                page : parseInt(search.page),
+              }
+            } 
+
+            obj.data = data;
+            obj.paginations = paginations;
+            res.send(obj);
+       
+     });
+  }
+
+
   return {
     incomings : incomings,
     incomingcount : incomingcount,
@@ -1198,6 +1302,7 @@ module.exports = function(app){
     recipientCandidatesSelection : recipientCandidatesSelection,
     ccCandidatesSelection : ccCandidatesSelection,
     reviewerCandidatesSelection : reviewerCandidatesSelection,
-    rejectLetter : rejectLetter
+    rejectLetter : rejectLetter,
+    listOutgoingDraft : listOutgoingDraft
   }
 }
