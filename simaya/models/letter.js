@@ -619,15 +619,18 @@ module.exports = function(app) {
               }
             }
 
-            for (var i = 0; i < item.ccList.length; i ++) {
-              if (who == item.ccList[i]) {
-                if (data.cc == null
-                    || typeof(data.cc) === "undefined") {
-                  data.cc = {};
+            if(item.ccList){
+                for (var i = 0; i < item.ccList.length; i ++) {
+                if (who == item.ccList[i]) {
+                  if (data.cc == null
+                      || typeof(data.cc) === "undefined") {
+                    data.cc = {};
+                  }
+                  data.cc[whoSave] =  new Date();
                 }
-                data.cc[whoSave] =  new Date();
               }
             }
+          
 
             var set = {
                 readStates: data
