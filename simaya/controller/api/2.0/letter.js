@@ -1257,6 +1257,8 @@ module.exports = function(app){
                         atas_nama : callback[i].sender,
                         perihal : callback[i].title,
                         next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false
+                        priority : callback[i].priority,
+                        classification : callback[i].classification
                       };
       });
 
