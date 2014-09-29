@@ -855,16 +855,27 @@ module.exports = function(app) {
             if (result != null && result.length == 1) {
               resolveUsersFromData(result[0], function(data) {
                  dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
-                    if(item!==null || item!==""){
+                    if(item){
                       callback([data],item.message);
                     }else{
-                      callback([data]);
+                      callback([data],null);
                     }  
                 });
                 
               });
             } else {
-              callback(result);
+              if(result[0]){
+                 dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
+                    if(item){
+                      callback(result,item.message);
+                    }else{
+                      callback(result,null);
+                    }  
+                });
+              }else{
+                   callback(result,null);
+              }
+              
             }
           });
         });
@@ -875,15 +886,25 @@ module.exports = function(app) {
             if (result != null && result.length == 1) {
               resolveUsersFromData(result[0], function(data) {
                 dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
-                    if(item!==null || item!==""){
+                    if(item){
                       callback([data],item.message);
                     }else{
-                      callback([data]);
+                      callback([data],null);
                     }  
                 });
               });
             } else {
-              callback(result);
+              if(result[0]){
+                 dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
+                    if(item){
+                      callback(result,item.message);
+                    }else{
+                      callback(result,null);
+                    }  
+                });
+              }else{
+                   callback(result,null);
+              }
             }
           });
         });
