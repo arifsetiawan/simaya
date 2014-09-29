@@ -1,6 +1,7 @@
 module.exports = function(app) {
   // Private 
   var db = app.db('letter');
+  var dbNotif = app.db('notification');
   var user = app.db('user');
   var ObjectID = app.ObjectID;
   var fs = require('fs');
@@ -840,11 +841,11 @@ module.exports = function(app) {
       });
     },
 
-    listOutgoingDraft: function(search,callback){
+    listOutgoingDraft: function(req,search,callback){
        var fields = search["fields"] || {};
       if (typeof(search.page) !== "undefined") {
         var offset = ((search.page - 1) * search.limit);
-        var limit = search.limit;
+        var limit = parseInt(search.limit);
         if (typeof(limit) === "undefined") {
           limit = 10; // default limit
         }
@@ -853,7 +854,14 @@ module.exports = function(app) {
           cursor.sort(search.sort || {date:-1,priority:-1}).limit(limit).skip(offset).toArray(function (error, result) {
             if (result != null && result.length == 1) {
               resolveUsersFromData(result[0], function(data) {
-                callback([data]);
+                 dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
+                    if(item!==null || item!==""){
+                      callback([data],item.message);
+                    }else{
+                      callback([data]);
+                    }  
+                });
+                
               });
             } else {
               callback(result);
@@ -861,13 +869,18 @@ module.exports = function(app) {
           });
         });
       } else {
-
         db.find(search.search, fields, function(error, cursor) {
           cursor.sort(search.sort || {date:-1,priority:-1}).toArray(function(error, result) {
             console.log("Models result", result);
             if (result != null && result.length == 1) {
               resolveUsersFromData(result[0], function(data) {
-                callback([data]);
+                dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
+                    if(item!==null || item!==""){
+                      callback([data],item.message);
+                    }else{
+                      callback([data]);
+                    }  
+                });
               });
             } else {
               callback(result);

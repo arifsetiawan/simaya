@@ -47,6 +47,13 @@ module.exports = function(app){
     }
 
     obj.data = req.session.currentUserProfile;
+    for (index in req.session.currentUserRoles) {
+        if(req.session.currentUserRoles[index]==="tatausaha"){
+          obj.data.kewenangan = true;
+        }else{
+          obj.data.kewenangan = false;
+        }
+    };
     res.send(obj);
   }
 

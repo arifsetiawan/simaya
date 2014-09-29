@@ -10,6 +10,7 @@ module.exports = function(app){
   var utils = require("../../../../sinergis/controller/utils.js")(app)
   var ObjectID = app.ObjectID;
   var moment = require('moment');
+  var async = require('async');
   var wrapper = null;
   // var letterMod = require("../../../model/letter.js")(app);
 
@@ -40,75 +41,75 @@ module.exports = function(app){
   };
 
  // List Type
-    var type = {
-      0 : "Peraturan",
-      1 : "Pedoman",
-      2 : "Petunjuk Pelaksanaan",
-      3 : "Instruksi",
-      4 : "Prosedur Tetap (SOP)",
-      5 : "Surat Edaran",
-      6 : "Keputusan",
-      7 : "Surat Perintah/Surat Tugas",
-      8 : "Nota Dinas",
-      9 : "Memorandum",
-      10 : "Surat Dinas",
-      11 : "Surat Undangan",
-      12 : "Surat Perjanjian",
-      13 : "Surat Kuasa",
-      14 : "Berita Acara",
-      15 : "Surat Keterangan",
-      16 : "Surat Pengantar",
-      17 : "Pengumuman",
-      18 : "Laporan",
-      19 : "Lain-lain"
-    }
+ var type = {
+  0 : "Peraturan",
+  1 : "Pedoman",
+  2 : "Petunjuk Pelaksanaan",
+  3 : "Instruksi",
+  4 : "Prosedur Tetap (SOP)",
+  5 : "Surat Edaran",
+  6 : "Keputusan",
+  7 : "Surat Perintah/Surat Tugas",
+  8 : "Nota Dinas",
+  9 : "Memorandum",
+  10 : "Surat Dinas",
+  11 : "Surat Undangan",
+  12 : "Surat Perjanjian",
+  13 : "Surat Kuasa",
+  14 : "Berita Acara",
+  15 : "Surat Keterangan",
+  16 : "Surat Pengantar",
+  17 : "Pengumuman",
+  18 : "Laporan",
+  19 : "Lain-lain"
+}
 
-  var list = function(search, req, res) {
+var list = function(search, req, res) {
 
-    letterWeb.populateSearch(req, search, function(search) {
+  letterWeb.populateSearch(req, search, function(search) {
 
-      letter.list(search, function(result){
+    letter.list(search, function(result){
+
+      if (result == null) {
+
+        var obj = {
+          meta : {}
+        }
+
+        obj.meta.code = 404;
+        obj.meta.errorMessage = "Letters Not Found";
+        return res.send(obj.meta.code, obj);
+      }
+
+      letterAPI.extractData(result, req, res, function(result) {
+
+        var obj = {
+          meta : { code : 200 },
+        }
 
         if (result == null) {
-
-          var obj = {
-            meta : {}
-          }
-
           obj.meta.code = 404;
           obj.meta.errorMessage = "Letters Not Found";
           return res.send(obj.meta.code, obj);
         }
 
-        letterAPI.extractData(result, req, res, function(result) {
+        var data = result;
 
-          var obj = {
-            meta : { code : 200 },
+        var paginations = {
+          current : {
+            count : data.length,
+            limit : search.limit,
+            page : parseInt(search.page),
           }
+        }
 
-          if (result == null) {
-            obj.meta.code = 404;
-            obj.meta.errorMessage = "Letters Not Found";
-            return res.send(obj.meta.code, obj);
-          }
+        if (search.page != 1) {
+          paginations.previous = { page : search.page - 1};
+        }
 
-          var data = result;
+        if (result.length > 0) {
 
-          var paginations = {
-            current : {
-              count : data.length,
-              limit : search.limit,
-              page : parseInt(search.page),
-            }
-          }
-
-          if (search.page != 1) {
-            paginations.previous = { page : search.page - 1};
-          }
-
-          if (result.length > 0) {
-
-            if (result.length == search.limit) {
+          if (result.length == search.limit) {
 
               // peek for next data
               search.page++;
@@ -141,167 +142,167 @@ module.exports = function(app){
 
         });
 
+});
+});
+}
+
+var countSuratMasuk = function(req, res, callback) {
+  var search = letterWeb.buildSearchForIncoming(req, res);
+  db.find(search.search, function(err, cursor) {
+    if (cursor != null) {
+      cursor.count(function(e, n) {
+        callback(e,n);
       });
-    });
-  }
-
-  var countSuratMasuk = function(req, res, callback) {
-    var search = letterWeb.buildSearchForIncoming(req, res);
-    db.find(search.search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
-          callback(e,n);
-        });
-      }else {
-        callback(0);
-      }
-    });
-  }
-
-  var countTembusan = function(req, res, callback) {
-    var search = {
-      ccList: {
-        $in: [req.session.currentUser]
-      },
+    }else {
+      callback(0);
     }
-    var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
-    search[o] = letter.Stages.RECEIVED;
-    db.find(search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
-          callback(e,n);
-        });
-      }else {
-        callback(0);
-      }
-    });
-  }
+  });
+}
 
-  var countDisposisiMasuk = function(req, res, callback) {
-    var search = {
-      search : {
-        "recipients.recipient" : req.session.currentUser
-      }
+var countTembusan = function(req, res, callback) {
+  var search = {
+    ccList: {
+      $in: [req.session.currentUser]
+    },
+  }
+  var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
+  search[o] = letter.Stages.RECEIVED;
+  db.find(search, function(err, cursor) {
+    if (cursor != null) {
+      cursor.count(function(e, n) {
+        callback(e,n);
+      });
+    }else {
+      callback(0);
     }
-    dbdis.find(search.search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
+  });
+}
+
+var countDisposisiMasuk = function(req, res, callback) {
+  var search = {
+    search : {
+      "recipients.recipient" : req.session.currentUser
+    }
+  }
+  dbdis.find(search.search, function(err, cursor) {
+    if (cursor != null) {
+      cursor.count(function(e, n) {
           // console.log("CDM", n);
           callback(e,n);
         });
-      }else {
-        callback(0);
-      }
-    });
-  }
+    }else {
+      callback(0);
+    }
+  });
+}
 
-  var countSuratKeluar = function(req, res, callback) {
-    var search = letterWeb.buildSearchForOutgoing(req, res);
-    db.find(search.search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
-          callback(e,n);
-        });
-      }else {
-        callback(0);
-      }
-    });
-  }
+var countSuratKeluar = function(req, res, callback) {
+  var search = letterWeb.buildSearchForOutgoing(req, res);
+  db.find(search.search, function(err, cursor) {
+    if (cursor != null) {
+      cursor.count(function(e, n) {
+        callback(e,n);
+      });
+    }else {
+      callback(0);
+    }
+  });
+}
 
-  var countKonsep = function(req, res, callback) {
-    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
-      var search = {
-        $or: [
-          {
-            senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
+var countKonsep = function(req, res, callback) {
+  if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+    var search = {
+      $or: [
+      {
+        senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
             status: letter.Stages.APPROVED, // displays APPROVED and ready to be received
           },
           {
             $and: [
+            {$or: [
+              { originator: req.session.currentUser},
+              { reviewers:
+                { $in: [req.session.currentUser] }
+              }
+              ]},
+              {$or: [
+                { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+                { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+                ]},
+                ],
+              }
+              ],
+
+
+              creation: "normal",
+            }
+          } else {
+            var search = {
+              $and: [
               {$or: [
                 { originator: req.session.currentUser},
                 { reviewers:
                   { $in: [req.session.currentUser] }
                 }
-              ]},
-              {$or: [
-                { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
-                { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
-              ]},
-            ],
-          }
-          ],
-
-
-          creation: "normal",
-      }
-    } else {
-      var search = {
-        $and: [
-        {$or: [
-          { originator: req.session.currentUser},
-          { reviewers:
-            { $in: [req.session.currentUser] }
-          }
-        ]},
-        {$or: [
+                ]},
+                {$or: [
           { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
           { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
-        ]},
-        ],
+          ]},
+          ],
 
-        creation: "normal",
+          creation: "normal",
+        }
       }
+      db.find(search, function(err, cursor) {
+        if (cursor != null) {
+          cursor.count(function(e, n) {
+            callback(e,n);
+          });
+        }else {
+          callback(0);
+        }
+      });
     }
-    db.find(search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
-          callback(e,n);
-        });
-      }else {
-        callback(0);
-      }
-    });
-  }
 
-  var countBatal = function(req, res, callback) {
-    var search = {
-      $or: [
+    var countBatal = function(req, res, callback) {
+      var search = {
+        $or: [
         { originator: req.session.currentUser},
         { reviewers:
           { $in: [req.session.currentUser] }
         }
-      ],
-      status: letter.Stages.DEMOTED,
-      creation: "normal",
-    }
-    db.find(search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
-          callback(e,n);
-        });
-      }else {
-        callback(0);
+        ],
+        status: letter.Stages.DEMOTED,
+        creation: "normal",
       }
-    });
-  }
+      db.find(search, function(err, cursor) {
+        if (cursor != null) {
+          cursor.count(function(e, n) {
+            callback(e,n);
+          });
+        }else {
+          callback(0);
+        }
+      });
+    }
 
-  var countDisposisiKeluar = function(req, res, callback) {
-    var search = {
-      search : {
-        sender : req.session.currentUser
+    var countDisposisiKeluar = function(req, res, callback) {
+      var search = {
+        search : {
+          sender : req.session.currentUser
+        }
       }
+      dbdis.find(search.search, function(err, cursor) {
+        if (cursor != null) {
+          cursor.count(function(e, n) {
+            callback(e,n);
+          });
+        }else {
+          callback(0);
+        }
+      });
     }
-    dbdis.find(search.search, function(err, cursor) {
-      if (cursor != null) {
-        cursor.count(function(e, n) {
-          callback(e,n);
-        });
-      }else {
-        callback(0);
-      }
-    });
-  }
 
   /**
    * @api {get} /letters/incomings Incoming Letters
@@ -325,7 +326,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/incomings?access_token=f3fyGRRoKZ...
    */
-  var incomings = function (req, res) {
+   var incomings = function (req, res) {
     var search = letterWeb.buildSearchForIncoming(req, res);
     // console.log("Search1", JSON.stringify(search));
     search = letterWeb.populateSortForIncoming(req, search);
@@ -351,13 +352,13 @@ module.exports = function(app){
    * @apiError {Boolean} status.ok "false" if success
    */
 
-    var incomingcount = function(req, res) {
-      var data = {};
-      data.meta = {};
-      data.count = {};
-      var incoming = cc = dispositionIncoming = 0;
-      countSuratMasuk(req, res, function(err,result) {
-        if (err) {
+   var incomingcount = function(req, res) {
+    var data = {};
+    data.meta = {};
+    data.count = {};
+    var incoming = cc = dispositionIncoming = 0;
+    countSuratMasuk(req, res, function(err,result) {
+      if (err) {
           // console.log(err);
           data.meta = 500;
           data.error = err;
@@ -395,7 +396,7 @@ module.exports = function(app){
           });
         });
       });
-    }
+}
 
   /**
    * @api {get} /letters/outgoings Outgoing Letters
@@ -419,7 +420,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
    */
-  var outgoings = function (req, res) {
+   var outgoings = function (req, res) {
     var search = letterWeb.buildSearchForOutgoing(req, res);
     search.fields = {title: 1, priority : 1, classification :1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1, mailId : 1};
     search.page = req.query["page"] || 1;
@@ -443,11 +444,11 @@ module.exports = function(app){
 
    var outgoingcount = function(req, res) {
     var data = {};
-      data.meta = {};
-      data.count = {};
-      var outgoing = draft = demoted = dispositionOutgoing = 0;
-      countSuratKeluar(req, res, function(err,result) {
-        if (err) {
+    data.meta = {};
+    data.count = {};
+    var outgoing = draft = demoted = dispositionOutgoing = 0;
+    countSuratKeluar(req, res, function(err,result) {
+      if (err) {
           // console.log(err);
           data.meta = 500;
           data.error = err;
@@ -495,8 +496,8 @@ module.exports = function(app){
             });
           });
         });
-      });
-   }
+});
+}
 
   /**
    * @api {get} /letter/read/:id Read a letter or agenda
@@ -519,7 +520,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
    */
-  var read = function(req, res) {
+   var read = function(req, res) {
 
     var id = req.params.id;
 
@@ -593,7 +594,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
    */
-  var agendaIncomings = function (req, res){
+   var agendaIncomings = function (req, res){
     var search = {
       search: {}
     }
@@ -630,7 +631,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
    */
-  var agendaOutgoings = function (req, res){
+   var agendaOutgoings = function (req, res){
     var search = {}
     search.fields = {title : 1, date : 1, sender: 1, receivingOrganizations: 1, senderManual:1, readStates: 1};
     search.page = req.query["page"] || 1;
@@ -640,39 +641,28 @@ module.exports = function(app){
       $or: [
         {status: letter.Stages.RECEIVED}, // displays SENT or RECEIVED
         {status: letter.Stages.SENT}, // displays SENT or RECEIVED
-      ],
-      outgoingAgenda: { $ne: null }
-    }
-
-    list(search, req, res);
-  }
-
-  var attachments = function (req, res) {
-    var id = req.params.id;
-
-    if(!isValidObjectID(id)) {
-
-      var obj = {
-        meta : { code : 400, errorMessage : "Invalid Parameters"}
+        ],
+        outgoingAgenda: { $ne: null }
       }
 
-      return res.send(obj);
+      list(search, req, res);
     }
 
-    var search = letterWeb.buildSearchForViewing(id, req, res);
+    var attachments = function (req, res) {
+      var id = req.params.id;
 
-    letter.list(search, function(result){
-
-      if (!result || result.length == 0) {
+      if(!isValidObjectID(id)) {
 
         var obj = {
-          meta : { code : 404, errorMessage : "Letter Not Found"}
+          meta : { code : 400, errorMessage : "Invalid Parameters"}
         }
 
-        return res.send(obj.meta.code, obj);
+        return res.send(obj);
       }
 
-      letterAPI.extractData(result, req, res, function(result) {
+      var search = letterWeb.buildSearchForViewing(id, req, res);
+
+      letter.list(search, function(result){
 
         if (!result || result.length == 0) {
 
@@ -680,24 +670,35 @@ module.exports = function(app){
             meta : { code : 404, errorMessage : "Letter Not Found"}
           }
 
-          res.send(obj.meta.code, obj);
+          return res.send(obj.meta.code, obj);
         }
 
-        var obj = {
-          meta : { code : 200 },
-          data : result[0].fileAttachments
-        }
+        letterAPI.extractData(result, req, res, function(result) {
 
-        var me = req.session.currentUser;
-        letter.setReadState(id, me);
-        res.send(obj);
+          if (!result || result.length == 0) {
 
+            var obj = {
+              meta : { code : 404, errorMessage : "Letter Not Found"}
+            }
+
+            res.send(obj.meta.code, obj);
+          }
+
+          var obj = {
+            meta : { code : 200 },
+            data : result[0].fileAttachments
+          }
+
+          var me = req.session.currentUser;
+          letter.setReadState(id, me);
+          res.send(obj);
+
+        });
       });
-    });
 
-  }
+    }
 
-  var attachment = function (req, res) {
+    var attachment = function (req, res) {
     // TODO: get attachment metadata, depends of its mime type
     // if (req.files) {
     //   var files = req.files.files;
@@ -782,7 +783,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net/api/2/letters/new?access_token=f3fyGRRoKZ...
    */
-  var sendLetter = function(req, res) {
+   var sendLetter = function(req, res) {
     /*console.log("reqbody",req.body);
     if (JSON.stringify(req.body) == '{}') {
       console.log("masuk!");
@@ -865,7 +866,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
    */
-  var senderSelection = function(req, res) {
+   var senderSelection = function(req, res) {
     var myOrganization = req.session.currentUserProfile.organization;
     var vals = {};
     cUtils.populateSenderSelection(myOrganization, "", vals, req, res, function(vals) {
@@ -915,7 +916,7 @@ module.exports = function(app){
    * @apiExample Example usage:
    * curl http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
    */
-  var orgSelection = function(req, res) {
+   var orgSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
         var obj = {
@@ -953,7 +954,7 @@ module.exports = function(app){
    * @apiSuccess {Boolean} result.deputyActive Whether the candidate is a deputy
    * @apiSuccess {Object} result.profile Candidate profile
    */
-  var recipientCandidatesSelection = function(req, res) {
+   var recipientCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
         var obj = {
@@ -992,7 +993,7 @@ module.exports = function(app){
    * @apiSuccess {Boolean} result.deputyActive Whether the candidate is a deputy
    * @apiSuccess {Object} result.profile Candidate profile
    */
-  var ccCandidatesSelection = function(req, res) {
+   var ccCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
         var obj = {
@@ -1030,7 +1031,7 @@ module.exports = function(app){
    * @apiSuccess {String} result.username Username of the candidate
    * @apiSuccess {Object} result.profile Candidate profile
    */
-  var reviewerCandidatesSelection = function(req, res) {
+   var reviewerCandidatesSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
       if (vals) {
         var obj = {
@@ -1068,7 +1069,7 @@ module.exports = function(app){
    * @apiError {Object} status Status of the request
    * @apiError {Boolean} status.ok "false" if success
    */
-  var rejectLetter = function(req, res) {
+   var rejectLetter = function(req, res) {
     var obj = {
       meta: {
       }
@@ -1201,112 +1202,128 @@ module.exports = function(app){
 
   var listOutgoingDraft = function(req,res){
     var search = {};
+    var count = 0;
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
      search.search = {
-        $or: [
-          {
-            senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
+      $or: [
+      {
+        senderOrganization: { $regex: "^" + req.session.currentUserProfile.organization } ,
             status: letter.Stages.APPROVED, // displays APPROVED and ready to be received
           },
           {
             $and: [
-              {$or: [
-                { originator: req.session.currentUser},
-                { reviewers:
-                  { $in: [req.session.currentUser] }
-                }
+            {$or: [
+              { originator: req.session.currentUser},
+              { reviewers:
+                { $in: [req.session.currentUser] }
+              }
               ]},
               {$or: [
                 { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
                 { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+                ]},
+                ],
+              }
+              ],
+
+              creation: "normal",
+            }
+          } else {
+           search.search = {
+            $and: [
+            {$or: [
+              { originator: req.session.currentUser},
+              { reviewers:
+                { $in: [req.session.currentUser] }
+              }
               ]},
-            ],
-          }
+              {$or: [
+          { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
+          { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
+          ]},
           ],
 
           creation: "normal",
+        }
       }
-    } else {
-     search.search = {
-        $and: [
-        {$or: [
-          { originator: req.session.currentUser},
-          { reviewers:
-            { $in: [req.session.currentUser] }
+      search.page = req.query["page"] || 1;
+      search.limit = req.query["limit"] || 20;
+
+      letter.listOutgoingDraft(req,search,function(callback,callback2){
+        async.parallel([
+          function(cb){
+           callback.forEach(function(e, i) {
+             var id = callback[i]._id;
+
+             callback[i] = {
+              id_surat : callback[i]._id,
+              tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
+              nomer_surat : callback[i].mailId,
+              jenis_surat : type[callback[i].type],
+              atas_nama : callback[i].sender,
+              perihal : callback[i].title,
+              next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false,
+              priority : callback[i].priority,
+              classification : callback[i].classification,
+              notif : callback2
+
+            };
+          });
+         },
+         function(cb){
+           var obj = {
+            meta : { code : 200 },
           }
-        ]},
-        {$or: [
-          { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
-          { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
-        ]},
-        ],
 
-        creation: "normal",
-      }
-    }
-    search.page = req.query["page"] || 1;
-    search.limit = 20;
+          var data = callback;
 
-    letter.listOutgoingDraft(search,function(callback){
-      callback.forEach(function(e, i) {
-        callback[i] = {
-                        id_surat : callback[i]._id,
-                        tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
-                        nomer_surat : callback[i].mailId,
-                        jenis_surat : type[callback[i].type],
-                        atas_nama : callback[i].sender,
-                        perihal : callback[i].title,
-                        next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false,
-                        priority : callback[i].priority,
-                        classification : callback[i].classification
-                      };
-      });
+          var paginations = {
+            current : {
+              count : data.length,
+              limit : parseInt(search.limit),
+              page : parseInt(search.page),
+            }
+          }
 
-        var obj = {
-          meta : { code : 200 },
+          obj.data = data;
+          obj.paginations = paginations;
+          res.send(obj);
+        }
+        ], function(err, result) {
+         var obj = {
+          meta : { code : 400 },
         }
 
-         var data = callback;
-
-            var paginations = {
-              current : {
-                count : data.length,
-                limit : search.limit,
-                page : parseInt(search.page),
-              }
-            }
-
-            obj.data = data;
-            obj.paginations = paginations;
-            res.send(obj);
-
-     });
-  }
+        obj.data = err;
+        res.send(obj);
+      });
+});
+}
 
 
-  return {
-    incomings : incomings,
-    incomingcount : incomingcount,
-    outgoings : outgoings,
-    outgoingcount : outgoingcount,
-    read : read,
-    sendLetter: sendLetter,
+return {
+  incomings : incomings,
+  incomingcount : incomingcount,
+  outgoings : outgoings,
+  outgoingcount : outgoingcount,
+  read : read,
+  sendLetter: sendLetter,
 
-    uploadAttachment : uploadAttachment,
-    deleteAttachment : deleteAttachment,
-    attachments : attachments,
-    attachment : attachment,
-    attachmentStream : attachmentStream,
+  uploadAttachment : uploadAttachment,
+  deleteAttachment : deleteAttachment,
+  attachments : attachments,
+  attachment : attachment,
+  attachmentStream : attachmentStream,
 
-    agendaIncomings : agendaIncomings,
-    agendaOutgoings : agendaOutgoings,
+  agendaIncomings : agendaIncomings,
+  agendaOutgoings : agendaOutgoings,
 
-    senderSelection : senderSelection,
-    orgSelection : orgSelection,
-    recipientCandidatesSelection : recipientCandidatesSelection,
-    ccCandidatesSelection : ccCandidatesSelection,
-    reviewerCandidatesSelection : reviewerCandidatesSelection,
-    rejectLetter : rejectLetter,
-    listOutgoingDraft : listOutgoingDraft
-  }
+  senderSelection : senderSelection,
+  orgSelection : orgSelection,
+  recipientCandidatesSelection : recipientCandidatesSelection,
+  ccCandidatesSelection : ccCandidatesSelection,
+  reviewerCandidatesSelection : reviewerCandidatesSelection,
+  rejectLetter : rejectLetter,
+  listOutgoingDraft : listOutgoingDraft
+}
 }
