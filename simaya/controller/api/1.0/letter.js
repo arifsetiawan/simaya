@@ -93,13 +93,16 @@ module.exports = function(app){
       senders[result[i].sender] = 1; 
       result[i].rawDate = result[i].date;
       result[i].date = moment(result[i].date).format("dddd, DD MMMM YYYY");
-      if (result[i].receivingOrganizations[org]) {
-        result[i].incomingAgenda = result[i].receivingOrganizations[org].agenda;
-        if (result[i].receivingOrganizations[org].status == letter.Stages.RECEIVED) {
-          result[i].isRead = true;
+      if(result[i].receivingOrganizations){
+         if (result[i].receivingOrganizations[org]) {
+          result[i].incomingAgenda = result[i].receivingOrganizations[org].agenda;
+          if (result[i].receivingOrganizations[org].status == letter.Stages.RECEIVED) {
+            result[i].isRead = true;
+          }
+          delete(result[i].receivingOrganizations);
         }
-        delete(result[i].receivingOrganizations);
       }
+     
 
       if(result[i].recipients){
          for (var index = 0; index < result[i].recipients.length; index ++) {
