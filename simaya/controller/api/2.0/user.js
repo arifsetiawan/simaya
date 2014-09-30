@@ -39,6 +39,7 @@ module.exports = function(app){
       meta : { code : 200 },
     }
 
+
     if (!req.session.currentUserProfile) {
       obj.meta.code = 404;
       obj.meta.errorMessage = "User Not Found";
@@ -47,13 +48,14 @@ module.exports = function(app){
     }
 
     obj.data = req.session.currentUserProfile;
+    obj.data.isTataUsaha = false;
+ 
     for (index in req.session.currentUserRoles) {
         if(req.session.currentUserRoles[index]==="tatausaha"){
           obj.data.isTataUsaha = true;
-        }else{
-          obj.data.isTataUsaha = false;
         }
     };
+    
     res.send(obj);
   }
 
