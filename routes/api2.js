@@ -102,9 +102,9 @@ module.exports = function(app){
   // timeline
   app.get(prefix + "/timeline/list", oauth2.protectedResource, timeline.listJSON);
   app.post(prefix + "/timeline/post", oauth2.protectedResource, timelineC.post);
-  app.post(prefix + "/timeline/comment", oauth2.protectedResource, timelineC.postComment);
-  app.post(prefix + "/timeline/love", oauth2.protectedResource, timelineC.love);
-  app.post(prefix + "/timeline/unlove", oauth2.protectedResource, timelineC.unlove);
+  app.post(prefix + "/timeline/comment", oauth2.protectedResource, timeline.postComment);
+  app.post(prefix + "/timeline/love", oauth2.protectedResource, timeline.love);
+  app.post(prefix + "/timeline/unlove", oauth2.protectedResource, timeline.unlove);
   app.post(prefix + "/timeline/upload", oauth2.protectedResource, timeline.uploadMedia);
 
   // ob

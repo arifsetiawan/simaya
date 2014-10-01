@@ -9,6 +9,7 @@ module.exports = function(app) {
   var utils = require('./utils')(app);
   var filePreview = require("file-preview");
   var base64Stream = require("base64-stream");
+  var async = require('async');
   
   var stages = {
     NEW: 0,
@@ -20,6 +21,30 @@ module.exports = function(app) {
     RECEIVED: 6,
     REJECTED: 7
   }
+
+   // List Type
+ var type = {
+  0 : "Peraturan",
+  1 : "Pedoman",
+  2 : "Petunjuk Pelaksanaan",
+  3 : "Instruksi",
+  4 : "Prosedur Tetap (SOP)",
+  5 : "Surat Edaran",
+  6 : "Keputusan",
+  7 : "Surat Perintah/Surat Tugas",
+  8 : "Nota Dinas",
+  9 : "Memorandum",
+  10 : "Surat Dinas",
+  11 : "Surat Undangan",
+  12 : "Surat Perjanjian",
+  13 : "Surat Kuasa",
+  14 : "Berita Acara",
+  15 : "Surat Keterangan",
+  16 : "Surat Pengantar",
+  17 : "Pengumuman",
+  18 : "Laporan",
+  19 : "Lain-lain"
+}
 
    // Validation function
   db.validate = function(document, update, callback) {
@@ -841,7 +866,21 @@ module.exports = function(app) {
       });
     },
 
+    getNotif : function(){
+      // dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[i]._id+''}, function(error, item){
+      //   if(item){
+      //     return item.message;
+      //   }else{
+      //     return null;
+      //   }  
+
+      // });
+      return "lala";
+    },
+
     listOutgoingDraft: function(req,search,callback){
+       var ok = {};
+       var test = {};
        var fields = search["fields"] || {};
       if (typeof(search.page) !== "undefined") {
         var offset = ((search.page - 1) * search.limit);
@@ -865,13 +904,25 @@ module.exports = function(app) {
               });
             } else {
               if(result[0]){
-                 dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
-                    if(item){
-                      callback(result,item.message);
-                    }else{
-                      callback(result,null);
-                    }  
-                });
+                  result.forEach(function(e, i) {
+                    
+  
+                   var id = result[i]._id;
+                   ok[i] = {
+                      id_surat : result[i]._id, 
+                      nomer_surat : result[i].mailId,
+                      jenis_surat : type[result[i].type],
+                      atas_nama : result[i].sender,
+                      perihal : result[i].title,
+                      priority : result[i].priority,
+                      classification : result[i].classification,
+                     
+
+                  };
+
+                });  
+                    callback(ok);
+           
               }else{
                    callback(result,null);
               }

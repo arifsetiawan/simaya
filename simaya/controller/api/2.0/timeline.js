@@ -124,30 +124,99 @@ module.exports = function(app) {
 		}
 	}*/
 
-	/*var postComment = function(req, res) {
-	    if (req.body.id && req.body.text) {
+	var postComment = function(req, res) {
+		if (req.body.id && req.body.text) {
+		     var obj = {
+		      meta : { code : 200 },
+		      data : {}
+		    }
+
+		  var data = {
+		    date: new Date(),
+		    id: req.body.id,
+		    user: req.session.currentUser,
+		    text: req.body.text,
+		  }
+		  timelineM.comment(data, function(result) {
+		    if (result) {
+		      app.io.updateTimeline({
+		        me: req.session.currentUser,
+		        id: req.body.id,
+		      }); 
+		      obj.data.success = true; 
+		      res.send(obj);
+		    } else {
+		      obj.data.success = false; 
+		      res.send(obj);
+		    }
+		  });
+		} else {
+		  obj.data.success = false; 
+		  res.send(obj);
+		}
+	}
+
+	 var love = function(req, res) {
+	    if (req.body.id) {
+    	  var obj = {
+		    meta : { code : 200 },
+		    data : {}
+	      }
+
 	      var data = {
 	        date: new Date(),
 	        id: req.body.id,
 	        user: req.session.currentUser,
-	        text: req.body.text,
 	      }
-	      timeline.comment(data, function(result) {
+	      timelineM.love(data, function(result) {
 	        if (result) {
 	          app.io.updateTimeline({
 	            me: req.session.currentUser,
 	            id: req.body.id,
 	          }); 
-
-	          res.send({ok: true});
+	          obj.data.success = true; 
+	          res.send(obj);
 	        } else {
-	          res.send({ok: false});
+	          obj.data.success = false; 
+	          res.send(obj);
 	        }
 	      });
 	    } else {
-	      res.send({ok: false});
+	      obj.data.success = false; 
+	      res.send(obj);
 	    }
-	}*/
+	}
+
+	var unlove = function(req, res) {
+	    if (req.body.id) {
+		  var obj = {
+			  meta : { code : 200 },
+			  data : {}
+		   }
+
+	      var data = {
+	        date: new Date(),
+	        id: req.body.id,
+	        user: req.session.currentUser,
+	      }
+	      timelineM.unlove(data, function(result) {
+	        if (result) {
+	          app.io.updateTimeline({
+	            me: req.session.currentUser,
+	            id: req.body.id,
+	          }); 
+	          obj.data.success = true; 
+	          res.send(obj);
+	        } else {
+	          obj.data.success = false; 
+	          res.send(obj);
+	        }
+	      });
+	    } else {
+	      obj.data.success = false; 
+	      res.send(obj);
+	    }
+	}
 
 	var uploadMedia = function(req, res) {
 	    ob.simplePublicUpload(req.files.upload, "/timeline/status", function(e, r) {
@@ -160,5 +229,8 @@ module.exports = function(app) {
 	return {
 		listJSON: listJSON,
 		uploadMedia : uploadMedia,
+		postComment : postComment,
+		love : love,
+		unlove : unlove
 	}
 };
