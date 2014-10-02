@@ -6,6 +6,8 @@ module.exports = function(app){
     , notification = require('../../../models/notification.js')(app)
     , ObjectID = app.ObjectID
     , moment= require('moment')
+    , user = require('../../../../sinergis/models/user.js')(app)
+    , cUtils = require('../../../../simaya/controller/utils.js')(app)
     , azuresettings = require("../../../../azure-settings.js");
 
   function isValidObjectID(str) {
@@ -368,11 +370,70 @@ module.exports = function(app){
     }
   }
 
+  var getRecepeints = function(req,res){
+    var myEchelonUp = ""+(parseInt(req.session.currentUserProfile.echelon) + 1);
+    var myEchelon = req.session.currentUserProfile.echelon;
+    var myOrganization = req.session.currentUserProfile.organization;
+    var search = {
+      search: {
+        $or: [
+        { 
+          // people with administration role
+          roleList: { $in: [app.simaya.administrationRole] },
+          'profile.organization': myOrganization, // admins is in my org only, issue #173 
+          'profile.echelon': { $gte:  myEchelonUp },  // up 
+        },
+        { 
+          // other member
+          roleList: { $nin: [app.simaya.administrationRole] },
+          'profile.organization': { $regex: '^' + myOrganization} , // can span across orgs 
+          'profile.echelon': { $gt: myEchelon, $lte: myEchelonUp + "e" },  // only exactly up or within the same echelon with lower rank 
+        },
+        ]
+      },
+    }
+
+    if (req.query && req.query.letterId) {
+      disposition.list({search: {letterId: req.query.letterId}}, function(result) {
+        var recipients = [];
+        if (result != null) {
+          for (var i = 0; i < result.length; i++) {
+            for (var j = 0; j < result[i].recipients.length; j++) {
+              recipients.push (result[i].recipients[j].recipient);
+            }
+          }
+          req.query.added = recipients;
+        } 
+        getUserList(search, req, res);
+      });
+    } else {
+      getUserList(search, req, res);
+    }
+  }
+
+  var getUserList = function(search, req, res) {
+    user.list(search, function(r) {
+      if (r == null) {
+        r = [];
+      }
+
+      var added = [];
+      if (req.query && req.query.added) {
+        added = req.query.added
+      }
+      added.push(req.session.currentUser)
+
+      var copy = cUtils.stripCopy(r, added);
+      res.send(JSON.stringify(copy));
+    });
+  }
+
   return {
     incomings : incomings,
     outgoings : outgoings,
     read : read,
     addComments : addComments,
-    create : create
+    create : create,
+    getRecepeints : getRecepeints
   }
 }

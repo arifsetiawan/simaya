@@ -68,8 +68,8 @@ module.exports = function(app) {
 				var collection = settingdb.db.collection("timeline");
 				collection.find(cari, {skip: skip, limit: limit}, function(err, cursor) {
 					cursor.sort({date:-1}).toArray(function(err, result) {
-						// ganti isi loves dengan lovesTemp
-						for (var i = 0; i < result.length; i++) {
+						
+							for (var i = 0; i < result.length; i++) {
 							 if(result[i].comments){
 							 	for(index in result[i].comments){
 							 		result[i].comments[index].time = moment(result[i].comments[index].date).fromNow();
@@ -77,6 +77,8 @@ module.exports = function(app) {
 							 	
 							 }
 
+
+							// ganti isi loves dengan lovesTemp
 							if (result[i].loves) {
 								lovesTemp = [];
 								userArray = Object.keys(result[i].loves);
@@ -154,7 +156,8 @@ module.exports = function(app) {
 		      obj.data.comments = {
 		      	date: new Date(),
 			    user: req.session.currentUser,
-			    text: req.body.text
+			    text: req.body.text,
+	        	time : "beberapa detik yang lalu"
 		      }
 		      obj.data.success = true; 
 		      res.send(obj);
