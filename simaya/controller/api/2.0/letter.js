@@ -1273,6 +1273,98 @@ var countKonsep = function(req, res, callback) {
 });
 }
 
+var createAgendaSuratIncomings = function(req, res) {
+    var vals = {};
+    var obj = {
+                meta : {},
+                data : {}
+              }
+
+    var id = req.params.id || req.body.id;
+
+    if (id) {
+      var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
+      var search = {
+        search: {
+          _id: ObjectID(req.body.id),
+        }
+      }
+
+       if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res) == true) {
+        search.search[o] = letter.Stages.SENT;
+        console.log(search);
+        letter.list(search, function(result){
+          if (result.length == 1) {
+            vals.letter = result[0];
+            Object.keys(result[0]).forEach(function(key){
+              vals[key] = result[0][key];
+            });
+
+            if (req.body.incomingAgenda && req.body.incomingAgenda.length > 0) {
+              var changes = result[0].receivingOrganizations;
+              changes[req.session.currentUserProfile.organization] = {
+                status: letter.Stages.RECEIVED,
+                agenda: req.body.incomingAgenda,
+                date: new Date(),
+              }
+
+              var count = 0;
+              var all = 0;
+              Object.keys(changes).forEach(function(item) {
+                if (changes[item].status == letter.Stages.RECEIVED)
+                  count ++;
+                all ++;
+              });
+
+
+              var data = {
+                receivingOrganizations: changes,
+                log: [ {
+                  date: new Date(),
+                  username: req.session.currentUser,
+                  action: "received",
+                  message: "",
+                  } ],
+              }
+
+              if (count == all) {
+                data.status = letter.Stages.RECEIVED;
+              }
+
+              vals.letterReceived = true;
+              letter.edit(req.body.id, data, function(v) {
+                obj.meta.code = "200";
+                obj.data.success = true;
+                res.send(obj);
+              });
+            } else {
+                obj.meta.code = "200";
+                obj.data.success = false;
+                obj.data.info = "Anda tidak memiliki hak akses untuk membuat nomer agenda";
+                res.send(obj);
+            }
+          } else {
+                obj.meta.code = "200";
+                obj.data.success = false;
+                obj.data.info = "Anda tidak memiliki hak akses untuk membuat nomer agenda/Duplicate Entry";
+                res.send(obj);
+          }
+        });
+
+       }else{
+            obj.meta.code = "200";
+            obj.data.success = false;
+            obj.data.info = "Anda Bukan TU";
+            res.send(obj);
+       }
+      
+    } else {
+            obj.meta.code = "200";
+            obj.data.success = false;
+            obj.data.info = "ID letter and Nomer Agenda Surat Required";
+            res.send(obj);
+    }
+  }
 
 return {
   incomings : incomings,
@@ -1297,6 +1389,7 @@ return {
   ccCandidatesSelection : ccCandidatesSelection,
   reviewerCandidatesSelection : reviewerCandidatesSelection,
   rejectLetter : rejectLetter,
-  listOutgoingDraft : listOutgoingDraft
+  listOutgoingDraft : listOutgoingDraft,
+  createAgendaSuratIncomings : createAgendaSuratIncomings
 }
 }

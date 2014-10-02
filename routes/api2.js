@@ -58,6 +58,7 @@ module.exports = function(app){
   app.all(prefix + "/letters/new", oauth2.protectedResource, api2.letter.sendLetter);
   app.post(prefix + "/letters/uploadAttachments", oauth2.protectedResource, api2.letter.uploadAttachment);
   app.del(prefix + "/letters/attachments/:letterId/:attachmentId", oauth2.protectedResource, api2.letter.deleteAttachment);
+  app.put(prefix + "/letters/createAgendaSuratIncomings", oauth2.protectedResource, api2.letter.createAgendaSuratIncomings);
 
   // documents
   app.get(prefix + "/documents/:id", oauth2.protectedResource, api2.letter.attachment);
