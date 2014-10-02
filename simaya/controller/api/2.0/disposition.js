@@ -424,7 +424,14 @@ module.exports = function(app){
       added.push(req.session.currentUser)
 
       var copy = cUtils.stripCopy(r, added);
-      res.send(JSON.stringify(copy));
+
+      var obj = {
+          meta : { code : 200 },
+          data : {}
+        }
+
+      obj.data = copy;
+      res.send(obj);
     });
   }
 
