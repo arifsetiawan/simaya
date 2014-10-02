@@ -1282,7 +1282,7 @@ var createAgendaSuratIncomings = function(req, res) {
 
     var id = req.params.id || req.body.id;
 
-    if (id) {
+    if (id!=="" && req.body.incomingAgenda!=="") {
       var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
       var search = {
         search: {
