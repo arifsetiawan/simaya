@@ -4,6 +4,7 @@ module.exports = function(app) {
 	  , contactM = require("../../../models/contacts.js")(app)
 	  , ObjectID = app.ObjectID
 	  , settingdb = require("../../../../settings.js")
+	  , moment = require("moment")
 	  , ob = require("../../../../ob/file.js")(app);
 
   /**
@@ -69,6 +70,13 @@ module.exports = function(app) {
 					cursor.sort({date:-1}).toArray(function(err, result) {
 						// ganti isi loves dengan lovesTemp
 						for (var i = 0; i < result.length; i++) {
+							 if(result[i].comments){
+							 	for(index in result[i].comments){
+							 		result[i].comments[index].time = moment(result[i].comments[index].date).fromNow();
+							 	}
+							 	
+							 }
+
 							if (result[i].loves) {
 								lovesTemp = [];
 								userArray = Object.keys(result[i].loves);
@@ -128,7 +136,7 @@ module.exports = function(app) {
 		if (req.body.id && req.body.text) {
 		     var obj = {
 		      meta : { code : 200 },
-		      data : {}
+		      data : { }
 		    }
 
 		  var data = {
@@ -143,6 +151,11 @@ module.exports = function(app) {
 		        me: req.session.currentUser,
 		        id: req.body.id,
 		      }); 
+		      obj.data.comments = {
+		      	date: new Date(),
+			    user: req.session.currentUser,
+			    text: req.body.text
+		      }
 		      obj.data.success = true; 
 		      res.send(obj);
 		    } else {
