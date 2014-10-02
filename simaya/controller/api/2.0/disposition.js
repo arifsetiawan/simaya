@@ -17,6 +17,63 @@ module.exports = function(app){
     return valid;
   }
 
+  var create = function(req, res) {
+     var obj = {
+        meta : {  } ,
+        data : {}
+      }
+
+    if (req.body.id &&
+        req.body.recipients &&
+        req.body.date &&
+        req.body.instruction &&
+        req.body.security &&
+        req.body.priority &&
+        req.body.description && 
+        req.body.message) {
+
+      var recipients = [];
+
+      for (var i = 0; i < req.body.recipients.length; i++) {
+        var r = {
+          message: req.body.description[i],
+          recipient: req.body.recipients[i],
+          date: new Date(req.body.date[i]),
+          instruction: req.body.instruction[i],
+          security: req.body.security[i],
+          priority: req.body.priority[i],
+          message : req.body.message[i],
+        }
+        recipients.push(r);
+      }
+
+      var data = {
+        date: new Date(),
+        letterId: req.body.id,
+        inReplyTo: req.body.dispositionId,
+        sender: req.session.currentUser,
+        letterTitle: req.body.letterTitle,
+        letterMailId: req.body.letterNumber,
+        letterDate: req.body.letterDate,
+        recipients: recipients,
+      }
+
+      disposition.create(data, function(e, v) {
+        req.body.recipients.forEach(function(item) {
+          notification.set(item, 'Ada disposisi perihal ' + req.body.letterTitle, '/disposition/read/' + v._id);
+        });
+
+          obj.meta.code = "200";
+          obj.data.success = true;
+          res.send(obj);
+      });
+    } else {
+          obj.meta.code = "400";
+          obj.data.success = false;
+          res.send(obj);
+    }
+  }
+
   /**
    * @api {get} /dispositions/outgoings Outgoing Dispositions
    *
@@ -315,6 +372,7 @@ module.exports = function(app){
     incomings : incomings,
     outgoings : outgoings,
     read : read,
-    addComments : addComments
+    addComments : addComments,
+    create : create
   }
 }
