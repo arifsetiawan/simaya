@@ -563,7 +563,7 @@ module.exports = function(app) {
         req.body.startTime &&
         req.body.endDate &&
         req.body.endTime
-        eq.body.id && req.body.id != "") {
+        req.body.id && req.body.id != "") {
       var start = new Date(moment(req.body.startDate, "DD/MM/YYYY").toDate());
       start.setHours(parseInt(req.body.startTime[0] + req.body.startTime[1], 10));
       start.setMinutes(parseInt(req.body.startTime[2] + req.body.startTime[3], 10));
