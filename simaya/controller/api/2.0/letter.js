@@ -1250,8 +1250,24 @@ var countKonsep = function(req, res, callback) {
       search.limit = req.query["limit"] || 20;
 
       letter.listOutgoingDraft(req,search,function(callback,callback2){
-        
-           var obj = {
+
+           callback.forEach(function(e, i) {
+             callback[i] = {
+                id_surat : callback[i]._id,
+                tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
+                nomer_surat : callback[i].mailId,
+                jenis_surat : type[callback[i].type],
+                atas_nama : callback[i].sender,
+                perihal : callback[i].title,
+                next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false,
+                priority : callback[i].priority,
+                classification : callback[i].classification
+
+            };
+          });
+
+
+          var obj = {
             meta : { code : 200 },
           }
 

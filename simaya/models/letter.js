@@ -904,24 +904,13 @@ module.exports = function(app) {
               });
             } else {
               if(result[0]){
-                  result.forEach(function(e, i) {
-                    
-  
-                   var id = result[i]._id;
-                   ok[i] = {
-                      id_surat : result[i]._id, 
-                      nomer_surat : result[i].mailId,
-                      jenis_surat : type[result[i].type],
-                      atas_nama : result[i].sender,
-                      perihal : result[i].title,
-                      priority : result[i].priority,
-                      classification : result[i].classification,
-                     
-
-                  };
-
-                });  
-                    callback(ok);
+                  dbNotif.findOne({'username':  req.session.currentUser,'url':'/letter/read/'+result[0]._id+''}, function(error, item){
+                    if(item){
+                      callback(result,item.message);
+                    }else{
+                      callback(result,null);
+                    }  
+                });
            
               }else{
                    callback(result,null);
