@@ -3,6 +3,7 @@ module.exports = function(app) {
   var db = app.db('calendar');
   var dbFiles = app.db('fs.files');
   var dbChunks = app.db('fs.chunks');
+  var dbNotif = app.db('notification')
   var moment = require('moment');
   var fs = require('fs');
   var ObjectID = app.ObjectID;
@@ -144,21 +145,32 @@ module.exports = function(app) {
 
     // Deletes calender
     // Returns via a callback
-    remove: function (id, callback) {
-      this.getInfo(id, function(item) {
+    remove: function (id_calender,req, callback) {
+      this.getInfo(id_calender, function(item) {
         if (item != null) {
-           db.findOne({'_id': item._id}, function(error, item){
-              db.remove({_id: item._id}, function(r) {
-                if(item.fileAttachments!==null){
-                  for(var index in item.fileAttachments ){
-                     dbChunks.remove({files_id:item.fileAttachments[index].path }, function(e) {
-                       dbFiles.remove({files_id:item.fileAttachments[index].path }, function(f) {
-                        callback(true);
+          db.findOne({'_id': item._id,'user':req.session.currentUser}, function(error, item){
+              if(item===null){
+                callback("error1");
+              }else{
+                   db.remove({_id: item._id}, function(r) {
+                      if(item.fileAttachments!==null){
+                        for(var index in item.fileAttachments ){
+                           dbChunks.remove({files_id:item.fileAttachments[index].path }, function(e) {
+                             dbFiles.remove({files_id:item.fileAttachments[index].path }, function(f) {
+                            });
+                          });
+                        }
+                      } 
+                  });
+                  dbNotif.findArray({'url': '/calendar/day?invitationId='+item._id,'sender':req.session.currentUser}, function(error, item){
+                      for (var index in item) {
+                        dbNotif.remove({_id:item[index]._id},function(r){
                       });
-                    });
-                  }
-                } 
-            });
+                    }
+
+                  });
+                  callback(true);
+              }
           });
         } else {
           callback(false);

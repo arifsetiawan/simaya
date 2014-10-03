@@ -85,30 +85,32 @@ module.exports = function(app){
   }
 
  var remove = function(req, res) {
-    var r = ResWrapper(function(data) {
-       if (data && data == "\"OK\"") {
-        res.send({
-          meta: {
-            code: 200
-          }
-        });
-      } else if (data && JSON.parse(data).Data) {
-        res.send(400, {
-          meta: {
-            code: 400,
-            data: "Invalid request: " + JSON.parse(data).Data.join(",")
-          }
-        });
-      } else {
-        res.send(400, {
-          meta: {
-            code: 400,
-            data: "Invalid request"
-          }
-        });
-      }
-    });
-     calendarWeb.removeCalender(req,r);
+
+  var obj = {
+        meta: { code: "200"},
+        data:{}
+  }
+
+   if (req.body.id_calender) {
+      calendar.remove(req.body.id_calender,req, function(r) {
+        if(r===true){
+          obj.data.success = true;
+          res.send(obj);
+        }else if(r==="error1"){
+          obj.data.success = false;
+          obj.data.info = "Calender bukan milik anda";
+          res.send(obj);
+        }else{
+          obj.data.success = false;
+          obj.data.info = "Calender tidak ditemukan";
+          res.send(obj);
+        }
+      });
+    } else {
+      obj.data.success = false;
+      obj.data.info = "id_calender required";
+      res.send(obj);
+    } 
   }
 
    var edit = function(req, res) {
