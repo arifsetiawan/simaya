@@ -68,8 +68,9 @@ module.exports = function(app){
           res.send(obj);
       });
     } else {
-          obj.meta.code = "400";
+          obj.meta.code = "200";
           obj.data.success = false;
+          obj.data.info = "id/recipients/date/instruction/security/priority/message required"
           res.send(obj);
     }
   }
