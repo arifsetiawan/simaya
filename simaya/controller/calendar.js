@@ -558,6 +558,11 @@ module.exports = function(app) {
 
   var editCalender = function(req, res)
   {
+    var obj = {
+        meta: { code: "200"},
+        data:{}
+   }
+
     if (req.body.title &&
         req.body.startDate &&
         req.body.startTime &&
@@ -593,9 +598,11 @@ module.exports = function(app) {
           recurrence: req.body.recurrence || 0,
         }
 
-          calendar.edit(req.body.id, data, function(v) {
-            if (v.hasErrors() > 0) {
-              res.send(JSON.stringify({status:"NOK", error: "system", v: v}))
+          calendar.editApi(req.body.id, data,req, function(v) {
+            if (v===false) {
+              obj.data.success = false;
+              obj.data.info = "Calendar tidak ditemukan";
+              res.send(obj);
             } else {
               if (req.body.reminder) {
                 var alarmTime = start;
@@ -607,22 +614,28 @@ module.exports = function(app) {
                 }
                 calendarAlarm.edit(req.body.id, alarmData, function(v) {
                   notifyRecipients(req, req.body.id, data, function() {
-                    res.send(JSON.stringify({status:"OK"}))
+                    obj.data.success = true;
+                    res.send(obj);
                   })
                 });
               } else {
                 notifyRecipients(req, req.body.id, data, function() {
-                  res.send(JSON.stringify({status:"OK"}))
+                    obj.data.success = true;
+                    res.send(obj);
                 })
               }
             }
           });
         
       } else {
-        res.send(JSON.stringify({status:"NOK", error: "date-sequence"}))
+        obj.data.success = false;
+        obj.data.info = "date-sequence";
+        res.send(obj);
       }
     } else {
-      res.send(JSON.stringify({status:"NOK", error: "incomplete"}))
+        obj.data.success = false;
+        obj.data.info = "incomplete";
+        res.send(obj);
     }
   }
 

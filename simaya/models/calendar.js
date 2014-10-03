@@ -115,11 +115,10 @@ module.exports = function(app) {
 
     // Modifies calendar 
     // Returns via callback
-    //    validator: The validator
+    // validator: The validator
     edit: function (id, data, callback) {
         db.findOne({_id: ObjectID(id + "")}, function(err, item) { 
         if (err == null && item != null) {
-       
           db.validateAndUpdate( {
             _id: item._id
           }, {
@@ -141,6 +140,39 @@ module.exports = function(app) {
       });
 
 
+    },
+
+    // Edit Calender For API
+     editApi: function (id, data, req,callback) {
+        db.findOne({_id: ObjectID(id + "")}, function(err, item) { 
+        if (err == null && item != null) {
+           if(item.fileAttachments!==null && data.fileAttachments!==null){
+              for(var index in item.fileAttachments ){
+                 dbChunks.remove({files_id:item.fileAttachments[index].path }, function(e) {
+                   dbFiles.remove({files_id:item.fileAttachments[index].path }, function(f) {
+                  });
+                });
+              }
+            } 
+
+           dbNotif.findArray({'url': '/calendar/day?invitationId='+item._id,'sender':req.session.currentUser}, function(error, item){
+                  for (var index in item) {
+                    dbNotif.remove({_id:item[index]._id},function(r){
+                  });
+                }
+            });
+
+            db.validateAndUpdate( {
+              _id: item._id
+            }, {
+              '$set': data 
+            }, function (error, validator) {
+              callback(true);
+            }); 
+       } else {
+          callback(false)
+       }
+      });
     },
 
     // Deletes calender
