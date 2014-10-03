@@ -31,14 +31,12 @@ module.exports = function(app){
         req.body.instruction &&
         req.body.security &&
         req.body.priority &&
-        req.body.description && 
         req.body.message) {
 
       var recipients = [];
 
       for (var i = 0; i < req.body.recipients.length; i++) {
         var r = {
-          message: req.body.description[i],
           recipient: req.body.recipients[i],
           date: new Date(req.body.date[i]),
           instruction: req.body.instruction[i],

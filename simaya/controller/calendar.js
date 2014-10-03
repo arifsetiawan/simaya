@@ -556,6 +556,75 @@ module.exports = function(app) {
     res.redirect('/calendar/day');
   }
 
+  var editCalender = function(req, res)
+  {
+    if (req.body.title &&
+        req.body.startDate &&
+        req.body.startTime &&
+        req.body.endDate &&
+        req.body.endTime
+        eq.body.id && req.body.id != "") {
+      var start = new Date(moment(req.body.startDate, "DD/MM/YYYY").toDate());
+      start.setHours(parseInt(req.body.startTime[0] + req.body.startTime[1], 10));
+      start.setMinutes(parseInt(req.body.startTime[2] + req.body.startTime[3], 10));
+
+      var end = new Date(moment(req.body.endDate, "DD/MM/YYYY").toDate());
+      end.setHours(parseInt(req.body.endTime[0] + req.body.endTime[1], 10));
+      end.setMinutes(parseInt(req.body.endTime[2] + req.body.endTime[3], 10));
+
+      var fileAttachments = collectAttachments(req, res);
+      if (start < end) {
+        var recipients = [];
+        if (req.body.recipients) {
+          recipients = req.body.recipients.split(",");
+        }
+        var data = {
+          user: req.session.currentUser,
+          title: req.body.title,
+          start: start,
+          end: end,
+          recipients: recipients,
+          fileAttachments: fileAttachments,
+          description: req.body.description || "",
+          status: req.body.status || 0,
+          visibility: req.body.visibility || 0,
+          reminder: req.body.reminder || 0,
+          recurrence: req.body.recurrence || 0,
+        }
+
+          calendar.edit(req.body.id, data, function(v) {
+            if (v.hasErrors() > 0) {
+              res.send(JSON.stringify({status:"NOK", error: "system", v: v}))
+            } else {
+              if (req.body.reminder) {
+                var alarmTime = start;
+                alarmTime.setMinutes(alarmTime.getMinutes() - req.body.reminder);
+
+                var alarmData = {
+                  calendarId: ObjectID(req.body.id + ""),
+                  time: alarmTime,
+                }
+                calendarAlarm.edit(req.body.id, alarmData, function(v) {
+                  notifyRecipients(req, req.body.id, data, function() {
+                    res.send(JSON.stringify({status:"OK"}))
+                  })
+                });
+              } else {
+                notifyRecipients(req, req.body.id, data, function() {
+                  res.send(JSON.stringify({status:"OK"}))
+                })
+              }
+            }
+          });
+        
+      } else {
+        res.send(JSON.stringify({status:"NOK", error: "date-sequence"}))
+      }
+    } else {
+      res.send(JSON.stringify({status:"NOK", error: "incomplete"}))
+    }
+  }
+
   return {
     dayView: dayView, 
     list: listView, 
@@ -573,6 +642,7 @@ module.exports = function(app) {
     cancelInvitationJSON: cancelInvitationJSON,
     declineInvitationJSON: declineInvitationJSON,
     removeInvitationJSON: removeInvitationJSON,
-    redirectToCalendarDay: redirectToCalendarDay
+    redirectToCalendarDay: redirectToCalendarDay,
+    editCalender : editCalender
   }
 };
