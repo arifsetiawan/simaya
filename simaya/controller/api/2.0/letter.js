@@ -1383,7 +1383,7 @@ var createAgendaSuratIncomings = function(req, res) {
                   data : {}
                 }
 
-    if (req.body && req.body.id_letter && req.body.message) {
+    if (req.body && req.body.id_letter) {
       var search = {
         search: {
           _id: ObjectID(req.body.id_letter),
@@ -1391,26 +1391,54 @@ var createAgendaSuratIncomings = function(req, res) {
       }
       letter.list(search, function(result){
         if (result != null && result.length == 1) {
-          if (result[0].status == letter.Stages.WAITING
-              && result[0].originator == req.session.currentUser) {
+          if (result[0].status == letter.Stages.WAITING) {
 
-            var data = {
-              status: letter.Stages.DEMOTED, 
-              log:  [{
-                date: new Date(),
-                username: req.session.currentUser,
-                action: "demoted",
-                message: req.body.message,
-                }]
+            if(result[0].nextReviewer == req.session.currentUser){
+                  var data = {
+                  status: letter.Stages.DEMOTED, 
+                  log:  [{
+                    date: new Date(),
+                    username: req.session.currentUser,
+                    action: "demoted",
+                    message: "",
+                    }]
+                }
+                letter.editForApi(req.body.id_letter, data, function(v) {
+                  obj.data.success = true;
+                  res.send(obj);
+                })
+            }else{
+              if(req.body.message && result[0].originator == req.session.currentUser){
+                 var data = {
+                  status: letter.Stages.DEMOTED, 
+                  log:  [{
+                    date: new Date(),
+                    username: req.session.currentUser,
+                    action: "demoted",
+                    message: req.body.message,
+                    }]
+                }
+                 letter.editForApi(req.body.id_letter, data, function(v) {
+                    obj.data.success = true;
+                    res.send(obj);
+                 })
+              }else{
+                if(result[0].originator == req.session.currentUser){
+                  obj.data.success = false;
+                  obj.data.info = "Message required";
+                  res.send(obj);        
+                }else{
+                  obj.data.success = false;
+                  obj.data.info = "Anda bukan pemiliki ID Letter";
+                  res.send(obj);
+                }
+
+              }
+
             }
-
-            letter.editForApi(req.body.id_letter, data, function(v) {
-                obj.data.success = true;
-                res.send(obj);
-            })
           }else{
             obj.data.success = false;
-            obj.data.info = "Statusnya bukan waiting/Anda bukan pemiliki ID Letter";
+            obj.data.info = "Statusnya bukan waiting";
             res.send(obj);
           }
         }else{
@@ -1421,7 +1449,7 @@ var createAgendaSuratIncomings = function(req, res) {
       })
     } else {
             obj.data.success = false;
-            obj.data.info = "Letter ID / Message required";
+            obj.data.info = "Letter ID required";
             res.send(obj);
     }
   }

@@ -963,7 +963,6 @@ module.exports = function(app) {
           item.log = item.log || []
           data.log = item.log.concat(data.log);
 
-         console.log(data.log);
           db.validateAndUpdate( {
             _id: item._id
           }, {
