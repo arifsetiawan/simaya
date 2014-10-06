@@ -1292,7 +1292,7 @@ var countKonsep = function(req, res, callback) {
 var createAgendaSuratIncomings = function(req, res) {
     var vals = {};
     var obj = {
-                meta : {},
+                meta : { code : "200" },
                 data : {}
               }
 
@@ -1349,18 +1349,15 @@ var createAgendaSuratIncomings = function(req, res) {
 
               vals.letterReceived = true;
               letter.edit(req.body.id, data, function(v) {
-                obj.meta.code = "200";
                 obj.data.success = true;
                 res.send(obj);
               });
             } else {
-                obj.meta.code = "200";
                 obj.data.success = false;
                 obj.data.info = "Anda tidak memiliki hak akses untuk membuat nomer agenda";
                 res.send(obj);
             }
           } else {
-                obj.meta.code = "200";
                 obj.data.success = false;
                 obj.data.info = "Anda tidak memiliki hak akses untuk membuat nomer agenda/Duplicate Entry";
                 res.send(obj);
@@ -1368,16 +1365,58 @@ var createAgendaSuratIncomings = function(req, res) {
         });
 
        }else{
-            obj.meta.code = "200";
             obj.data.success = false;
             obj.data.info = "Anda Bukan TU";
             res.send(obj);
        }
       
     } else {
-            obj.meta.code = "200";
             obj.data.success = false;
             obj.data.info = "ID letter and Nomer Agenda Surat Required";
+            res.send(obj);
+    }
+  }
+
+   var cancelLetter = function(req, res) {
+     var obj = {
+                  meta : { code : "200" },
+                  data : {}
+                }
+
+    if (req.body && req.body.id_letter && req.body.message) {
+      var search = {
+        search: {
+          _id: ObjectID(req.body.id_letter),
+        }
+      }
+      letter.list(search, function(result){
+        if (result != null && result.length == 1) {
+          if (result[0].status == letter.Stages.WAITING
+              && result[0].originator == req.session.currentUser) {
+             console.log( req.session.currentUser);
+            var data = {
+              status: letter.Stages.DEMOTED
+              , log: [ {
+                date: new Date(),
+                username: req.session.currentUser,
+                action: "demoted",
+                message: req.body.message,
+                } ],
+            }
+            letter.edit(req.body.id_letter, data, function(v) {
+                obj.data.success = true;
+                res.send(obj);
+            })
+          }
+        }else{
+            obj.data.success = false;
+            obj.data.info = "ID Letter tidak ditemukan/Statusnya bukan waiting/Anda bukan pemiliki ID Letter";
+            res.send(obj);
+        }
+      })
+    } else {
+            obj.data.success = false;
+            obj.data.info = "Letter ID / Message required";
             res.send(obj);
     }
   }
@@ -1406,6 +1445,7 @@ return {
   reviewerCandidatesSelection : reviewerCandidatesSelection,
   rejectLetter : rejectLetter,
   listOutgoingDraft : listOutgoingDraft,
-  createAgendaSuratIncomings : createAgendaSuratIncomings
+  createAgendaSuratIncomings : createAgendaSuratIncomings,
+  cancelLetter : cancelLetter
 }
 }
