@@ -952,9 +952,7 @@ module.exports = function(app) {
       } 
     },
 
-
    editForApi :function (id, data, callback) {
-      
       db.findOne({_id: (typeof(id) === "string") ? ObjectID(id) : id }, function(err, item) { 
 
         if (err == null && item != null) {
@@ -978,7 +976,44 @@ module.exports = function(app) {
           callback(validator);
        }
       });
-  }
+  },
+
+   rejectLetterNew :function (id,req, callback) {
+      db.findOne({_id: (typeof(id) === "string") ? ObjectID(id) : id }, function(error, item){
+        if(item){
+           if(item.status === 1){
+            if(req.session.currentUser == item.nextReviewer){
+               var data = {};
+               item.reviewers.forEach(function(e,i){
+                  if(req.session.currentUser == item.reviewers[i]){
+                    if(i>0){
+                         data.nextReviewer = item.reviewers[i-1];
+                    }else{
+                        data.nextReviewer = item.originator;
+                        data.status = stages.NEW;
+                    }
+                  }
+               });
+              db.validateAndUpdate( {
+                _id: item._id
+              }, {
+                '$set': data 
+              }, function (error, validator) {
+                callback()
+              });
+            }else{
+                callback("Anda bukan reviewers selanjutnya");
+            }
+
+          }else{
+            callback("Surat tidak bisa dirubah karena status bukan NEW")
+          }
+        }else{
+          callback("Id surat tidak ditemukan");
+        }
+       
+      });
+    }
   }
 
  

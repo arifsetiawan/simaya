@@ -1454,6 +1454,24 @@ var createAgendaSuratIncomings = function(req, res) {
     }
   }
 
+  var rejectLetterNew = function(req,res){
+      var obj = {
+                  meta : { code : "200" },
+                  data : {}
+                }
+
+    letter.rejectLetterNew(req.body.id_letter,req,function(v){
+       if(v=="" || v==null){
+          obj.data.success = true;
+          res.send(obj);
+       }else{
+          obj.data.success = false;
+          obj.data.info = v;
+          res.send(obj);
+       }
+    });
+  }
+ 
 return {
   incomings : incomings,
   incomingcount : incomingcount,
@@ -1479,6 +1497,7 @@ return {
   rejectLetter : rejectLetter,
   listOutgoingDraft : listOutgoingDraft,
   createAgendaSuratIncomings : createAgendaSuratIncomings,
-  cancelLetter : cancelLetter
+  cancelLetter : cancelLetter,
+  rejectLetterNew:rejectLetterNew
 }
 }
