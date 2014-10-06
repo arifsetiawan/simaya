@@ -91,8 +91,8 @@ module.exports = function(app){
         data:{}
   }
 
-   if (req.body.id_calender) {
-      calendar.remove(req.body.id_calender,req, function(r) {
+   if (req.query.id_calender) {
+      calendar.remove(req.query.id_calender,req, function(r) {
         if(r===true){
           obj.data.success = true;
           res.send(obj);

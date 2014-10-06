@@ -3,7 +3,8 @@ module.exports = function(app) {
   var db = app.db('calendar');
   var dbFiles = app.db('fs.files');
   var dbChunks = app.db('fs.chunks');
-  var dbNotif = app.db('notification')
+  var dbNotif = app.db('notification');
+  var dbCalenderAlarm = app.db('calendarAlarm');
   var moment = require('moment');
   var fs = require('fs');
   var ObjectID = app.ObjectID;
@@ -195,11 +196,20 @@ module.exports = function(app) {
                       } 
                   });
                   dbNotif.findArray({'url': '/calendar/day?invitationId='+item._id,'sender':req.session.currentUser}, function(error, item){
-                      for (var index in item) {
-                        dbNotif.remove({_id:item[index]._id},function(r){
-                      });
-                    }
-
+                      if(item){
+                         for (var index in item) {
+                            dbNotif.remove({_id:item[index]._id},function(r){
+                            });
+                          }
+                      }
+                  });
+                    dbCalenderAlarm.findArray({'calendarId':item._id}, function(error, item){
+                      if(item){
+                        for (var index in item) {
+                          dbCalenderAlarm.remove({_id:item[index]._id},function(r){
+                          });
+                        }
+                      }
                   });
                   callback(true);
               }
