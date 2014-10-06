@@ -458,6 +458,7 @@ module.exports = function(app) {
       });
   }
 
+
   // Public API
   return {
     // Creates a letter imported from a paper-based letter 
@@ -949,7 +950,36 @@ module.exports = function(app) {
           });
         });
       } 
-    }
+    },
+
+
+   editForApi :function (id, data, callback) {
+      
+      db.findOne({_id: (typeof(id) === "string") ? ObjectID(id) : id }, function(err, item) { 
+
+        if (err == null && item != null) {
+
+          // Log is concatenated, not replaced
+          item.log = item.log || []
+          data.log = item.log.concat(data.log);
+
+         console.log(data.log);
+          db.validateAndUpdate( {
+            _id: item._id
+          }, {
+            '$set': data 
+          }, function (error, validator) {
+            callback(validator);
+          });
+
+       } else {
+          var doc = { _id: id};
+          var validator = app.validator(doc, doc);
+          validator.addError('data', 'Non-existant id');
+          callback(validator);
+       }
+      });
+  }
   }
 
  

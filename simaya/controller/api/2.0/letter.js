@@ -1393,24 +1393,29 @@ var createAgendaSuratIncomings = function(req, res) {
         if (result != null && result.length == 1) {
           if (result[0].status == letter.Stages.WAITING
               && result[0].originator == req.session.currentUser) {
-             console.log( req.session.currentUser);
+
             var data = {
-              status: letter.Stages.DEMOTED
-              , log: [ {
+              status: letter.Stages.DEMOTED, 
+              log:  [{
                 date: new Date(),
                 username: req.session.currentUser,
                 action: "demoted",
                 message: req.body.message,
-                } ],
+                }]
             }
-            letter.edit(req.body.id_letter, data, function(v) {
+
+            letter.editForApi(req.body.id_letter, data, function(v) {
                 obj.data.success = true;
                 res.send(obj);
             })
+          }else{
+            obj.data.success = false;
+            obj.data.info = "Statusnya bukan waiting/Anda bukan pemiliki ID Letter";
+            res.send(obj);
           }
         }else{
             obj.data.success = false;
-            obj.data.info = "ID Letter tidak ditemukan/Statusnya bukan waiting/Anda bukan pemiliki ID Letter";
+            obj.data.info = "ID Letter tidak ditemukan";
             res.send(obj);
         }
       })
