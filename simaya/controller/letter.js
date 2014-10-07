@@ -2587,6 +2587,158 @@ Letter = module.exports = function(app) {
     })
   }
 
+  var processLetterApi = function(vals, data, req, res) {
+     var obj = {
+                  meta : { code : "200" },
+                  data : {}
+                }
+    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+      vals.isAdministration = true;
+    }
+   
+
+    if (req.body.ignoreFileAttachments===true) {
+      var ignoreFileAttachments = true;
+    }else{
+       var ignoreFileAttachments = false;
+    }
+    var savedData = {
+      receivedDate: req.body.letter.receivedDate,
+      outgoingAgenda: req.body.letter.outgoingAgenda,
+      mailId: req.body.letter.mailId,
+      fileAttachments: data.fileAttachments,
+      ignoreFileAttachments: ignoreFileAttachments,
+      recipients: data.recipients,
+      senderOrganization: data.senderResolved.organization,
+      receivingOrganizations: data.receivingOrganizations,
+      ccList: data.ccList,
+      title: req.body.letter.title,
+      body: req.body.letter.body,
+      priority: req.body.letter.priority,
+      classification: req.body.letter.classification,
+      comments: req.body.letter.comments,
+      reviewers: data.reviewers,
+      nextReviewer: data.nextReviewer,
+      status: data.status,
+      log: [ {
+        date: new Date(),
+        username: req.session.currentUser,
+        action: data.action,
+        message: req.body.message,
+        } ],
+    }
+
+    if (req.body.letter.outgoingAgenda) {
+      savedData.outgoingDate = new Date();
+    }
+
+    vals.letter.outgoingAgenda = req.body.letter.outgoingAgenda;
+    vals.letter.mailId = req.body.letter.mailId;
+
+    if (vals.sender) {
+      savedData.sender = vals.sender;
+    }
+
+    if (vals.externalSender) {
+      // Only saved into an external letter
+      savedData.externalSender = vals.externalSender;
+    }
+    if (vals.Body) {
+      savedData.body = vals.Body;
+    }
+
+    if (data.status == letter.Stages.SENT) {
+      // At this point the letter is sent to the recipients
+      // which need to have their own statuses
+
+      Object.keys(savedData.receivingOrganizations).forEach(function(item) {
+        savedData.receivingOrganizations[item].status = letter.Stages.SENT;
+      });
+
+    }
+
+    letter.edit(req.body.id, savedData, function(v){
+      if (v.hasErrors() == false) {
+        vals.successful = true;
+        letter.list({ search: {_id: ObjectID(req.body.id) } }, function(result) {
+
+
+          sendOutNotifications(data.nextReviewer, data.status, result[0], req, res);
+
+          vals.nextReviewerResolved = result[0].nextReviewerResolved;
+          vals.recipientsResolved = result[0].recipientsResolved;
+
+          if (!vals.nextReviewer) {
+            vals.nextReviewerResolved = null;
+          }
+          obj.data.success = true;
+          res.send(obj);
+        });
+
+      } else {
+        vals.unsuccessful = true;
+        vals.form = true;
+        if (data.status == letter.Stages.APPROVED) {
+          vals.composing = true;
+        } if (data.status == letter.Stages.SENT) {
+          vals.readyToSend = true;
+        }
+        var dataErrors = {
+          "mailId is not set": "Surat belum diberi nomor",
+          "outgoing agenda is not set": "Belum ada nomor agenda keluar",
+          "fileAttachments is not set": "Berkas pindaian belum dilampirkan"
+        }
+
+        var errorMessages = [];
+        if (v.errors.Data != null) {
+          for (var i = 0; i < v.errors.Data.length; i ++) {
+            errorMessages.push( { errorTitle: dataErrors[v.errors.Data[i]] });
+          }
+        }
+
+        if (v.errors.mailId != null) {
+          for (var i = 0; i < v.errors.mailId.length; i ++) {
+            errorMessages.push( { errorTitle: v.errors.mailId[i] });
+          }
+        }
+        vals.errorMessages = errorMessages;
+        obj.data.success = false;
+        obj.data.error = errorMessages;
+        res.send(obj);
+      }
+    });
+  }
+
+   var uploadAttachmentMulti = function(req, res){
+     var obj = {
+                  meta : { code : "200" },
+                  data : {}
+                }
+
+    var files = req.files.files;
+    if (files && files.length > 0) {
+      for (var i = 0; i < files.length; i++) {
+         var file = files[i];
+          var metadata = {
+            path : file.path,
+            name : file.name,
+            type : file.type
+          };
+       
+          // uploads file to gridstore
+          letter.saveAttachmentFile(metadata, function(err, result) {         
+            letter.addFileAttachment({ _id : ObjectID(req.body.draftId)}, file, function(err) {
+              if(err) {
+                file.error = "Failed to upload file";
+              }
+            })
+          })
+      };
+      obj.data.success = true
+      res.send(obj);
+    }
+  }
+
   return {
     createExternal: createExternal
     , createNormal: createNormal
@@ -2630,6 +2782,9 @@ Letter = module.exports = function(app) {
     , uploadAttachment : uploadAttachment
     , deleteAttachment : deleteAttachment
     , populateSearch: populateSearch
+    , populateReceivingOrganizations : populateReceivingOrganizations
+    , processLetterApi: processLetterApi
+    , uploadAttachmentMulti : uploadAttachmentMulti
   }
 };
 }

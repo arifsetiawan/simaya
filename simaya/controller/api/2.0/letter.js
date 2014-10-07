@@ -1471,6 +1471,149 @@ var createAgendaSuratIncomings = function(req, res) {
        }
     });
   }
+
+  var processLetter = function(req,res){
+    var vals = {
+      title: "Agenda Surat Masuk",
+      currentUser: req.session.currentUser
+    };
+    var data = {};
+    if (typeof(req.body.letter) !== "undefined") {
+
+      letter.list({search: { _id: ObjectID(req.body.id)}}, function(result) {
+        _letter = result[0];
+console.log( _letter);
+        if(_letter == null || _letter ==""){
+           var obj = {
+                  meta : { code : "200" },
+                  data : {}
+                }
+
+          obj.data.success = false;
+          obj.data.info = "ID Letter tidak ada";
+          res.send(obj);
+        }else{
+
+          vals.date = moment(_letter.date).format("DD/MM/YYYY");
+          vals.dateDijit = moment(req.body.letter.date).format("YYYY-MM-DD") || moment(_letter.date).format("YYYY-MM-DD");
+          vals.scope = _letter.creation;
+          vals.letter = _letter;
+          vals.draftId = req.body.id;
+
+          if(_letter.fileAttachments){
+            // copy file attachments
+            data.fileAttachments = _letter.fileAttachments;
+          }
+
+          if(req.body.fileAttachments){
+            for (var i = 0; i < req.body.fileAttachments; i++) {
+              data.fileAttachments[i] = req.body.fileAttachments[i];
+            };
+          }
+
+          Object.keys(result[0]).forEach(function(key){
+              vals[key] = result[0][key];
+          });
+
+          // Convert string with comma separator to array
+          if (req.body.letter.recipients != null) {
+            data.recipients = req.body.letter.recipients.split(",");
+          }
+
+          if (req.body.letter.ccList != null) {
+            data.ccList = req.body.letter.ccList.split(",");
+          }
+
+          if (req.body.autoCc) {
+            var toConcat = {};
+            for (var i = 0; i < req.body.autoCc.length; i ++) {
+              toConcat[req.body.autoCc[i]] = 1;
+            }
+            for (var i = 0; i < data.ccList.length; i ++) {
+              toConcat[data.ccList[i]] = 1;
+            }
+            data.ccList = []
+            Object.keys(toConcat).forEach(function(e) {
+              data.ccList.push(e);
+            })
+            if (data.creation == "external") {
+              data.receivedByDeputy = true;
+            } else {
+              data.sentByDeputy = true;
+            }
+          }
+
+          if (req.body.letter.originator != null) {
+            data.originator = req.body.letter.originator;
+          }
+
+          vals["type" + parseInt(req.body.letter.type)] = "selected";
+          data.type = parseInt(req.body.letter.type);
+
+          // data.status = _letter.status;
+          var currentReviewer = result[0].nextReviewer;
+          data.reviewers = [];
+          if (req.body.letter.reviewers != null) {
+            var r = req.body.letter.reviewers.split(",");
+            for (var i = 0; i < r.length; i++) {
+              if (r[i] != req.body.letter.sender) {
+                data.reviewers.push(r[i]);
+              }
+            }
+            data.reviewers.push(req.body.letter.sender);
+          }
+
+          data.type = req.body.letter.type;
+          vals["type" + parseInt(req.body.letter.type)] = "selected";
+
+          data.nextReviewer = "";
+          data.action = "";
+          data.creation = result[0].creation;
+          vals.lockSender = result[0].lockSender;
+
+          data.senderResolved = result[0].senderResolved;
+          if (data.senderResolved == null || typeof(data.senderResolved) === "undefined") {
+            data.senderResolved = {}
+          }
+
+         data.action = "approved";
+          if (data.status == letter.Stages.NEW) {
+            // if current status is new
+            // then the letter status is in-review
+            data.nextReviewer = data.reviewers[0];
+            data.status = letter.Stages.WAITING;
+          } else {
+            for (var i = 0; i < data.reviewers.length; i ++) {
+              if (req.session.currentUser == data.reviewers[i]) {
+                if (data.reviewers[i+1]) {
+                  data.nextReviewer = data.reviewers[i+1];
+                  data.status = letter.Stages.WAITING;
+                  console.log("cacad 2");
+                } else {
+                  data.nextReviewer = "";
+                  data.status = letter.Stages.APPROVED;
+                  vals.statusApproved = true;
+                }
+              }
+            }
+          }
+          vals.nextReviewer = data.nextReviewer;
+
+
+          var sender = req.body.letter.sender || result[0].sender;
+
+          letterWeb.populateReceivingOrganizations(data, null, function(ro) {
+            if (data) {
+              data.receivingOrganizations = ro;
+            }
+            cUtils.populateSenderSelection(req.session.currentUserProfile.organization, sender, vals, req, res, function(vals) {
+              letterWeb.processLetterApi(vals, data, req, res);
+            });
+          });
+          }
+      });
+    }
+  }
  
 return {
   incomings : incomings,
@@ -1498,6 +1641,7 @@ return {
   listOutgoingDraft : listOutgoingDraft,
   createAgendaSuratIncomings : createAgendaSuratIncomings,
   cancelLetter : cancelLetter,
-  rejectLetterNew:rejectLetterNew
+  rejectLetterNew:rejectLetterNew,
+  processLetter : processLetter
 }
 }
