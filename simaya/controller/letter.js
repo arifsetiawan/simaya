@@ -2751,11 +2751,66 @@ Letter = module.exports = function(app) {
           },
         ],
         function() {
-             obj.data.success = true
-              res.send(obj);
+          obj.data.success = true;
+          res.send(obj);
         });
       });
     }
+  }
+
+  // Deletes an attachment multi of a letter
+  var deleteAttachmentMulti = function(req, res){
+     var obj = {
+                  meta : { code : "200" },
+                  data : {  }
+                }
+
+    // if undefined returns an error
+    if(!req.body.letterId && !req.body.attachmentId) {
+     obj.data.success = false;
+     obj.data.info = "LetterID and attachmentId Required";
+    }else{
+      var letterId = req.body.letterId
+      var attachmentId = req.body.attachmentId;
+
+      attachmentId.forEach(function(e,i){
+          async.parallel([
+          function(callback) {
+                letter.list({ search : { _id : ObjectID(letterId)} }, function(letters) {
+
+                if (letters.length > 0) {
+                  var fileAttachments = letters[0].fileAttachments
+                  var fileTobeDeleted;
+                  
+                  for (var y = 0; y < fileAttachments.length; y++) {
+                    if (fileAttachments[y].path == attachmentId[i]) {
+                      fileTobeDeleted = fileAttachments[y];
+                      break;
+                    }
+                  }
+
+                  if (fileTobeDeleted) {
+                    // delete
+                    letter.removeFileAttachment({ _id : ObjectID(req.body.letterId)}, fileTobeDeleted, function(err) {
+                      if (err) {
+                        // obj.data.info[i] = "File "+fileTobeDeleted+" Not Found";
+                      }
+                    })
+                  } else {
+                    // obj.data.info[i] = "File "+fileTobeDeleted+" Not Found";
+                  }
+                }
+              })
+              callback()
+          }
+        ],
+        function() {
+              obj.data.success = true;
+              res.send(obj);
+        });
+        
+      });
+    } 
   }
 
   return {
@@ -2804,6 +2859,7 @@ Letter = module.exports = function(app) {
     , populateReceivingOrganizations : populateReceivingOrganizations
     , processLetterApi: processLetterApi
     , uploadAttachmentMulti : uploadAttachmentMulti
+    , deleteAttachmentMulti : deleteAttachmentMulti
   }
 };
 }

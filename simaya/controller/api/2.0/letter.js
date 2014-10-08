@@ -1487,7 +1487,6 @@ var createAgendaSuratIncomings = function(req, res) {
           obj.data.info = "ID Letter tidak ada";
           res.send(obj);
         }else{
-
           vals.date = moment(_letter.date).format("DD/MM/YYYY");
           vals.dateDijit = moment(req.body.letter.date).format("YYYY-MM-DD") || moment(_letter.date).format("YYYY-MM-DD");
           vals.scope = _letter.creation;
@@ -1570,8 +1569,16 @@ var createAgendaSuratIncomings = function(req, res) {
             data.senderResolved = {}
           }
 
-         data.action = "approved";
-          if (data.status == letter.Stages.NEW) {
+        if(utils.currentUserHasRoles([app.simaya.administrationRole], req, res)){
+          data.action = "sent";
+          data.status = letter.Stages.SENT;
+          vals.statusProcessed = true;
+            if (data.creation == "internal") {
+            // skip SENT state and immediately to RECEIVED state
+            data.status = letter.Stages.RECEIVED;
+          }
+        }else if (data.status == letter.Stages.NEW) {
+            data.action = "approved";
             // if current status is new
             // then the letter status is in-review
             data.nextReviewer = data.reviewers[0];
@@ -1582,7 +1589,6 @@ var createAgendaSuratIncomings = function(req, res) {
                 if (data.reviewers[i+1]) {
                   data.nextReviewer = data.reviewers[i+1];
                   data.status = letter.Stages.WAITING;
-                  console.log("cacad 2");
                 } else {
                   data.nextReviewer = "";
                   data.status = letter.Stages.APPROVED;
