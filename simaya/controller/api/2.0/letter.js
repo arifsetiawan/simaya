@@ -1613,6 +1613,28 @@ var createAgendaSuratIncomings = function(req, res) {
       });
     }
   }
+
+  var outgoingsCancel = function(req,res){
+    var search = {
+      search: {}
+    }
+
+    search.search = {
+      $or: [
+        { originator: req.session.currentUser},
+        { reviewers:
+          { $in: [req.session.currentUser] }
+        }
+      ],
+      status: letter.Stages.DEMOTED,
+      creation: "normal",
+    }
+
+    search.page = req.query["page"] || 1;
+    search.limit = parseInt(req.query["limit"]) || 20;
+
+    list( search, req, res);
+  }
  
 return {
   incomings : incomings,
@@ -1641,6 +1663,7 @@ return {
   createAgendaSuratIncomings : createAgendaSuratIncomings,
   cancelLetter : cancelLetter,
   rejectLetterNew:rejectLetterNew,
-  processLetter : processLetter
+  processLetter : processLetter,
+  outgoingsCancel:outgoingsCancel
 }
 }
