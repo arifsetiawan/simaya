@@ -2766,9 +2766,10 @@ Letter = module.exports = function(app) {
                 }
 
     // if undefined returns an error
-    if(!req.body.letterId && !req.body.attachmentId) {
+    if(!req.body.letterId || !req.body.attachmentId) {
      obj.data.success = false;
      obj.data.info = "LetterID and attachmentId Required";
+     res.send(obj);
     }else{
       var letterId = req.body.letterId
       var attachmentId = req.body.attachmentId;
@@ -2781,7 +2782,7 @@ Letter = module.exports = function(app) {
                 if (letters.length > 0) {
                   var fileAttachments = letters[0].fileAttachments
                   var fileTobeDeleted;
-                  
+
                   for (var y = 0; y < fileAttachments.length; y++) {
                     if (fileAttachments[y].path == attachmentId[i]) {
                       fileTobeDeleted = fileAttachments[y];
