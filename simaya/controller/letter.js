@@ -15,6 +15,7 @@ Letter = module.exports = function(app) {
     , spawn = require('child_process').spawn
     , ob = require("../../ob/file.js")(app)
     , azuresettings = require("../../azure-settings.js")
+    , async = require("async");
 
   var dispositionController = null;
   if (typeof(Disposition) === "undefined") {
@@ -2595,10 +2596,9 @@ Letter = module.exports = function(app) {
     if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
       vals.isAdministration = true;
     }
-   
-
-    if (req.body.ignoreFileAttachments===true) {
-      var ignoreFileAttachments = true;
+  
+    if (req.body.ignoreFileAttachments=="true") {
+       var ignoreFileAttachments = true;
     }else{
        var ignoreFileAttachments = false;
     }
@@ -2606,7 +2606,6 @@ Letter = module.exports = function(app) {
       receivedDate: req.body.letter.receivedDate,
       outgoingAgenda: req.body.letter.outgoingAgenda,
       mailId: req.body.letter.mailId,
-      fileAttachments: data.fileAttachments,
       ignoreFileAttachments: ignoreFileAttachments,
       recipients: data.recipients,
       senderOrganization: data.senderResolved.organization,
@@ -2626,6 +2625,10 @@ Letter = module.exports = function(app) {
         action: data.action,
         message: req.body.message,
         } ],
+    }
+
+    if(data.fileAttachments){
+      savedData.fileAttachments = data.fileAttachments;
     }
 
     if (req.body.letter.outgoingAgenda) {
@@ -2661,8 +2664,6 @@ Letter = module.exports = function(app) {
       if (v.hasErrors() == false) {
         vals.successful = true;
         letter.list({ search: {_id: ObjectID(req.body.id) } }, function(result) {
-
-
           sendOutNotifications(data.nextReviewer, data.status, result[0], req, res);
 
           vals.nextReviewerResolved = result[0].nextReviewerResolved;
@@ -2716,26 +2717,44 @@ Letter = module.exports = function(app) {
                 }
 
     var files = req.files.files;
+    var metadata = [];
+    var data = [];
+
     if (files && files.length > 0) {
-      for (var i = 0; i < files.length; i++) {
-         var file = files[i];
-          var metadata = {
-            path : file.path,
-            name : file.name,
-            type : file.type
-          };
-       
-          // uploads file to gridstore
-          letter.saveAttachmentFile(metadata, function(err, result) {         
-            letter.addFileAttachment({ _id : ObjectID(req.body.draftId)}, file, function(err) {
+      files.forEach(function(e,i){
+          async.parallel([
+          function(callback) {
+            var file = files[i];
+              metadata[i] = {
+                path : file.path,
+                name : file.name,
+                type : file.type
+              };
+              callback()
+          },
+          function(callback) {
+             letter.saveAttachmentFile(metadata[i], function(err, result) {         
+
+              data[i] = {
+                path : result.fileId,
+                name : metadata[i].name,
+                type : metadata[i].type
+              };
+
+            letter.addFileAttachment({ _id : ObjectID(req.body.draftId)}, data[i], function(err) {
               if(err) {
                 file.error = "Failed to upload file";
               }
             })
           })
-      };
-      obj.data.success = true
-      res.send(obj);
+             callback()
+          },
+        ],
+        function() {
+             obj.data.success = true
+              res.send(obj);
+        });
+      });
     }
   }
 

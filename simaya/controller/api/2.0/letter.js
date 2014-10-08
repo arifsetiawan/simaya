@@ -1482,7 +1482,6 @@ var createAgendaSuratIncomings = function(req, res) {
 
       letter.list({search: { _id: ObjectID(req.body.id)}}, function(result) {
         _letter = result[0];
-console.log( _letter);
         if(_letter == null || _letter ==""){
            var obj = {
                   meta : { code : "200" },
