@@ -1250,7 +1250,6 @@ var countKonsep = function(req, res, callback) {
       search.limit = req.query["limit"] || 20;
 
       letter.listOutgoingDraft(req,search,function(callback,callback2){
-
            callback.forEach(function(e, i) {
              callback[i] = {
                 id_surat : callback[i]._id,
@@ -1262,10 +1261,8 @@ var countKonsep = function(req, res, callback) {
                 next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false,
                 priority : callback[i].priority,
                 classification : callback[i].classification
-
             };
           });
-
 
           var obj = {
             meta : { code : 200 },
@@ -1283,10 +1280,8 @@ var countKonsep = function(req, res, callback) {
 
           obj.data = data;
           obj.paginations = paginations;
-          res.send(obj);
-        
-        
-});
+          res.send(obj);   
+  });
 }
 
 var createAgendaSuratIncomings = function(req, res) {
@@ -1619,6 +1614,10 @@ var createAgendaSuratIncomings = function(req, res) {
       search: {}
     }
 
+     var obj = {
+            meta : { code : 200 },
+    }
+
     search.search = {
       $or: [
         { originator: req.session.currentUser},
@@ -1633,7 +1632,43 @@ var createAgendaSuratIncomings = function(req, res) {
     search.page = req.query["page"] || 1;
     search.limit = parseInt(req.query["limit"]) || 20;
 
-    list( search, req, res);
+    letter.list( search,function(callback){
+       async.parallel([
+          function(cb) {
+                callback.forEach(function(e, i) {
+                 callback[i] = {
+                    id_surat : callback[i]._id,
+                    tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
+                    nomer_surat : callback[i].mailId,
+                    jenis_surat : type[callback[i].type],
+                    atas_nama : callback[i].sender,
+                    perihal : callback[i].title
+                };
+              });
+
+              cb()
+          },
+          function(cb) {
+            var data = callback;
+
+            var paginations = {
+              current : {
+                count : data.length,
+                limit : parseInt(search.limit),
+                page : parseInt(search.page),
+              }
+            }
+
+            obj.data = data;
+            obj.paginations = paginations;
+
+            cb()
+          },
+        ],
+        function() {
+             res.send(obj);
+        });
+    });
   }
  
 return {
