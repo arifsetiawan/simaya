@@ -847,7 +847,11 @@ var countKonsep = function(req, res, callback) {
               });
           }
         });    
-      } else {
+      }else if(data.status == "OK-DRAFT" || data.result == "OK-DRAFT"){
+        obj.meta.code = 200;
+        obj.data =  data.data;
+        res.send(obj.meta.code, obj);
+      }else {
         obj.meta.code = 500;
         obj.meta.data = "Server error";
         res.send(obj.meta.code, obj);

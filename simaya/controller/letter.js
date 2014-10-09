@@ -424,7 +424,7 @@ Letter = module.exports = function(app) {
                   console.log("15");
                   // req.body.tempDraftId = vals.draftId;
                   // console.log("req.body.tempDraftId", req.body.tempDraftId);
-                  res.send({status: "OK",data: {
+                  res.send({status: "OK-DRAFT",data: {
                     draftId: vals.draftId
                   }});
                 }
