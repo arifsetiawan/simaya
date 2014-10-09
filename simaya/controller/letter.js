@@ -17,6 +17,9 @@ Letter = module.exports = function(app) {
     , azuresettings = require("../../azure-settings.js")
     , async = require("async");
 
+  var db = app.db('letter');
+  var dbUser = app.db('user');
+
   var dispositionController = null;
   if (typeof(Disposition) === "undefined") {
     dispositionController = require("../controller/disposition.js")(app)
@@ -2672,8 +2675,24 @@ Letter = module.exports = function(app) {
           if (!vals.nextReviewer) {
             vals.nextReviewerResolved = null;
           }
-          obj.data.success = true;
-          res.send(obj);
+           db.findOne({_id:  ObjectID(req.body.id)}, function(error, result){
+            if(result){
+               dbUser.findOne({username:  result.nextReviewer}, function(error, result){
+                    obj.meta.code = 200;
+                    obj.data.success = true;
+                    if(result){
+                        obj.data.profile = result.profile;
+                    }else{
+                        obj.data.profile = null;
+                    }
+                        res.send(obj);
+                });
+            }else if(error){
+                obj.data.success = false;
+                obj.data.info = "Letter tidak ditemukan";
+                res.send(obj);
+            }
+          });
         });
 
       } else {

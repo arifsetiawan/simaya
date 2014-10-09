@@ -840,6 +840,8 @@ var countKonsep = function(req, res, callback) {
                   obj.data.id = data.data.id;
                   if(result){
                       obj.data.profile = result.profile;
+                  }else{
+                      obj.data.profile = null;
                   }
                       res.send(obj.meta.code, obj);
               });
@@ -1264,6 +1266,13 @@ var countKonsep = function(req, res, callback) {
 
       letter.listOutgoingDraft(req,search,function(callback,callback2){
            callback.forEach(function(e, i) {
+
+               app.db('notification').findOne({'username':  req.session.currentUser,'url':'/letter/read/'+callback[i]._id+''}, function(error, item){
+                    if(item){
+                       callback[i].notif = item;
+                    }
+                });
+
              callback[i] = {
                 id_surat : callback[i]._id,
                 tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
@@ -1275,6 +1284,7 @@ var countKonsep = function(req, res, callback) {
                 priority : callback[i].priority,
                 classification : callback[i].classification
             };
+
           });
 
           var obj = {
@@ -1470,8 +1480,24 @@ var createAgendaSuratIncomings = function(req, res) {
 
     letter.rejectLetterNew(req.body.id_letter,req,function(v){
        if(v=="" || v==null){
-          obj.data.success = true;
-          res.send(obj);
+        db.findOne({_id:  ObjectID(req.body.id_letter)}, function(error, result){
+          if(result){
+             dbUser.findOne({username:  result.nextReviewer}, function(error, result){
+                  obj.meta.code = 200;
+                  obj.data.success = true;
+                  if(result){
+                      obj.data.profile = result.profile;
+                  }else{
+                      obj.data.profile = null;
+                  }
+                      res.send(obj);
+              });
+          }else if(error){
+              obj.data.success = false;
+              obj.data.info = "Letter tidak ditemukan";
+              res.send(obj);
+          }
+        });
        }else{
           obj.data.success = false;
           obj.data.info = v;
