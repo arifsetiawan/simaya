@@ -843,6 +843,7 @@ var countKonsep = function(req, res, callback) {
                       obj.data.nextReviewer = result.username;
                       obj.data.profile = result.profile;
                   }else{
+                      obj.data.nextReviewer =null;
                       obj.data.profile = null;
                   }
                       res.send(obj.meta.code, obj);
@@ -1505,6 +1506,7 @@ var createAgendaSuratIncomings = function(req, res) {
                       obj.data.nextReviewer = result.username;
                       obj.data.profile = result.profile;
                   }else{
+                      obj.data.nextReviewer =null;
                       obj.data.profile = null;
                   }
                       res.send(obj);

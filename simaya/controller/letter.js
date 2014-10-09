@@ -2684,6 +2684,7 @@ Letter = module.exports = function(app) {
                         obj.data.nextReviewer = result.username;
                         obj.data.profile = result.profile;
                     }else{
+                        obj.data.nextReviewer =null;
                         obj.data.profile = null;
                     }
                         res.send(obj);
