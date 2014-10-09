@@ -837,8 +837,10 @@ var countKonsep = function(req, res, callback) {
           if(result){
              dbUser.findOne({username:  result.nextReviewer}, function(error, result){
                   obj.meta.code = 200;
+                  obj.data.success = true;
                   obj.data.id = data.data.id;
                   if(result){
+                      obj.data.nextReviewer = result.username;
                       obj.data.profile = result.profile;
                   }else{
                       obj.data.profile = null;
@@ -1267,27 +1269,37 @@ var countKonsep = function(req, res, callback) {
       }
       search.page = req.query["page"] || 1;
       search.limit = req.query["limit"] || 20;
-
+      var result = [];
       letter.listOutgoingDraft(req,search,function(callback,callback2){
            callback.forEach(function(e, i) {
 
-               app.db('notification').findOne({'username':  req.session.currentUser,'url':'/letter/read/'+callback[i]._id+''}, function(error, item){
-                    if(item){
-                       callback[i].notif = item;
-                    }
-                });
-
-             callback[i] = {
+             result[i] = {
                 id_surat : callback[i]._id,
                 tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
                 nomer_surat : callback[i].mailId,
                 jenis_surat : type[callback[i].type],
                 atas_nama : callback[i].sender,
                 perihal : callback[i].title,
-                next_reviewers : callback[i].nextReviewer == req.session.currentUser ? true : false,
                 priority : callback[i].priority,
                 classification : callback[i].classification
             };
+
+            if(callback[i].nextReviewer ==  req.session.currentUser){
+                result[i].nextReviewer = true;
+            }else if((callback[i].nextReviewer == "" || callback[i].nextReviewer == null ) && callback[i].status=="3"){
+                 for (index in req.session.currentUserRoles) {
+                  if(req.session.currentUserRoles[index]==="tatausaha"){
+                    result[i].nextReviewer = true;
+                    break;
+                  }else{
+                     result[i].nextReviewer = false;
+                  }
+
+                };
+            }else{ 
+               result[i].nextReviewer = false;
+            }
+
 
           });
 
@@ -1295,7 +1307,7 @@ var countKonsep = function(req, res, callback) {
             meta : { code : 200 },
           }
 
-          var data = callback;
+          var data = result;
 
           var paginations = {
             current : {
@@ -1490,6 +1502,7 @@ var createAgendaSuratIncomings = function(req, res) {
                   obj.meta.code = 200;
                   obj.data.success = true;
                   if(result){
+                      obj.data.nextReviewer = result.username;
                       obj.data.profile = result.profile;
                   }else{
                       obj.data.profile = null;

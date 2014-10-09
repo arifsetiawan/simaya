@@ -2681,6 +2681,7 @@ Letter = module.exports = function(app) {
                     obj.meta.code = 200;
                     obj.data.success = true;
                     if(result){
+                        obj.data.nextReviewer = result.username;
                         obj.data.profile = result.profile;
                     }else{
                         obj.data.profile = null;
