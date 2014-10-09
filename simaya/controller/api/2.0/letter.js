@@ -6,6 +6,7 @@ module.exports = function(app){
   var cUtils = require("../../utils.js")(app)
   var orgWeb = require("../../organization.js")(app)
   var db = app.db('letter');
+  var dbUser = app.db('user');
   var dbdis = app.db('disposition');
   var utils = require("../../../../sinergis/controller/utils.js")(app)
   var ObjectID = app.ObjectID;
@@ -822,22 +823,34 @@ var countKonsep = function(req, res, callback) {
     };
     var r = ResWrapper(function(data) {
       var obj = {
-        meta: {
-        }
+        meta: {},
+        data : {}
       }
 
       if (data.status == "ERROR" || data.result == "ERROR") {
         obj.meta.code = 400;
         obj.meta.data = "Invalid parameters: " + data.data.error;
+        res.send(obj.meta.code, obj);
       } else if (data.status == "OK" || data.result == "OK") {
-        obj.meta.code = 200;
-        obj.data = data.data;
+
+         db.findOne({_id:  ObjectID(data.data.id)}, function(error, result){
+          if(result){
+             dbUser.findOne({username:  result.nextReviewer}, function(error, result){
+                  obj.meta.code = 200;
+                  obj.data.id = data.data.id;
+                  if(result){
+                      obj.data.profile = result.profile;
+                  }
+                      res.send(obj.meta.code, obj);
+              });
+          }
+        });    
       } else {
         obj.meta.code = 500;
         obj.meta.data = "Server error";
+        res.send(obj.meta.code, obj);
       }
 
-      res.send(obj.meta.code, obj);
       // console.log("reqbody", req.body, "reqbodyiddraft", req.body.idDraft);
     });
     letterWeb.create({}, vals, "", letter.createNormal, req, r);
