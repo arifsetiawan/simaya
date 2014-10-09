@@ -1746,13 +1746,13 @@ var createAgendaSuratIncomings = function(req, res) {
             meta : { code : 200 },
     }
 
-     var search = {
+     search.search = {
       ccList: {
         $in: [req.session.currentUser]
       },
     }
     var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
-    search[o] = letter.Stages.RECEIVED;
+    search.search[o] = letter.Stages.RECEIVED;
 
     search.page = req.query["page"] || 1;
     search.limit = parseInt(req.query["limit"]) || 20;
