@@ -56,6 +56,7 @@ module.exports = function(app){
   app.put(prefix + "/letters/rejectLetterNew", oauth2.protectedResource, api2.letter.rejectLetterNew);
   app.put(prefix + "/letters/processLetter", oauth2.protectedResource, api2.letter.processLetter);
   app.post(prefix + "/letter/attachments/deleteAttachmentMulti", oauth2.protectedResource, letterC.deleteAttachmentMulti);
+  app.get(prefix + "/letters/incomings/cc", oauth2.protectedResource, api2.letter.incomingsCC);
   
   // app.get(prefix + "/letters/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
@@ -65,6 +66,7 @@ module.exports = function(app){
   app.del(prefix + "/letters/attachments/:letterId/:attachmentId", oauth2.protectedResource, api2.letter.deleteAttachment);
   app.put(prefix + "/letters/createAgendaSuratIncomings", oauth2.protectedResource, api2.letter.createAgendaSuratIncomings);
   app.post(prefix+ "/letters/attachmentsMulti", oauth2.protectedResource, letterC.uploadAttachmentMulti);
+
 
   // documents
   app.get(prefix + "/documents/:id", oauth2.protectedResource, api2.letter.attachment);

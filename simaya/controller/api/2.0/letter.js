@@ -1736,6 +1736,67 @@ var createAgendaSuratIncomings = function(req, res) {
         });
     });
   }
+
+  var incomingsCC = function (req, res) {
+   var search = {
+      search: {}
+    }
+
+     var obj = {
+            meta : { code : 200 },
+    }
+
+     var search = {
+      ccList: {
+        $in: [req.session.currentUser]
+      },
+    }
+    var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
+    search[o] = letter.Stages.RECEIVED;
+
+    search.page = req.query["page"] || 1;
+    search.limit = parseInt(req.query["limit"]) || 20;
+
+    letter.list( search,function(callback){
+       async.parallel([
+          function(cb) {
+                callback.forEach(function(e, i) {
+                 callback[i] = {
+                    id_surat : callback[i]._id,
+                    tangal_diterima : moment(callback[i].date).format("dddd, DD MMMM YYYY"),
+                    nomer_surat : callback[i].mailId,
+                    jenis_surat : type[callback[i].type],
+                    atas_nama : callback[i].sender,
+                    perihal : callback[i].title,
+                    classification : callback[i].classification,
+                    priority : callback[i].priority
+                };
+              });
+
+              cb()
+          },
+          function(cb) {
+            var data = callback;
+
+            var paginations = {
+              current : {
+                count : data.length,
+                limit : parseInt(search.limit),
+                page : parseInt(search.page),
+              }
+            }
+
+            obj.data = data;
+            obj.paginations = paginations;
+
+            cb()
+          },
+        ],
+        function() {
+             res.send(obj);
+        });
+    });
+  }
  
 return {
   incomings : incomings,
@@ -1765,6 +1826,7 @@ return {
   cancelLetter : cancelLetter,
   rejectLetterNew:rejectLetterNew,
   processLetter : processLetter,
-  outgoingsCancel:outgoingsCancel
+  outgoingsCancel:outgoingsCancel,
+  incomingsCC:incomingsCC
 }
 }
