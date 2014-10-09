@@ -1648,7 +1648,9 @@ var createAgendaSuratIncomings = function(req, res) {
                     nomer_surat : callback[i].mailId,
                     jenis_surat : type[callback[i].type],
                     atas_nama : callback[i].sender,
-                    perihal : callback[i].title
+                    perihal : callback[i].title,
+                    classification : callback[i].classification,
+                    priority : callback[i].priority
                 };
               });
 
