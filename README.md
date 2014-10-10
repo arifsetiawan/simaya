@@ -43,7 +43,7 @@ A bit complicated due to some modules are native and will need to be compiled.
 Before running with start-linux.sh make note that start-linux.sh assume following things:
 
 * The application folder is $HOME/apps/simaya
-* For development, you might want to use nodemon instead of forever
+* For development, you might want to use nodemon instead
 
 
 
