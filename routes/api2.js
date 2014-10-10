@@ -55,9 +55,9 @@ module.exports = function(app){
   app.put(prefix + "/letters/cancelLetter", oauth2.protectedResource, api2.letter.cancelLetter);
   app.put(prefix + "/letters/rejectLetterNew", oauth2.protectedResource, api2.letter.rejectLetterNew);
   app.put(prefix + "/letters/processLetter", oauth2.protectedResource, api2.letter.processLetter);
-  app.post(prefix + "/letter/attachments/deleteAttachmentMulti", oauth2.protectedResource, letterC.deleteAttachmentMulti);
+  app.post(prefix + "/letters/attachments/deleteAttachmentMulti", oauth2.protectedResource, letterC.deleteAttachmentMulti);
   app.get(prefix + "/letters/incomings/cc", oauth2.protectedResource, api2.letter.incomingsCC);
-  
+
   // app.get(prefix + "/letters/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/:id/documents", oauth2.protectedResource, api2.letter.attachments);
@@ -99,7 +99,7 @@ module.exports = function(app){
   // notification
   app.get(prefix + "/notifications", oauth2.protectedResource, api2.notification.list);
   app.get(prefix + "/notifications/view/:id", oauth2.protectedResource, api2.notification.view);
-  
+
   //contacts
   app.get(prefix + "/contacts/waiting", oauth2.protectedResource, api2.contacts.waiting);
   app.get(prefix + "/contacts/to-be-approved", oauth2.protectedResource, api2.contacts.toBeApproved);
