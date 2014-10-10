@@ -89,7 +89,8 @@ module.exports = function(app){
     var senders = {};
 
     result.forEach(function(e, i) {
-      result[i].statusRead = [];
+      result[i].statusReadRecepint = [];
+      result[i].statusReadCC = [];
       senders[result[i].sender] = 1; 
       result[i].rawDate = result[i].date;
       result[i].date = moment(result[i].date).format("dddd, DD MMMM YYYY");
@@ -105,13 +106,25 @@ module.exports = function(app){
      
 
       if(result[i].recipients){
-         for (var index = 0; index < result[i].recipients.length; index ++) {
-            result[i].statusRead[index] =  { 
-                                            name : result[i].recipients[index],
-                                            isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
-                                            dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
-                                            dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
-                                         };
+        if(result[i].readStates.recipients){
+             for (var index = 0; index < result[i].recipients.length; index ++) {
+              result[i].statusReadRecepint[index] =  { 
+                                              name : result[i].recipients[index],
+                                              isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
+                                              dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
+                                              dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
+                                            };
+            }
+        }
+        if(result[i].readStates.cc){
+          for (var index = 0; index < result[i].ccList.length; index ++) {
+              result[i].statusReadCC[index] =  { 
+                                              name : result[i].ccList[index],
+                                              isRead : result[i].readStates == null ? false : result[i].readStates.cc[result[i].ccList[index]] != null ? true : false,
+                                              dateRead : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] ,
+                                              dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] != null ?  moment(result[i].readStates.cc[result[i].ccList[index]]).format("DD-MM-YYYY") : ""
+                                            };
+            }
         }
       } 
 
