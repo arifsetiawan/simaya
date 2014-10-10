@@ -3,6 +3,8 @@
  * Module dependencies.
  */
 
+// var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
+process.env.SIMAYASETTING = 'settings.prod.js';
 var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
 var settings = require('./' + settingsFile);
 
@@ -82,7 +84,7 @@ var oauth2 = require('./simaya/controller/oauth2/oauth2')(app);
 
 // azure push notification
 var azuresettings = require('./azure-settings.js');
-  
+
 var corsHandler = function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-token-next, X-token-key, Content-type");
@@ -108,8 +110,8 @@ app.configure(function(){
 
   // auth init
   app.use(auth.authCheck())
-  
-  // oauth init 
+
+  // oauth init
   app.use(oauth.provider.dispatch());
   app.use(oauth.provider.oauth());
   app.use(oauth.provider.filter());
