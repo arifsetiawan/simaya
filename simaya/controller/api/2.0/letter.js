@@ -1377,7 +1377,7 @@ var createAgendaSuratIncomings = function(req, res) {
                   message: "",
                   } ],
               }
-              data.creationDateNew = new Date();
+              data.receivedDateNew = new Date();
               if (count == all) {
                 data.status = letter.Stages.RECEIVED;
               }

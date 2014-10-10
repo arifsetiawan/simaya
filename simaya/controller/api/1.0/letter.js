@@ -90,8 +90,8 @@ module.exports = function(app){
     var senders = {};
 
     result.forEach(function(e, i) {
-       if(result[i].creationDateNew){
-          result[i].dateNew = moment(result[i].creationDateNew).format("dddd, DD MMMM YYYY");
+       if(result[i].receivedDateNew){
+          result[i].receivedDateNewDetail = moment(result[i].receivedDateNew).format("dddd, DD MMMM YYYY");
         }
 
       result[i].statusReadRecepint = [];
