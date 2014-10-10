@@ -90,11 +90,17 @@ module.exports = function(app){
     var senders = {};
 
     result.forEach(function(e, i) {
+       if(result[i].creationDateNew){
+          result[i].dateNew = moment(result[i].creationDateNew).format("dddd, DD MMMM YYYY");
+        }
+
       result[i].statusReadRecepint = [];
       result[i].statusReadCC = [];
       senders[result[i].sender] = 1; 
       result[i].rawDate = result[i].date;
       result[i].date = moment(result[i].date).format("dddd, DD MMMM YYYY");
+
+
       if(result[i].receivingOrganizations){
          if (result[i].receivingOrganizations[org]) {
           result[i].incomingAgenda = result[i].receivingOrganizations[org].agenda;
