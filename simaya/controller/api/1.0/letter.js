@@ -106,26 +106,29 @@ module.exports = function(app){
      
 
       if(result[i].recipients){
-        if(result[i].readStates.recipients){
-             for (var index = 0; index < result[i].recipients.length; index ++) {
-              result[i].statusReadRecepint[index] =  { 
-                                              name : result[i].recipients[index],
-                                              isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
-                                              dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
-                                              dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
-                                            };
-            }
+        if(result[i].readStates){
+          if(result[i].readStates.recipients){
+               for (var index = 0; index < result[i].recipients.length; index ++) {
+                result[i].statusReadRecepint[index] =  { 
+                                                name : result[i].recipients[index],
+                                                isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
+                                                dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
+                                                dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
+                                              };
+              }
+          }
+          if(result[i].readStates.cc){
+            for (var index = 0; index < result[i].ccList.length; index ++) {
+                result[i].statusReadCC[index] =  { 
+                                                name : result[i].ccList[index],
+                                                isRead : result[i].readStates == null ? false : result[i].readStates.cc[result[i].ccList[index]] != null ? true : false,
+                                                dateRead : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] ,
+                                                dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] != null ?  moment(result[i].readStates.cc[result[i].ccList[index]]).format("DD-MM-YYYY") : ""
+                                              };
+              }
+          }
         }
-        if(result[i].readStates.cc){
-          for (var index = 0; index < result[i].ccList.length; index ++) {
-              result[i].statusReadCC[index] =  { 
-                                              name : result[i].ccList[index],
-                                              isRead : result[i].readStates == null ? false : result[i].readStates.cc[result[i].ccList[index]] != null ? true : false,
-                                              dateRead : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] ,
-                                              dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] != null ?  moment(result[i].readStates.cc[result[i].ccList[index]]).format("DD-MM-YYYY") : ""
-                                            };
-            }
-        }
+
       } 
 
       if (result[i].readStates) {
