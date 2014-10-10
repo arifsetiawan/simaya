@@ -7,7 +7,8 @@ module.exports = function(app){
   var user = require("../../../../sinergis/models/user.js")(app)
   var moment = require("moment")
   var ObjectID = app.ObjectID;
-  var disposition = require("../../../models/disposition.js")(app)
+  var disposition = require("../../../models/disposition.js")(app);
+  var async = require('async')
     , cUtils = require("../../utils.js")(app)
 
   // Resolve users and calls as a hash
@@ -105,47 +106,87 @@ module.exports = function(app){
       }
      
 
-      if(result[i].recipients){
-        if(result[i].readStates){
-          if(result[i].readStates.recipients){
-               for (var index = 0; index < result[i].recipients.length; index ++) {
-                result[i].statusReadRecepint[index] =  { 
-                                                name : result[i].recipients[index],
-                                                isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
-                                                dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
-                                                dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
-                                              };
-              }
-          }
-          if(result[i].readStates.cc){
-            for (var index = 0; index < result[i].ccList.length; index ++) {
-                result[i].statusReadCC[index] =  { 
-                                                name : result[i].ccList[index],
-                                                isRead : result[i].readStates == null ? false : result[i].readStates.cc[result[i].ccList[index]] != null ? true : false,
-                                                dateRead : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] ,
-                                                dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] != null ?  moment(result[i].readStates.cc[result[i].ccList[index]]).format("DD-MM-YYYY") : ""
-                                              };
-              }
-          }
-        }
+      // if(result[i].recipients){
+        var vals = {};
+        async.parallel([
+          function(cb) {
+                if(result[i].readStates){
+                  if(result[i].readStates.recipients){
+                        result[i].recipients.forEach(function(e,index){
+                             letter.getUsername(result[i].recipients[index],function(v){
+                                                         result[i].statusReadRecepint[index] =  { 
+                                                              name : result[i].recipients[index],
+                                                              profile : v,
+                                                              isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
+                                                              dateRead : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] ,
+                                                              dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.recipients[result[i].recipients[index]] != null ?  moment(result[i].readStates.recipients[result[i].recipients[index]]).format("DD-MM-YYYY") : ""
+                                                          }
+                                                      });
+                        });
+                  }
+                  if(result[i].readStates.cc){
+                        result[i].ccList.forEach(function(e,index){
+                               letter.getUsername(result[i].recipients[index],function(v){
+                                                           result[i].statusReadCC[index] =  { 
+                                                                name : result[i].ccList[index],
+                                                                profile : v,
+                                                                isRead : result[i].readStates == null ? false : result[i].readStates.cc[result[i].ccList[index]] != null ? true : false,
+                                                                dateRead : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] ,
+                                                                dateReadDetail : result[i].readStates == null ? "" : result[i].readStates.cc[result[i].ccList[index]] != null ?  moment(result[i].readStates.cc[result[i].ccList[index]]).format("DD-MM-YYYY") : ""
+                                                            }
+                                                        });
+                          });
+                  }
+                }else{
+                    result[i].recipients.forEach(function(e,index){
+                             letter.getUsername(result[i].recipients[index],function(v){
+                                                         result[i].statusReadRecepint[index] =  { 
+                                                              name : result[i].recipients[index],
+                                                              profile : v,
+                                                              isRead : false,
+                                                              dateRead : "",
+                                                              dateReadDetail : ""
+                                                          }
+                                                      });
+                        });
+                    if(result[i].ccList){
+                        result[i].ccList.forEach(function(e,index){
+                               letter.getUsername(result[i].recipients[index],function(v){
+                                                           result[i].statusReadCC[index] =  { 
+                                                                name : result[i].ccList[index],
+                                                                profile : v,
+                                                                isRead : false,
+                                                                dateRead : "",
+                                                                dateReadDetail : ""
+                                                            }
+                                                        });
+                          });
+                    }  
+                }
+          },
 
-      } 
+        ],
+        function() {        
+           if (result[i].readStates) {
+            if (result[i].readStates["recipients"]) {
+              if (result[i].readStates.recipients[meMangled]) {
+                result[i].isRead = true;
+                result[i].dateRead = (result[i].readStates.recipients[meMangled]);
+                result[i].dateReadDetail = (moment(result[i].readStates.recipients[meMangled]).format("DD-MM-YYYY"));
+              }
+            } else if (result[i].readStates["cc"]) {
+              if (result[i].readStates.cc[meMangled]) {
+                result[i].isRead = true;
+              }
+            }
+            delete(result[i].readStates);
+          }
+        });
+        
+         });
 
-      if (result[i].readStates) {
-        if (result[i].readStates["recipients"]) {
-          if (result[i].readStates.recipients[meMangled]) {
-            result[i].isRead = true;
-            result[i].dateRead = (result[i].readStates.recipients[meMangled]);
-            result[i].dateReadDetail = (moment(result[i].readStates.recipients[meMangled]).format("DD-MM-YYYY"));
-          }
-        } else if (result[i].readStates["cc"]) {
-          if (result[i].readStates.cc[meMangled]) {
-            result[i].isRead = true;
-          }
-        }
-        delete(result[i].readStates);
-      }
-    });
+      // } 
+     
 
     // Single data
     if (result.length == 1) {
