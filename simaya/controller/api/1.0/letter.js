@@ -106,10 +106,11 @@ module.exports = function(app){
       }
      
 
-      // if(result[i].recipients){
+
         var vals = {};
         async.parallel([
           function(cb) {
+            if(result[i].recipients){
                 if(result[i].readStates){
                   if(result[i].readStates.recipients){
                         result[i].recipients.forEach(function(e,index){
@@ -163,6 +164,7 @@ module.exports = function(app){
                           });
                     }  
                 }
+            }
           },
 
         ],
