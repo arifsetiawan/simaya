@@ -4,7 +4,6 @@
  */
 
 // var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
-process.env.SIMAYASETTING = 'settings.prod.js';
 var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
 var settings = require('./' + settingsFile);
 
