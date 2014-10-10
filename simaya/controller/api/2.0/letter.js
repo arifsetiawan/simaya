@@ -1797,6 +1797,50 @@ var createAgendaSuratIncomings = function(req, res) {
         });
     });
   }
+
+  var rejectLetterIncomings = function(req, res) {
+     var obj = {
+                  meta : { code : "200" },
+                  data : {  }
+                }
+
+    if (req.body.id && req.body.reason) {
+      var search = {
+        search: {
+          _id: ObjectID(req.body.id),
+          recipients: { $in: [req.session.currentUser] },
+        }
+      }
+
+      letter.list(search, function(result){
+        // Make sure just one element in result array
+        if (result.length == 1) {
+          letter.reject(req.body.id,
+              req.session.currentUser,
+              req.session.currentUserProfile.organization,
+              req.body.reason,
+              function (result) {
+                if (result) {
+                    obj.data.success = true;
+                    res.send(obj);
+                }else{
+                   obj.data.success = false;
+                   res.send(obj);
+                }
+          
+          });
+        } else {
+            obj.data.success = false;
+            obj.data.info = "LetterID tidak ditemukan";
+            res.send(obj);
+        }
+      });
+    } else {
+          obj.data.success = false;
+          obj.data.info = "LetterID and Reason required";
+          res.send(obj);
+    }
+  }
  
 return {
   incomings : incomings,
@@ -1827,6 +1871,7 @@ return {
   rejectLetterNew:rejectLetterNew,
   processLetter : processLetter,
   outgoingsCancel:outgoingsCancel,
-  incomingsCC:incomingsCC
+  incomingsCC:incomingsCC,
+  rejectLetterIncomings:rejectLetterIncomings
 }
 }

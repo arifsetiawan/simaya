@@ -434,12 +434,51 @@ module.exports = function(app){
     });
   }
 
+   var decline = function(req, res) {
+     var obj = {
+          meta : { code : 200 },
+          data : {}
+        }
+    if (req.body && req.body.dispositionId && req.body.message) {
+      var search = {
+        search: {
+          _id: ObjectID(req.body.dispositionId),
+        }
+      }
+      disposition.list(search, function(result) { 
+        if (result != null && result.length == 1) {
+          disposition.markAsDeclined(ObjectID(req.body.dispositionId), req.session.currentUser, req.body.message, function(ok) {
+            if (ok) {
+              azuresettings.makeNotification(req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', req.session.currentUserProfile.id);
+              notification.set(req.session.currentUser, result[0].sender, req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', '/disposition/read/' + req.body.dispositionId + "#recipient-" + req.session.currentUser);
+              obj.data.success = true;
+              res.send(obj);
+            } else {
+              obj.data.success = false;
+              res.send(obj);
+            }
+          });
+        } else {
+            obj.data.success = false;
+            obj.data.info = "Disposition ID tidak ditemukan";
+            res.send(obj);
+        }
+      });
+    } else {
+      obj.data.success = false;
+      obj.data.info = "Disposition ID and Message required";
+      res.send(obj);
+    }
+  }
+
   return {
     incomings : incomings,
     outgoings : outgoings,
     read : read,
     addComments : addComments,
     create : create,
-    getRecepeints : getRecepeints
+    getRecepeints : getRecepeints,
+    decline: decline
+
   }
 }
