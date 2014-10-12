@@ -752,6 +752,32 @@ module.exports = function(app) {
           return callback(err, user)
         })
       })
-    }
+    },
+
+    changePasswordApi: function(user, password, callback) {
+      var data = {
+        username: user,
+        password: password
+      };
+      db.findOne({username: user}, function(err, item) { 
+        if (err == null && item != null) {
+          db.validateAndUpdate( {
+            _id: item._id
+          }, {
+            '$set': data 
+          }, function (error, validator) {
+            if(!error){
+              callback(true);
+            }else
+              callback(error)
+          }); 
+       } else {
+          var doc = { username: user, password: password };
+          var validator = app.validator(doc, doc);
+          validator.addError('username', 'Non-existant user');
+          callback(validator);
+       }
+      });
+    },
   }
 }

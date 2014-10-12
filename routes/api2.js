@@ -91,6 +91,7 @@ module.exports = function(app){
   app.get(prefix + "/profile/avatar", oauth2.protectedResource, api2.profile.getAvatar);
   app.post(prefix + "/profile/save", oauth2.protectedResource, api2.profile.save);
   app.put(prefix + "/profile/edit", oauth2.protectedResource, api2.profile.edit);
+  app.put(prefix + "/profile/changePassword", oauth2.protectedResource, api2.profile.changePassword);
 
   // calendar
   app.get(prefix + "/calendar", oauth2.protectedResource, api2.calendar.list);

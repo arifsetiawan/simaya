@@ -391,6 +391,51 @@ module.exports = function(app){
       });
   }
 
+  var changePassword = function(req,res){
+     var obj = {
+          meta : { code : 200 },
+          data : {}
+        }
+    if(req.body.oldPassword && req.body.newPassword && req.body.newPasswordConfirm){
+      if( req.body.newPassword.length >= 6 || req.body.newPasswordConfirm.length >= 6){
+         user.authenticate(req.session.currentUser,req.body.oldPassword,function(cb){
+          if(cb===true){
+            if(req.body.newPassword===req.body.newPasswordConfirm){
+              user.changePasswordApi(req.session.currentUser,req.body.newPassword,function(cb){
+                if(cb===true){
+                  obj.data.success = true;
+                }else{
+                  obj.data.success = false;
+                  obj.data.info = cb;
+                }
+
+                 res.send(obj);
+              });
+            }else{
+                obj.data.success = false;
+                obj.data.info = "Password and Confirm Password not same";
+                res.send(obj);
+            }
+          }else{
+            obj.data.success = false;
+            obj.data.info = "Current Password not same";
+            res.send(obj);
+          }
+        })
+      }else{
+        obj.data.success = false;
+        obj.data.info = "Minimal panjang password adalah 6";
+        res.send(obj);
+      }
+      
+    }else{
+        obj.data.success = false;
+        obj.data.info = "oldPassword/newPassword/newPasswordConfirm is required";
+        res.send(obj);
+    } 
+
+  }
+
   return {
     getAvatar: getAvatar
     , getAvatarBase64: getAvatarBase64
@@ -399,5 +444,6 @@ module.exports = function(app){
     , view: view
     , save: save
     , edit:edit
+    , changePassword : changePassword
   }
 }
