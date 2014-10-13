@@ -128,11 +128,11 @@ module.exports = function(app){
   app.get(prefix + "/box/dir", oauth2.protectedResource, box.readDir);
   app.get(prefix + "/box/dir/*", oauth2.protectedResource, box.readDir);
   app.get(prefix + "/box/file/*", oauth2.protectedResource, box.readFile);
-  app.post(prefix + "/box/dir", oauth2.protectedResource, boxC.createDir);
+  app.post(prefix + "/box/dir", oauth2.protectedResource, box.createDir);
   app.post(prefix + "/box/file", oauth2.protectedResource, box.writeFile);
-  app.post(prefix + "/box/revisions", oauth2.protectedResource, boxC.revisions);
-  app.post(prefix + "/box/share/file", oauth2.protectedResource, boxC.shareFile);
-  app.post(prefix + "/box/share/dir", oauth2.protectedResource, boxC.shareDir);
-  app.post(prefix + "/box/delete/file", oauth2.protectedResource, boxC.deleteFile);
-  app.post(prefix + "/box/delete/dir", oauth2.protectedResource, boxC.deleteDir);
+  app.post(prefix + "/box/revisions", oauth2.protectedResource, box.revisions);
+  app.post(prefix + "/box/share/file", oauth2.protectedResource, box.shareFile);
+  app.post(prefix + "/box/share/dir", oauth2.protectedResource, box.shareDir);
+  app.post(prefix + "/box/delete/file", oauth2.protectedResource, box.deleteFile);
+  app.post(prefix + "/box/delete/dir", oauth2.protectedResource, box.deleteDir);
 }

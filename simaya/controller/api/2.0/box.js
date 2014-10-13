@@ -9,6 +9,7 @@ module.exports = function(app) {
 	var path = require("path");
 	var url = require("url");
 	var fs = require("fs");
+	var azuresettings = require("../../../../azure-settings.js");
 
 	var contentTypes = {
 	    OWNBOX_DIR : "application/directory.ownbox"
@@ -36,11 +37,11 @@ module.exports = function(app) {
    */
 
 	var readDir = function (req, res) {
-	    // console.log(req.path);
-	    var currentPath = req.session.currentUser;
-	    // console.log(currentPath);
+	
+	    var currentPath = req.path.substr("/api/2/box/dir/".length, req.path.length) || req.session.currentUser;
+ 
 	    currentPath = "/" + currentPath;
-
+	   
 	    var shared = isSharedDir(currentPath, req.session.currentUser);
 
 	    // if(req.accepted && req.accepted.length > 0 && req.accepted[0].value != "application/json") {
@@ -120,7 +121,7 @@ module.exports = function(app) {
 	    item = decodeURI(item);
 	    var box = own.box(req.session);
 	    var filename = path.basename(item);
-	    console.log(u, item, box, filename);
+	    // console.log(u, item, box, filename);
 	    res.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
 
 	    var dirname = path.dirname(item);
@@ -162,23 +163,34 @@ module.exports = function(app) {
    */
 
   	var writeFile = function (req, res) {
-	    var uploaded = req.files.files;
-	    var dirname = req.body.dirname;
-	    var box = own.box(req.session);
+  		 var obj = {
+                  meta : { code : "200" },
+                  data : {}
+                }
 
-	    // console.log("uploaded", dirname);
+         var uploaded = req.files.files;
+	     var dirname = req.body.dirname;
+         if(uploaded && dirname){
+         	var box = own.box(req.session);
+		    var source = fs.createReadStream(uploaded.path);
 
-	    var source = fs.createReadStream(uploaded.path);
+		    process.nextTick(function(){
 
-	    process.nextTick(function(){
+		      box.directory(dirname).stream(uploaded.originalFilename, {_stream : source}).write(function(err, result){
+		        fs.unlink(uploaded.path, function(){
+		          obj.data.success = true;
+		          obj.data.info = result;
+		          res.send(obj);
+		        });
+		      });
 
-	      box.directory(dirname).stream(uploaded.originalFilename, {_stream : source}).write(function(err, result){
-	        fs.unlink(uploaded.path, function(){
-	          res.send({ item : result});
-	        });
-	      });
-
-	    });
+		    });
+         }else{
+         	  obj.data.success = false;
+	          obj.data.info = "Files and Dirname is required";
+	          res.send(obj);
+         }
+		
   	}
 
   /**
@@ -217,9 +229,237 @@ module.exports = function(app) {
    * 
    */
 
+    var createDir = function (req, res) {
+	  	var obj = {
+	                  meta : { code : "200" },
+	                  data : {}
+                  }
+
+	    var dirname = req.body.path;
+
+	    if(dirname && dirname!=="shared"){
+    	 	if (isSharedDir(dirname, req.session.currentUser)) {
+    	   		obj.data.success = false;
+		      	obj.data.info = "shared is reserved";
+		      	res.send(obj);
+		    }
+
+		    var boxC = own.box(req.session);
+
+		    boxC.directory(dirname).create(function(err, result){
+		      if (err) {
+		      	obj.data.success = false;
+		      	obj.data.info = err
+		      }else{
+		      	obj.data.success = true;
+		      	obj.data.path = dirname;
+		      	obj.data.info = result;
+		      } 
+		      res.send(obj);
+		    });
+	    }else{ 
+			obj.data.success = false;
+	      	obj.data.info = "Path is required/Name path tidak boleh shared";
+	      	res.send(obj);
+	    }
+	 
+	}
+
+	var revisions = function (req, res) {
+    var u = url.parse(req.url);
+    var item = u.pathname.substr("/api/2/box/file".length, u.pathname.length);
+    var box = own.box(req.session);
+
+    box.directory(path.dirname(item)).file(filename).revisions(function(err, result){
+      if (err) {
+        res.redirect("/api/2/box/dir/" + path.dirname(item));
+      } else {
+        res.send({ revisions : result});
+      }
+    });
+  }
+
+   var shareFile = function (req, res) {
+
+    var body = req.body;
+    var box = own.box(req.session);
+    var names = body.users.split(",");
+
+    var obj = {
+	              meta : { code : "200" },
+	              data : {}
+	          }
+
+    if(req.body.currentPath && req.body.users && req.body.item && req.body.itemType && req.body.message){
+	      function getUserProfile(usr, cb){
+	      // list user
+	      user.list({ search : { "username" : usr } }, function(result){
+	        if (result && result.length > 0) {
+	          cb(null, {
+	            user : result[0].username,
+	            profile : result[0].profile
+	          });
+	        } else {
+	          return cb(null, { user : usr, profile : {} });
+	        }
+	      });
+	    }
+
+	    // get user objects [{ user : user, profile : profile}]
+	    async.map(names, getUserProfile, function(err, users){
+
+	      if (err){
+			obj.data.success = false;
+			obj.data.info = err;
+			res.send(obj);
+	      }else{
+	      	box.directory(body.currentPath).file(body.item).share({ to : users }, function(err, updated){
+	          
+	          if (err) {
+	           	obj.data.success = false;
+				obj.data.info = err;
+				res.send(obj);
+	          }else{
+	          	 if (updated && updated.length > 0) {
+		            var sender = req.session.currentUserProfile ? (req.session.currentUserProfile.fullName || req.session.currentUser) : req.session.currentUser;
+		            var message =  "Telah membagikan " + body.item;
+		            message += body.message ? (" Pesan: " + body.message) : "";
+		            
+		            for (var i = 0; i < users.length; i++) {
+		              azuresettings.makeNotification(message, req.session.currentUserProfile.id);
+		              notification.set(sender, users[i].user, message, "/box/dir/" + users[i].user + "/shared");
+		            }
+		          }
+		         	obj.data.success = true;
+					res.send(obj);
+	          }
+	        });  
+	      }
+	    });
+    }else{
+    	obj.data.success = false;
+		obj.data.info = "currentPath/Users/Item/Item Type/Message required";
+		res.send(obj);
+    }
+    
+  }
+
+  var shareDir = function (req, res) {
+     var obj = {
+	              meta : { code : "200" },
+	              data : {}
+	           }
+
+    if(req.body.pathShare && req.body.users){
+		var body = req.body;
+	    var box = own.box(req.session);
+	    var users = body.users.split(",");
+
+	    function getUserProfile(usr, cb){
+	      // list user
+	      user.list({ search : { "username" : usr } }, function(result){
+	        if (result && result.length > 0) {
+	          cb(null, {
+	            user : result[0].username,
+	            profile : result[0].profile
+	          });
+	        } else {
+	          return cb(null, { user : usr, profile : {} });
+	        }
+	      });
+	    }
+
+	    async.map(users, getUserProfile, function(err, result) {
+	      if (err){
+	      		obj.data.success = false;
+				obj.data.info = err;
+				res.send(obj);
+	      } else{
+			// get all items inside dirs
+			box.directory(body.pathShare).share({to : result}, function(err, updated){
+				if(!err){
+					obj.data.success = true;
+					res.send(obj);
+				}else{
+					obj.data.success = false;
+					obj.data.info = err;
+					res.send(obj);
+				}
+			});
+	      }
+	    });
+    }else{
+    	obj.data.success = false;
+		obj.data.info = "Pathshare/Users required";
+		res.send(obj);
+    }
+  }
+
+   var deleteFile = function (req, res) {
+   	 var obj = {
+	              meta : { code : "200" },
+	              data : {}
+	           }
+
+	var body = req.body;    
+
+	if(body.currentPath && body.item){
+	    var box = own.box(req.session);
+	    box.directory(body.currentPath).file(body.item).destroy(function(err) {
+	      if (err){
+	      	obj.data.success = false;
+			obj.data.info =  err;
+			res.send(obj);
+	      }else{
+	      	obj.data.success = true;
+			res.send(obj);
+	      }
+	    });
+	}else{
+		obj.data.success = false;
+		obj.data.info = "currentPath/Item required";
+		res.send(obj);
+	}      
+   
+  }
+
+  var deleteDir = function (req, res) {
+  	var obj = {
+	              meta : { code : "200" },
+	              data : {}
+	           }
+
+	var body = req.body;
+
+	if(body.currentPath){
+	    var box = own.box(req.session);
+	    box.directory(body.currentPath).destroy(function(err){
+	      if (err){
+	      	obj.data.success = false;
+			obj.data.info =  err;
+			res.send(obj);
+	      }else{
+	      	obj.data.success = true;
+			res.send(obj);
+		   }
+	    });
+	}else{
+		obj.data.success = false;
+		obj.data.info = "currentPath required";
+		res.send(obj);
+	}
+   
+  }
+
 	return {
 		readDir : readDir,
 		readFile : readFile,
-		writeFile : writeFile
+		writeFile : writeFile,
+		createDir : createDir,
+		revisions : revisions,
+		shareFile : shareFile,
+		shareDir : shareDir,
+		deleteFile : deleteFile,
+		deleteDir : deleteDir
 	}
 }
