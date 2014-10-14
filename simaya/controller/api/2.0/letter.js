@@ -328,7 +328,7 @@ var countKonsep = function(req, res, callback) {
    * curl http://simaya.cloudapp.net/api/2/letters/incomings?access_token=f3fyGRRoKZ...
    */
    var incomings = function (req, res) {
-    var search = letterWeb.buildSearchForIncoming(req, res);
+    var search = letterWeb.buildSearchForIncomingApi(req, res);
     // console.log("Search1", JSON.stringify(search));
     search = letterWeb.populateSortForIncoming(req, search);
     // console.log("Search2", JSON.stringify(search));
@@ -422,7 +422,7 @@ var countKonsep = function(req, res, callback) {
    * curl http://simaya.cloudapp.net/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
    */
    var outgoings = function (req, res) {
-    var search = letterWeb.buildSearchForOutgoing(req, res);
+    var search = letterWeb.buildSearchForOutgoingApi(req, res);
     search.fields = {title: 1, priority : 1, classification :1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1, mailId : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
@@ -1241,6 +1241,16 @@ var countKonsep = function(req, res, callback) {
               }
               ]},
               {$or: [
+                 { title: 
+                  { $regex : new RegExp(req.query.title, "i")}
+                },
+              ]},
+               {$or:[
+                { type: 
+                  { $regex :new RegExp(req.query.letterType)}
+                },
+              ]},
+              {$or: [
                 { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
                 { status: letter.Stages.APPROVED } // displays new, in-review, and approved letters
                 ]},
@@ -1258,6 +1268,16 @@ var countKonsep = function(req, res, callback) {
               { reviewers:
                 { $in: [req.session.currentUser] }
               }
+              ]},
+               {$or: [
+                 { title: 
+                  { $regex : new RegExp(req.query.title, "i")}
+                },
+              ]},
+               {$or:[
+                { type: 
+                  { $regex :new RegExp(req.query.letterType)}
+                },
               ]},
               {$or: [
           { status: { $lte: letter.Stages.WAITING }, }, // displays new, in-review, and approved letters
@@ -1683,11 +1703,23 @@ var createAgendaSuratIncomings = function(req, res) {
     }
 
     search.search = {
-      $or: [
-        { originator: req.session.currentUser},
-        { reviewers:
-          { $in: [req.session.currentUser] }
-        }
+      $and: [
+        {$or: [
+          { originator: req.session.currentUser},
+          { reviewers:
+            { $in: [req.session.currentUser] }
+          }
+        ]},
+        {$or: [
+           { title: 
+            { $regex : new RegExp(req.query.title, "i")}
+          },
+        ]},
+         {$or:[
+          { type: 
+            { $regex :new RegExp(req.query.letterType)}
+          },
+        ]},
       ],
       status: letter.Stages.DEMOTED,
       creation: "normal",
@@ -1747,9 +1779,23 @@ var createAgendaSuratIncomings = function(req, res) {
     }
 
      search.search = {
-      ccList: {
-        $in: [req.session.currentUser]
-      },
+       $and: [
+        {$or: [
+           { ccList: 
+            {  $in: [req.session.currentUser] }
+          },
+        ]},
+        {$or: [
+           { title: 
+            { $regex : new RegExp(req.query.title, "i")}
+          },
+        ]},
+       {$or:[
+        { type: 
+          { $regex :new RegExp(req.query.letterType)}
+        },
+        ]},
+        ],
     }
     var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
     search.search[o] = letter.Stages.RECEIVED;

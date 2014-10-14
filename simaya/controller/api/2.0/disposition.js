@@ -101,7 +101,16 @@ module.exports = function(app){
     var me = req.session.currentUser;
     var search = {
       search: {
-        sender: me, 
+        $and: [
+        {$or: [
+           { sender: me }
+        ]},
+        {$or: [
+           { letterTitle: 
+            { $regex : new RegExp(req.query.title, "i")}
+          },
+        ]}
+        ],
       },
       limit: 20,
       page: (req.query["page"] || 1) 
@@ -135,7 +144,16 @@ module.exports = function(app){
     var me = req.session.currentUser;
     var search = {
       search: {
-        "recipients.recipient": me, 
+        $and: [
+        {$or: [
+           { "recipients.recipient": me }
+        ]},
+        {$or: [
+           { letterTitle: 
+            { $regex : new RegExp(req.query.title, "i")}
+          },
+        ]}
+        ],
       },
       limit: 20,
       page: (req.query["page"] || 1) 

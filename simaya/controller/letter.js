@@ -2835,6 +2835,95 @@ Letter = module.exports = function(app) {
     } 
   }
 
+  var buildSearchForOutgoingApi = function(req, res) {
+    var search = {};
+    // console.log("ADMINISTRATION ROLE: " + app.simaya.administrationRole);
+    // console.log(req.session.currentUserRoles);
+    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+      search.search = {
+          senderOrganization: req.session.currentUserProfile.organization,
+          status: letter.Stages.SENT, // displays SENT only for staff 
+          creation: "normal",
+      }
+
+    } else {
+      search.search = {
+        $and: [
+        { $or: [
+          { originator: req.session.currentUser},
+          { reviewers:
+            { $in: [req.session.currentUser] }
+          }
+        ]},
+        {$or: [
+           { title: 
+            { $regex : new RegExp(req.query.title, "i")}
+          },
+        ]},
+        {$or:[
+          { type: 
+            { $regex :new RegExp(req.query.letterType)}
+          },
+        ]},
+        { $or: [
+          { status: letter.Stages.SENT }, // displays all SENT and RECEIVED
+          { status: letter.Stages.RECEIVED },
+        ]},
+        ],
+        creation: "normal",
+      }
+    }
+
+    return search;
+  }
+
+  var buildSearchForIncomingApi = function(req, res) {
+    var search = {
+      search: {}
+    };
+    if (utils.currentUserHasRoles([app.simaya.administrationRole], req, res)) {
+      var o = "receivingOrganizations." + req.session.currentUserProfile.organization;
+      var normalCase = {
+        status: letter.Stages.SENT, // displays SENT and ready to be received
+        creation: "normal",
+      }
+      normalCase[o] = { $exists: true};
+
+      var externalCase = {
+        creation: "external",
+      }
+      externalCase[o] = { status: letter.Stages.SENT };
+      search.search["$or"] = [];
+      search.search["$or"].push(normalCase);
+      search.search["$or"].push(externalCase);
+    } else {
+      search.search = {
+        $and: [
+        {$or: [
+           { recipients: 
+            {  $in: [req.session.currentUser] }
+          },
+        ]},
+        {$or: [
+           { title: 
+            { $regex : new RegExp(req.query.title, "i")}
+          },
+        ]},
+       {$or:[
+        { type: 
+          { $regex :new RegExp(req.query.letterType)}
+        },
+        ]},
+        ],
+      }
+      var o = "receivingOrganizations." + req.session.currentUserProfile.organization + ".status";
+      search.search[o] = letter.Stages.RECEIVED;
+    }
+
+    return search;
+  }
+
+
   return {
     createExternal: createExternal
     , createNormal: createNormal
@@ -2882,6 +2971,8 @@ Letter = module.exports = function(app) {
     , processLetterApi: processLetterApi
     , uploadAttachmentMulti : uploadAttachmentMulti
     , deleteAttachmentMulti : deleteAttachmentMulti
+    , buildSearchForOutgoingApi : buildSearchForOutgoingApi
+    , buildSearchForIncomingApi: buildSearchForIncomingApi
   }
 };
 }
