@@ -58,7 +58,7 @@ module.exports = function(app){
 
       res.send(obj);
     });
-    calendarWeb.listDayJSON(req, r);
+    calendarWeb.listDayJSONApi(req, r);
   }
 
   /**

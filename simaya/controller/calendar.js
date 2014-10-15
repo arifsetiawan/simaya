@@ -639,6 +639,74 @@ module.exports = function(app) {
     }
   }
 
+  var listDayJSONApi = function(req, res)
+  {
+    var me = req.session.currentUser; 
+    var date = new Date();
+    if (typeof(req.query.date) !== "undefined") {
+      date = new Date(req.query.date);
+    }
+
+    date.setHours(0);
+    date.setMinutes(0);
+
+    var dateEnd = new Date(date);
+    var numDays = 0;
+    if (typeof(req.query["num-days"]) !== "undefined") {
+      numDays = parseInt(req.query["num-days"]);
+      if (isNaN(numDays) || numDays <= 0) {
+        numDays = 1;
+      }
+      numDays = numDays - 1;
+    }
+    dateEnd.setDate(dateEnd.getDate() + numDays);
+    dateEnd.setHours(23);
+    dateEnd.setMinutes(59);
+
+    var search = {
+      search: {
+        start: { $gte: date},
+        end: { $lte: dateEnd},
+        $or: [
+            { user: me} ,
+            { recipients: { $in: [me] }},
+            { global: true } ,
+          ]
+      },
+       offset : parseInt(req.query.page) || 1,
+       limit : parseInt(req.query.limit) || 20
+    }
+
+    calendar.list(search, function(result) {
+      var recipientHash = {};
+      for (var i = 0; i < result.length; i++) {
+        var r = result[i].recipients;
+        for (var j = 0; j < r.length; j ++) {
+          recipientHash[r[j]] = 1;
+        }
+      }
+      if (recipientHash.length > 0) {
+        res.send(JSON.stringify(result));
+      } else {
+        modelUtils.resolveUsers(Object.keys(recipientHash), function(resolved) {
+          recipientHash = {};
+          for (var i = 0; i < resolved.length; i ++) {
+            recipientHash[resolved[i].username] = resolved[i].name;
+          }
+          for (var i = 0; i < result.length; i++) {
+            var r = result[i].recipients;
+            var rs = [];
+            for (var j = 0; j < r.length; j ++) {
+              rs.push(recipientHash[r[j]]);
+            }
+            result[i].recipientsResolved = rs;
+          }
+          res.send(JSON.stringify(result));
+        });
+      }
+    })
+  }
+
   return {
     dayView: dayView, 
     list: listView, 
@@ -657,6 +725,7 @@ module.exports = function(app) {
     declineInvitationJSON: declineInvitationJSON,
     removeInvitationJSON: removeInvitationJSON,
     redirectToCalendarDay: redirectToCalendarDay,
-    editCalender : editCalender
+    editCalender : editCalender,
+    listDayJSONApi : listDayJSONApi
   }
 };

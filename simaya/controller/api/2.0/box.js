@@ -41,7 +41,7 @@ module.exports = function(app) {
 	    var currentPath = req.path.substr("/api/2/box/dir/".length, req.path.length) || req.session.currentUser;
  	
 	    currentPath = "/" + currentPath;
-	   console.log(currentPath);
+	 
 	    var shared = isSharedDir(currentPath, req.session.currentUser);
 
 	    // if(req.accepted && req.accepted.length > 0 && req.accepted[0].value != "application/json") {
