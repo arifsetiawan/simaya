@@ -58,6 +58,7 @@ module.exports = function(app){
   app.post(prefix + "/letters/attachments/deleteAttachmentMulti", oauth2.protectedResource, letterC.deleteAttachmentMulti);
   app.get(prefix + "/letters/incomings/cc", oauth2.protectedResource, api2.letter.incomingsCC);
   app.put(prefix + "/letters/rejectLetterIncomings", oauth2.protectedResource, api2.letter.rejectLetterIncomings);
+  app.get(prefix + "/letter/attachment/:id", oauth2.protectedResource, letterC.downloadAttachment);
 
   // app.get(prefix + "/letters/:id", oauth2.protectedResource, api2.letter.read);
   app.get(prefix + "/letters/read/:id", oauth2.protectedResource, api2.letter.read);
