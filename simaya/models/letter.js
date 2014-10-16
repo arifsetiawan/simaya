@@ -1016,11 +1016,11 @@ module.exports = function(app) {
     },
 
     getUsername : function(id,cb){
-         user.findOne({username:  id}, function(error, result){
-                  if(result){
-                      cb(result.profile);
-                  }
-          });
+       user.findOne({username:  id}, function(error, result){
+                if(result){
+                    cb(result.profile);
+                }
+        });
     }
   }
 

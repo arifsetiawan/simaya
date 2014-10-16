@@ -212,6 +212,8 @@ module.exports = function(app){
             var resolvedRecipient = resolvedHash[r[i].recipients[j].recipient]; 
             r[i].recipients[j].recipientResolved = resolvedRecipient.name;
           }
+
+           r[i].fullName = resolvedHash[r[i].sender].name;
         });
 
         var obj = {
