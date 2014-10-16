@@ -265,6 +265,16 @@ module.exports = function(app) {
       });
     },
 
+     // List 
+    // Returns via callback
+    listApi: function (search, callback) {
+      db.find(search.search, function(err, cursor) { 
+        cursor.sort(search.sort || {end:-1}).toArray(function (error, result) {
+          callback(result);
+        })
+      });
+    },
+
     // Cancel an invitation
     cancelInvitation: function(id, user, callback) {
       db.findArray({ _id: ObjectID(id + "")}, function (error, result) {

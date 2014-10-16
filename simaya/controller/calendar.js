@@ -672,12 +672,10 @@ module.exports = function(app) {
             { recipients: { $in: [me] }},
             { global: true } ,
           ]
-      },
-       offset : parseInt(req.query.page) || 1,
-       limit : parseInt(req.query.limit) || 20
+      }
     }
 
-    calendar.list(search, function(result) {
+    calendar.listApi(search, function(result) {
       var recipientHash = {};
       for (var i = 0; i < result.length; i++) {
         var r = result[i].recipients;
