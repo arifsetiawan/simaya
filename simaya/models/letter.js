@@ -1019,6 +1019,8 @@ module.exports = function(app) {
        user.findOne({username:  id}, function(error, result){
                 if(result){
                     cb(result.profile);
+                }else{
+                    cb();
                 }
         });
     }
