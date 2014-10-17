@@ -1290,35 +1290,38 @@ var countKonsep = function(req, res, callback) {
       }
       search.page = req.query["page"] || 1;
       search.limit = req.query["limit"] || 20;
-
+      letterFilter = {};
       letter.listOutgoingDraft(req,search,function(letterList,callback2){
           async.mapSeries(letterList, function(letterItem, cb) {
             letter.getUsername(letterItem.sender, function(userData) {
-                letterItem.id_surat = letterItem._id;
-                letterItem.tangal_diterima = moment(letterItem._id).format("dddd, DD MMMM YYYY");
-                letterItem.nomer_surat = letterItem.mailId;
-                letterItem.jenis_surat = type[letterItem.type];
-                letterItem.atas_nama = letterItem.sender;
-                letterItem.perihal = letterItem.title;
-                letterItem.classification = letterItem.classification;
-                letterItem.priority = letterItem.priority;
+                letterFilter =  { 
+                            id_surat : letterItem._id, 
+                            tangal_diterima : moment(letterItem._id).format("dddd, DD MMMM YYYY"), 
+                            nomer_surat : letterItem.mailId,
+                            jenis_surat : type[letterItem.type],
+                            atas_nama : letterItem.sender,
+                            perihal : letterItem.title,
+                            classification : letterItem.classification,
+                            priority : letterItem.priority,
+                            fullName :  userData.fullName
+                          };
+         
                if(letterItem.nextReviewer ==  req.session.currentUser){
-                letterItem.nextReviewer = true;
+                letterFilter.nextReviewer = true;
                 }else if((letterItem.nextReviewer == "" || letterItem.nextReviewer == null ) && letterItem.status=="3"){
                      for (index in req.session.currentUserRoles) {
                       if(req.session.currentUserRoles[index]==="tatausaha"){
-                        letterItem.nextReviewer = true;
+                        letterFilter.nextReviewer = true;
                         break;
                       }else{
-                         letterItem.nextReviewer = false;
+                         letterFilter.nextReviewer = false;
                       }
 
                     };
                 }else{ 
-                   letterItem.nextReviewer = false;
+                   letterFilter.nextReviewer = false;
                 }
-              letterItem.fullName = userData.fullName;
-              cb(null, letterItem);
+               cb(null, letterFilter);
             });
           },
           function(err, results){
@@ -1723,19 +1726,22 @@ var createAgendaSuratIncomings = function(req, res) {
 
     search.page = req.query["page"] || 1;
     search.limit = parseInt(req.query["limit"]) || 20;
+    letterFilter = {};
     letter.list(search,function(letterList){
       async.mapSeries(letterList, function(letterItem, cb) {
         letter.getUsername(letterItem.sender, function(userData) {
-          letterItem.id_surat = letterItem._id;
-          letterItem.tangal_diterima = moment(letterItem._id).format("dddd, DD MMMM YYYY");
-          letterItem.nomer_surat = letterItem.mailId;
-          letterItem.jenis_surat = type[letterItem.type];
-          letterItem.atas_nama = letterItem.sender;
-          letterItem.perihal = letterItem.title;
-          letterItem.classification = letterItem.classification;
-          letterItem.priority = letterItem.priority;
-          letterItem.fullName = userData.fullName;
-          cb(null, letterItem)
+          letterFilter =  { 
+                            id_surat : letterItem._id, 
+                            tangal_diterima : moment(letterItem._id).format("dddd, DD MMMM YYYY"), 
+                            nomer_surat : letterItem.mailId,
+                            jenis_surat : type[letterItem.type],
+                            atas_nama : letterItem.sender,
+                            perihal : letterItem.title,
+                            classification : letterItem.classification,
+                            priority : letterItem.priority,
+                            fullName :  userData.fullName
+                          };
+          cb(null, letterFilter);
         })
       },
       function(err, results){
@@ -1790,20 +1796,22 @@ var createAgendaSuratIncomings = function(req, res) {
 
     search.page = req.query["page"] || 1;
     search.limit = parseInt(req.query["limit"]) || 20;
-
+    letterFilter = {};
     letter.list(search,function(letterList){
       async.mapSeries(letterList, function(letterItem, cb) {
         letter.getUsername(letterItem.sender, function(userData) {
-          letterItem.id_surat = letterItem._id;
-          letterItem.tangal_diterima = moment(letterItem._id).format("dddd, DD MMMM YYYY");
-          letterItem.nomer_surat = letterItem.mailId;
-          letterItem.jenis_surat = type[letterItem.type];
-          letterItem.atas_nama = letterItem.sender;
-          letterItem.perihal = letterItem.title;
-          letterItem.classification = letterItem.classification;
-          letterItem.priority = letterItem.priority;
-          letterItem.fullName = userData.fullName;
-          cb(null, letterItem)
+           letterFilter =  { 
+                            id_surat : letterItem._id, 
+                            tangal_diterima : moment(letterItem._id).format("dddd, DD MMMM YYYY"), 
+                            nomer_surat : letterItem.mailId,
+                            jenis_surat : type[letterItem.type],
+                            atas_nama : letterItem.sender,
+                            perihal : letterItem.title,
+                            classification : letterItem.classification,
+                            priority : letterItem.priority,
+                            fullName :  userData.fullName
+                          };
+          cb(null, letterFilter);
         })
       },
       function(err, results){
