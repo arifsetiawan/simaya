@@ -1290,22 +1290,21 @@ var countKonsep = function(req, res, callback) {
       }
       search.page = req.query["page"] || 1;
       search.limit = req.query["limit"] || 20;
-      letterFilter = {};
+
       letter.listOutgoingDraft(req,search,function(letterList,callback2){
           async.mapSeries(letterList, function(letterItem, cb) {
             letter.getUsername(letterItem.sender, function(userData) {
-                letterFilter =  { 
-                            id_surat : letterItem._id, 
-                            tangal_diterima : moment(letterItem._id).format("dddd, DD MMMM YYYY"), 
-                            nomer_surat : letterItem.mailId,
-                            jenis_surat : type[letterItem.type],
-                            atas_nama : letterItem.sender,
-                            perihal : letterItem.title,
-                            classification : letterItem.classification,
-                            priority : letterItem.priority,
-                            fullName :  userData.fullName
-                          };
-         
+                letterFilter =  {};
+                letterFilter.id_surat =  letterItem._id;
+                letterFilter.tangal_diterima =  moment(letterItem._id).format("dddd, DD MMMM YYYY");
+                letterFilter.nomer_surat =  letterItem.mailId;
+                letterFilter.jenis_surat =  type[letterItem.type];
+                letterFilter.atas_nama =  letterItem.sender;
+                letterFilter.perihal =  letterItem.title;
+                letterFilter.classification =  letterItem.classification;
+                letterFilter.priority =  letterItem.priority;
+                letterFilter.fullName =  userData.fullName;
+
                if(letterItem.nextReviewer ==  req.session.currentUser){
                 letterFilter.nextReviewer = true;
                 }else if((letterItem.nextReviewer == "" || letterItem.nextReviewer == null ) && letterItem.status=="3"){
@@ -1730,17 +1729,16 @@ var createAgendaSuratIncomings = function(req, res) {
     letter.list(search,function(letterList){
       async.mapSeries(letterList, function(letterItem, cb) {
         letter.getUsername(letterItem.sender, function(userData) {
-          letterFilter =  { 
-                            id_surat : letterItem._id, 
-                            tangal_diterima : moment(letterItem._id).format("dddd, DD MMMM YYYY"), 
-                            nomer_surat : letterItem.mailId,
-                            jenis_surat : type[letterItem.type],
-                            atas_nama : letterItem.sender,
-                            perihal : letterItem.title,
-                            classification : letterItem.classification,
-                            priority : letterItem.priority,
-                            fullName :  userData.fullName
-                          };
+          letterFilter =  {};
+          letterFilter.id_surat =  letterItem._id;
+          letterFilter.tangal_diterima =  moment(letterItem._id).format("dddd, DD MMMM YYYY");
+          letterFilter.nomer_surat =  letterItem.mailId;
+          letterFilter.jenis_surat =  type[letterItem.type];
+          letterFilter.atas_nama =  letterItem.sender;
+          letterFilter.perihal =  letterItem.title;
+          letterFilter.classification =  letterItem.classification;
+          letterFilter.priority =  letterItem.priority;
+          letterFilter.fullName =  userData.fullName;
           cb(null, letterFilter);
         })
       },
@@ -1800,17 +1798,16 @@ var createAgendaSuratIncomings = function(req, res) {
     letter.list(search,function(letterList){
       async.mapSeries(letterList, function(letterItem, cb) {
         letter.getUsername(letterItem.sender, function(userData) {
-           letterFilter =  { 
-                            id_surat : letterItem._id, 
-                            tangal_diterima : moment(letterItem._id).format("dddd, DD MMMM YYYY"), 
-                            nomer_surat : letterItem.mailId,
-                            jenis_surat : type[letterItem.type],
-                            atas_nama : letterItem.sender,
-                            perihal : letterItem.title,
-                            classification : letterItem.classification,
-                            priority : letterItem.priority,
-                            fullName :  userData.fullName
-                          };
+          letterFilter =   {};
+          letterFilter.id_surat =  letterItem._id;
+          letterFilter.tangal_diterima =  moment(letterItem._id).format("dddd, DD MMMM YYYY");
+          letterFilter.nomer_surat =  letterItem.mailId;
+          letterFilter.jenis_surat =  type[letterItem.type];
+          letterFilter.atas_nama =  letterItem.sender;
+          letterFilter.perihal =  letterItem.title;
+          letterFilter.classification =  letterItem.classification;
+          letterFilter.priority =  letterItem.priority;
+          letterFilter.fullName =  userData.fullName;
           cb(null, letterFilter);
         })
       },
