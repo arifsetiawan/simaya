@@ -72,6 +72,7 @@ module.exports = function(app) {
 	          result[item].date = moment(revision.uploadDate).fromNow();
 	          result[item].revisions = revisions.length;
 	          result[item].owner = revision.metadata.owner;
+	          result[item].fullDate = revision.uploadDate;
 	          result[item].sharedTo = revision.metadata.sharedTo || [];
 	          // result[item].latest = revision;
 	        }
