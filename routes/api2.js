@@ -103,7 +103,7 @@ module.exports = function(app){
   // notification
   app.get(prefix + "/notifications", oauth2.protectedResource, api2.notification.list);
   app.get(prefix + "/notifications/view/:id", oauth2.protectedResource, api2.notification.view);
-  app.delete(prefix + "/notifications/removeAll", oauth2.protectedResource, api2.notification.removeNotification);
+  app.delete(prefix + "/notifications/removeAll", oauth2.protectedResource, api2.notification.removeAll);
 
   //contacts
   app.get(prefix + "/contacts/waiting", oauth2.protectedResource, api2.contacts.waiting);
