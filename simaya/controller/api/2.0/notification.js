@@ -75,9 +75,22 @@ module.exports = function(app) {
       });
     }
   }
+
+  var removeAll = function(req,res){
+    var obj = {
+                meta : { code : "200" },
+                data : {}
+              }
+
+     notification.removeAll(req.session.currentUser, function(r) {
+        obj.data.success = true;
+        res.send(obj);
+    });
+  }
    
   return {
     list: list,
     view: view,
+    removeAll:removeAll
   }
 };
