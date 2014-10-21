@@ -1304,6 +1304,7 @@ var countKonsep = function(req, res, callback) {
                 letterFilter.classification =  letterItem.classification;
                 letterFilter.priority =  letterItem.priority;
                 letterFilter.fullName =  userData.fullName;
+                letterFilter.rawDate =  letterItem.creationDate;
 
                if(letterItem.nextReviewer ==  req.session.currentUser){
                 letterFilter.nextReviewer = true;
@@ -1739,6 +1740,7 @@ var createAgendaSuratIncomings = function(req, res) {
           letterFilter.classification =  letterItem.classification;
           letterFilter.priority =  letterItem.priority;
           letterFilter.fullName =  userData.fullName;
+          letterFilter.rawDate =  letterItem.creationDate;
           cb(null, letterFilter);
         })
       },
@@ -1808,6 +1810,7 @@ var createAgendaSuratIncomings = function(req, res) {
           letterFilter.classification =  letterItem.classification;
           letterFilter.priority =  letterItem.priority;
           letterFilter.fullName =  userData.fullName;
+          letterFilter.rawDate =  letterItem.creationDate;
           cb(null, letterFilter);
         })
       },

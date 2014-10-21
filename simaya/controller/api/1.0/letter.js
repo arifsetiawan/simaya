@@ -90,8 +90,18 @@ module.exports = function(app){
     var senders = {};
 
     result.forEach(function(e, i) {
+       result[i].rejectionsData = [];
        if(result[i].receivedDateNew){
           result[i].receivedDateNewDetail = moment(result[i].receivedDateNew).format("dddd, DD MMMM YYYY");
+        }
+
+        if(result[i].rejections){
+          Object.keys(result[i].rejections).forEach(function(key,i) {
+            var val = result[i].rejections[key];
+             result[i].rejectionsData[i] = {username : key,date : result[i].rejections[key].date, reason : result[i].rejections[key].reason};
+          });      
+        }else{
+          result[i].rejectionsData = [];
         }
 
       result[i].statusReadRecepint = [];
