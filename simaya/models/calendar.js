@@ -239,6 +239,12 @@ module.exports = function(app) {
               }); 
             }
           });
+        }else{
+            var obj = {
+              meta: { code: "200"},
+              data:{ success : false,info : "Id not found"}
+            }
+            stream.send(obj);
         }
       });
     },

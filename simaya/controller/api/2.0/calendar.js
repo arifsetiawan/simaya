@@ -143,15 +143,14 @@ module.exports = function(app){
   var downloadAttachment = function(req, res) {
     var vals = {};
     
-    if (req.params.id) {
+    if (req.params.id && req.params.id.length === 24) {
       calendar.downloadAttachment(req.params.id, res);
     } else {
-      res.send(404, {
-          meta: {
-            code: 404,
-            data: "File Not Found"
-          }
-        });
+       var obj = {
+              meta: { code: "200"},
+              data:{ success : false,info : "Id not found"}
+        }
+        res.send(obj);
     }
   }
 
