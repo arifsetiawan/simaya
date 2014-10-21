@@ -140,10 +140,26 @@ module.exports = function(app){
      calendarWeb.editCalender(req,res);
   }
 
+  var downloadAttachment = function(req, res) {
+    var vals = {};
+    
+    if (req.params.id) {
+      calendar.downloadAttachment(req.params.id, res);
+    } else {
+      res.send(404, {
+          meta: {
+            code: 404,
+            data: "File Not Found"
+          }
+        });
+    }
+  }
+
   return {
     list: list,
     create: create,
     remove: remove,
-    edit :edit
+    edit :edit,
+    downloadAttachment: downloadAttachment
   }
 }

@@ -18,6 +18,7 @@ module.exports = function(app){
   // khusus letter - uploadAttachments
   var letterC = require("../simaya/controller/letter.js")(app)
 
+
   // oauth2 handlers
   app.get('/oauth2/authorize', oauth2.authorization);
   app.post('/oauth2/authorize/decision', oauth2.decision);
@@ -99,6 +100,7 @@ module.exports = function(app){
   app.post(prefix + "/calendar/create", oauth2.protectedResource, api2.calendar.create);
   app.del(prefix + "/calendar/remove", oauth2.protectedResource, api2.calendar.remove);
   app.put(prefix + "/calendar/edit", oauth2.protectedResource, api2.calendar.edit);
+  app.get(prefix + "/calendar/attachment/:id", oauth2.protectedResource,api2.calendar.downloadAttachment);
 
   // notification
   app.get(prefix + "/notifications", oauth2.protectedResource, api2.notification.list);
