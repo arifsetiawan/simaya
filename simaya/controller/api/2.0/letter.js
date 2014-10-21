@@ -1296,7 +1296,7 @@ var countKonsep = function(req, res, callback) {
             letter.getUsername(letterItem.sender, function(userData) {
                 letterFilter =  {};
                 letterFilter.id_surat =  letterItem._id;
-                letterFilter.tangal_diterima =  moment(letterItem._id).format("dddd, DD MMMM YYYY");
+                letterFilter.tangal_diterima =  moment(letterItem.creationDate).format("dddd, DD MMMM YYYY");
                 letterFilter.nomer_surat =  letterItem.mailId;
                 letterFilter.jenis_surat =  type[letterItem.type];
                 letterFilter.atas_nama =  letterItem.sender;
@@ -1731,7 +1731,7 @@ var createAgendaSuratIncomings = function(req, res) {
         letter.getUsername(letterItem.sender, function(userData) {
           letterFilter =  {};
           letterFilter.id_surat =  letterItem._id;
-          letterFilter.tangal_diterima =  moment(letterItem._id).format("dddd, DD MMMM YYYY");
+          letterFilter.tangal_diterima =  moment(letterItem.creationDate).format("dddd, DD MMMM YYYY");
           letterFilter.nomer_surat =  letterItem.mailId;
           letterFilter.jenis_surat =  type[letterItem.type];
           letterFilter.atas_nama =  letterItem.sender;
@@ -1800,7 +1800,7 @@ var createAgendaSuratIncomings = function(req, res) {
         letter.getUsername(letterItem.sender, function(userData) {
           letterFilter =   {};
           letterFilter.id_surat =  letterItem._id;
-          letterFilter.tangal_diterima =  moment(letterItem._id).format("dddd, DD MMMM YYYY");
+          letterFilter.tangal_diterima =  moment(letterItem.creationDate).format("dddd, DD MMMM YYYY");
           letterFilter.nomer_surat =  letterItem.mailId;
           letterFilter.jenis_surat =  type[letterItem.type];
           letterFilter.atas_nama =  letterItem.sender;
