@@ -98,7 +98,7 @@ module.exports = function(app){
         if(result[i].rejections){
           Object.keys(result[i].rejections).forEach(function(key,i) {
             var val = result[i].rejections[key];
-             result[i].rejectionsData[i] = {username : key,date : result[i].rejections[key].date, reason : result[i].rejections[key].reason};
+             result[i].rejectionsData[i] = {username : key,date : result[i].rejections[key].date, reason : result[i].rejections[key].reason,fullDate : moment( result[i].rejections[key].date).format("dddd, DD MMMM YYYY")};
           });      
         }else{
           result[i].rejectionsData = [];
