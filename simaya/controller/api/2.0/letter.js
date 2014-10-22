@@ -332,7 +332,7 @@ var countKonsep = function(req, res, callback) {
     // console.log("Search1", JSON.stringify(search));
     search = letterWeb.populateSortForIncoming(req, search);
     // console.log("Search2", JSON.stringify(search));
-    search.fields = { title : 1, priority : 1, classification : 1, date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1, mailId : 1};
+    search.fields = { title : 1, priority : 1, classification : 1, date : 1, sender : 1, receivingOrganizations : 1, senderManual : 1, readStates : 1, mailId : 1,creationDate : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
     // console.log("Search3", JSON.stringify(search));
@@ -423,7 +423,7 @@ var countKonsep = function(req, res, callback) {
    */
    var outgoings = function (req, res) {
     var search = letterWeb.buildSearchForOutgoingApi(req, res);
-    search.fields = {title: 1, priority : 1, classification :1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1, mailId : 1};
+    search.fields = {title: 1, priority : 1, classification :1, date: 1, sender: 1, receivingOrganizations: 1, senderManual: 1, readStates: 1, mailId : 1,creationDate : 1};
     search.page = req.query["page"] || 1;
     search.limit = 20;
     list(search, req, res);

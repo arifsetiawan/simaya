@@ -108,6 +108,11 @@ module.exports = function(app){
       result[i].statusReadCC = [];
       senders[result[i].sender] = 1; 
       result[i].rawDate = result[i].date;
+
+      if(result[i].creationDate){
+        result[i].rawDateFull = result[i].creationDate;
+      }
+      
       result[i].date = moment(result[i].date).format("dddd, DD MMMM YYYY");
 
 
