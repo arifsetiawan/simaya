@@ -175,8 +175,9 @@ module.exports = function(app){
         }
         recipientHash[r[i].sender] = 1;
         if (r[i].letterDate) {
-          r[i].letterDate = moment(r[i].letterDate).format("DD/MM/YYYY");
+          r[i].letterDate =  moment(r[i].letterDate).format("dddd, DD MMMM YYYY");
         }
+
         for (var j = 0; j < r[i].recipients.length; j++) {
           recipientHash[r[i].recipients[j].recipient] = 1;
           r[i].recipients[j]['priority' + r[i].recipients[j].priority] = true;
