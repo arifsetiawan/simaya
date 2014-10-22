@@ -178,6 +178,10 @@ module.exports = function(app){
           r[i].letterDate =  moment(r[i].letterDate).format("dddd, DD MMMM YYYY");
         }
 
+        if (r[i].created_at) {
+          r[i].createdAtFull =  moment(r[i].created_at).format("dddd, DD MMMM YYYY");
+        }
+
         for (var j = 0; j < r[i].recipients.length; j++) {
           recipientHash[r[i].recipients[j].recipient] = 1;
           r[i].recipients[j]['priority' + r[i].recipients[j].priority] = true;
