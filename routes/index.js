@@ -41,18 +41,18 @@ module.exports = function(app) {
   app.all('/incoming/external', utils.requireLogin, letter.createExternal);
   app.all('/incoming/cc', utils.requireLogin, letter.listCc);
   app.all('/incoming/review', utils.requireLogin, letter.listReview);
-  
+
   app.get('/outgoing', utils.requireLogin, letter.listOutgoing);
   app.all('/outgoing/new', utils.requireLogin, letter.createNormal);
   app.all('/outgoing/external', utils.requireLogin, letter.createOutgoindExternal);
 
   app.all('/outgoing/draft', utils.requireLogin, letter.listOutgoingDraft);
   app.all('/outgoing/cancel', utils.requireLogin, letter.listOutgoingCancel);
-  
+
   app.all('/letter/review/:id', utils.requireLogin, letter.review);
   app.all('/letter/review', utils.requireLogin, letter.review);
   app.post('/letter/reject', utils.requireLogin, letter.reject);
-  
+
   app.get('/letter/read/:id', utils.requireLogin, letter.viewLetter);
   app.get('/letter/single/:id', utils.requireLogin, letter.viewSingleLetter);
   app.get('/letter/attachment/:id', utils.requireLogin, letter.downloadAttachment);
@@ -66,7 +66,7 @@ module.exports = function(app) {
   app.get('/letter/getRecipientsExternal', utils.requireLoginWithoutUpdate, letter.getRecipientExternalCandidates);
   app.get('/letter/getSenderExternal', utils.requireLoginWithoutUpdate, letter.getSenderExternalCandidates);
   app.post('/letter/demote', utils.requireLogin, letter.demoteLetter);
-  
+
   app.get('/disposition/new', utils.requireLogin, disposition.create);
   app.post('/disposition/new/:id', utils.requireLogin, disposition.create);
   app.get('/dispositions', utils.requireLogin, disposition.list);
@@ -96,7 +96,7 @@ module.exports = function(app) {
   app.all('/organization/remove/:path', utils.requireLogin, org.remove);
   app.post('/organization/remove', utils.requireLogin, org.remove);
   app.get('/findOrg', utils.requireLoginWithoutUpdate, org.list);
-  
+
   app.get('/templates', utils.requireLogin, template.list);
   app.all('/template/new', utils.requireLogin, template.create);
   app.all('/template/edit/:id', utils.requireLogin, template.edit);
@@ -104,11 +104,11 @@ module.exports = function(app) {
   app.get('/template/delete/:id', utils.requireLogin, template.remove);
   app.get('/template/_modal', utils.requireLogin, template.listModal);
   app.get('/template/letterhead/:id', utils.requireLogin, template.viewLogo);
-  
+
   app.post('/search', utils.requireLogin, search.simple);
   app.get('/search', utils.requireLogin, letter.listIncoming);
   app.all('/search/advanced', utils.requireLogin, search.advanced);
-  
+
   app.get('/agenda/incoming', utils.requireLogin, letter.listIncomingAgenda);
   app.get('/agenda/outgoing', utils.requireLogin, letter.listOutgoingAgenda);
 
