@@ -1,4 +1,5 @@
-var settings = require('../settings.js')
+var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
+var settings = require('../'+settingsFile);
 
 var app = {
   db: function(modelName) {
