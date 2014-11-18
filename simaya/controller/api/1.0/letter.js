@@ -104,7 +104,7 @@ module.exports = function(app){
           result[i].rejectionsData = [];
         }
 
-      result[i].statusReadRecepint = [];
+      result[i].statusReadRecipients = [];
       result[i].statusReadCC = [];
       senders[result[i].sender] = 1; 
       result[i].rawDate = result[i].date;
@@ -136,7 +136,7 @@ module.exports = function(app){
                   if(result[i].readStates.recipients){
                         result[i].recipients.forEach(function(e,index){
                              letter.getUsername(result[i].recipients[index],function(v){
-                                                         result[i].statusReadRecepint[index] =  { 
+                                                         result[i].statusReadRecipients[index] =  { 
                                                               name : result[i].recipients[index],
                                                               profile : v,
                                                               isRead : result[i].readStates == null ? false : result[i].readStates.recipients[result[i].recipients[index]] != null ? true : false,
@@ -148,7 +148,7 @@ module.exports = function(app){
                   }
                   if(result[i].readStates.cc){
                         result[i].ccList.forEach(function(e,index){
-                               letter.getUsername(result[i].recipients[index],function(v){
+                               letter.getUsername(result[i].ccList[index],function(v){
                                                            result[i].statusReadCC[index] =  { 
                                                                 name : result[i].ccList[index],
                                                                 profile : v,
@@ -158,11 +158,25 @@ module.exports = function(app){
                                                             }
                                                         });
                           });
+                  }else{
+                     if(result[i].ccList){
+                        result[i].ccList.forEach(function(e,index){
+                               letter.getUsername(result[i].ccList[index],function(v){
+                                                           result[i].statusReadCC[index] =  { 
+                                                                name : result[i].ccList[index],
+                                                                profile : v,
+                                                                isRead : false,
+                                                                dateRead : "",
+                                                                dateReadDetail : ""
+                                                            }
+                                                        });
+                          });
+                    }  
                   }
                 }else{
                     result[i].recipients.forEach(function(e,index){
                              letter.getUsername(result[i].recipients[index],function(v){
-                                                         result[i].statusReadRecepint[index] =  { 
+                                                         result[i].statusReadRecipients[index] =  { 
                                                               name : result[i].recipients[index],
                                                               profile : v,
                                                               isRead : false,
@@ -173,7 +187,7 @@ module.exports = function(app){
                         });
                     if(result[i].ccList){
                         result[i].ccList.forEach(function(e,index){
-                               letter.getUsername(result[i].recipients[index],function(v){
+                               letter.getUsername(result[i].ccList[index],function(v){
                                                            result[i].statusReadCC[index] =  { 
                                                                 name : result[i].ccList[index],
                                                                 profile : v,
