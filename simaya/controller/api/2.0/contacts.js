@@ -247,33 +247,42 @@ module.exports = function(app) {
           contacts.establish(req.query.id, function(v) {
             console.log(v.errors);
             if (Object.keys(v.errors).length !== 0) {
-              res.send(400, {
+              res.send(200, {
                 meta: {
-                  code: 400,
-                  data: "Invalid request",
+                  code: 200
+                },
+                data : {
+                  success : false,
+                  info : "Invalid request"
                 }
               });
             }else {
-              contactsWeb.sendConnectedNotification(req.query.id, me, function() {
-                res.send({meta: {code: 200}});
+              contactsWeb.sendConnectedNotificationForApi(req, me, function() {
+                res.send({meta: {code: 200},data : {success:true}});
               });
             }
           });
         } else {
-          res.send(400, {
-            meta: {
-              code: 400,
-              data: "Invalid request",
-            }
+           res.send(200, {
+              meta: {
+                code: 200
+              },
+              data : {
+                success : false,
+                info : "Invalid request"
+              }
           });
         }
       });
     } else {
-      res.send(400, {
-        meta: {
-          code: 400,
-          data: "Invalid request",
-        }
+      res.send(200, {
+            meta: {
+              code: 200
+            },
+            data : {
+              success : false,
+              info : "Invalid request"
+            }
       });
     }
   }

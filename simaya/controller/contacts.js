@@ -127,6 +127,20 @@ module.exports = function(app) {
     })
   }
 
+  var sendConnectedNotificationForApi = function(req, me, callback) {
+    contacts.getInfo(req.query.id, function(item) {
+      if (item == null) {
+        callback();
+      } else {
+        modelUtils.resolveUsers([me], function(resolved) {
+          azuresettings.makeNotification("Sekarang Anda telah terhubung ke " + resolved[0].name, + "/contacts", req.session.currentUserProfile.id);
+          notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
+            callback();
+          })
+        })
+      }
+    })  }
+
   var toBeApproved = function(req, res) {
     var me = req.session.currentUser
     var vals = {
@@ -290,5 +304,6 @@ module.exports = function(app) {
     , checkConnection : checkConnection 
     , getOnlineState: getOnlineState 
     , sendConnectedNotification: sendConnectedNotification
+    , sendConnectedNotificationForApi : sendConnectedNotificationForApi
   }
 }
