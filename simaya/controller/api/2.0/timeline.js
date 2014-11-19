@@ -7,6 +7,9 @@ module.exports = function(app) {
 	  , moment = require("moment")
 	  , ob = require("../../../../ob/file.js")(app);
 
+	var dbContactsCache = app.db('contacts_cache');
+	var dbTimeline = app.db('timeline');
+
   /**
    * @api {get} /timeline/list View timeline
    *
@@ -47,8 +50,8 @@ module.exports = function(app) {
 			}
 			var skip = page > 0 ? ((page - 1) * limit) : 0;
 
-			var collectionConn = settingdb.db.collection("contacts_cache");
-			collectionConn.distinct('end2', {end1:req.user.id}, function(err, docs) {
+			//var collectionConn = settingdb.db.collection("contacts_cache");
+			dbContactsCache.distinct('end2', {end1:req.user.id}, function(err, docs) {
 				friends = docs;
 				friends.push(req.user.id);
 				// console.log(friends); 
@@ -65,8 +68,8 @@ module.exports = function(app) {
 				}
 				console.log(cari);
 
-				var collection = settingdb.db.collection("timeline");
-				collection.find(cari, {skip: skip, limit: limit}, function(err, cursor) {
+				//var collection = settingdb.db.collection("timeline");
+				dbTimeline.find(cari, {skip: skip, limit: limit}, function(err, cursor) {
 					cursor.sort({date:-1}).toArray(function(err, result) {
 						
 							for (var i = 0; i < result.length; i++) {
