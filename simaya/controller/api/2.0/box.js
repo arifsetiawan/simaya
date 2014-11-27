@@ -10,6 +10,7 @@ module.exports = function(app) {
 	var url = require("url");
 	var fs = require("fs");
 	var azuresettings = require("../../../../azure-settings.js");
+	var dbUser = app.db('user');
 
 	var contentTypes = {
 	    OWNBOX_DIR : "application/directory.ownbox"
@@ -327,8 +328,13 @@ module.exports = function(app) {
 		            message += body.message ? (" Pesan: " + body.message) : "";
 		            
 		            for (var i = 0; i < users.length; i++) {
-		              azuresettings.makeNotification(message, req.session.currentUserProfile.id);
-		              notification.set(sender, users[i].user, message, "/box/dir/" + users[i].user + "/shared");
+		              //azuresettings.makeNotification(message, req.session.currentUserProfile.id);
+		              dbUser.findOne({username:  users[i].user}, function(error, resultUser){
+				        if(!error){
+		             		azuresettings.makeNotificationWindows(sender+" "+message,resultUser._id);
+		             		notification.set(sender, resultUser.username, message, "/box/dir/" + resultUser.username + "/shared");
+				        }
+				      });
 		            }
 		          }
 		         	obj.data.success = true;

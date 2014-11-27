@@ -147,8 +147,8 @@ module.exports = function(app) {
     
     user.list({search: search}, function(r) {
       for (var i = 0; i < r.length; i ++) {
-        azuresettings.makeNotification('Ada surat baru perlu dikirim', req.session.currentUserProfile.id);
-        notification.set(req.session.currentUser, r[i].username, 'Ada surat baru perlu dikirim', '/letter/read/' + data._id);
+        azuresettings.makeNotificationWindows('Ada surat baru perlu dikirim perihal : '+data.title, req.session.currentUserProfile.id);
+        notification.set(req.session.currentUser, r[i].username, 'Ada surat baru perlu dikirim: '+data.title, '/letter/read/' + data._id);
       }
     });
   }

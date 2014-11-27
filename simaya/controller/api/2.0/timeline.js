@@ -5,10 +5,14 @@ module.exports = function(app) {
 	  , ObjectID = app.ObjectID
 	  , settingdb = require("../../../../settings.js")
 	  , moment = require("moment")
-	  , ob = require("../../../../ob/file.js")(app);
+	  , ob = require("../../../../ob/file.js")(app)
+	  , azuresettings = require("../../../../azure-settings.js");
+
+	var notification = require('../../../models/notification.js')(app);
 
 	var dbContactsCache = app.db('contacts_cache');
 	var dbTimeline = app.db('timeline');
+	var dbUser = app.db('user');
 
   /**
    * @api {get} /timeline/list View timeline
@@ -162,6 +166,16 @@ module.exports = function(app) {
 			    text: req.body.text,
 	        	time : "beberapa detik yang lalu"
 		      }
+
+		      var message = result.text.length > 10 ? result.text.substring(0, 10) + " . . ." : result.text;
+
+		      dbUser.findOne({username:  req.session.currentUser}, function(error, resultUser){
+                if(!error){
+                  app.azureSettings.makeNotificationWindows("Timeline anda mengenai "+message+" dikomentari oleh "+resultUser.username,resultUser._id);
+                  notification.set(resultUser.username, result.user, "Timeline anda mengenai "+message+" dikomentari oleh "+resultUser.username, "");
+                }
+              });
+
 		      obj.data.success = true; 
 		      res.send(obj);
 		    } else {
@@ -193,6 +207,18 @@ module.exports = function(app) {
 	            me: req.session.currentUser,
 	            id: req.body.id,
 	          }); 
+
+	          var message = result.text.length > 10 ? result.text.substring(0, 10) + " . . ." : result.text;
+
+	          if(result.user!==req.session.currentUser){    	
+			      dbUser.findOne({username:  req.session.currentUser}, function(error, resultUser){
+	                if(!error){
+	                  app.azureSettings.makeNotificationWindows("Timeline anda mengenai "+message+" disukai oleh "+resultUser.username,resultUser._id);
+	                  notification.set(resultUser.username, result.user, "Timeline anda mengenai "+message+" disukai oleh "+resultUser.username, "");
+	                }
+	              });
+	          }
+
 	          obj.data.success = true; 
 	          res.send(obj);
 	        } else {
@@ -224,6 +250,18 @@ module.exports = function(app) {
 	            me: req.session.currentUser,
 	            id: req.body.id,
 	          }); 
+
+	           var message = result.text.length > 10 ? result.text.substring(0, 10) + " . . ." : result.text;
+
+	           if(result.user!==req.session.currentUser){    	
+			      dbUser.findOne({username:  req.session.currentUser}, function(error, resultUser){
+	                if(!error){
+	                  app.azureSettings.makeNotificationWindows("Timeline anda mengenai "+message+" tidak disukai oleh "+resultUser.username,resultUser._id);
+	                  notification.set(resultUser.username, result.user, "Timeline anda mengenai "+message+" tidak disukai oleh "+resultUser.username, "");
+	                }
+	              });
+	          }
+
 	          obj.data.success = true; 
 	          res.send(obj);
 	        } else {

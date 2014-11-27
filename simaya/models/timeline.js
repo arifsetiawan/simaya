@@ -26,7 +26,8 @@ module.exports = function(app) {
         db.findAndModify({_id: id},[], {
           $set: {comments: comments}
         }, function(error, result) {
-          callback(error == null && result != null);
+          // callback(error == null && result != null);
+          callback(result);
         });
       } else {
         callback(null);
@@ -48,7 +49,8 @@ module.exports = function(app) {
         db.findAndModify({_id: id},[], {
           "$set": {loves: loves}
         }, function(error, result) {
-          callback(error == null && result != null);
+          //callback(error == null && result != null);
+          callback(result);
         });
       } else {
         callback(false);
@@ -70,7 +72,8 @@ module.exports = function(app) {
         db.findAndModify({_id: id},[], {
           $set: {loves: loves}
         }, function(error, result) {
-          callback(error == null && result != null);
+          //callback(error == null && result != null);
+          callback(result);
         });
       } else {
         callback(false);

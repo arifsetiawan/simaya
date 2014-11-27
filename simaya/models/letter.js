@@ -1,6 +1,7 @@
 module.exports = function(app) {
   // Private 
   var db = app.db('letter');
+  var dbUser = app.db('user');
   var dbNotif = app.db('notification');
   var user = app.db('user');
   var ObjectID = app.ObjectID;
@@ -10,6 +11,7 @@ module.exports = function(app) {
   var filePreview = require("file-preview");
   var base64Stream = require("base64-stream");
   var async = require('async');
+  var notification = require("./notification.js")(app)
   
   var stages = {
     NEW: 0,
@@ -446,7 +448,7 @@ module.exports = function(app) {
           }, {
             '$set': data 
           }, function (error, validator) {
-            callback(validator);
+            callback(item);
           });
 
        } else {
@@ -961,14 +963,23 @@ module.exports = function(app) {
           item.log = item.log || []
           data.log = item.log.concat(data.log);
 
-          db.validateAndUpdate( {
-            _id: item._id
-          }, {
-            '$set': data 
-          }, function (error, validator) {
-            callback(validator);
+         dbUser.findOne({username:  data.log[0].username}, function(error, resultUser){
+            if(!error){
+               db.validateAndUpdate( {
+                _id: item._id
+              }, {
+                '$set': data 
+              }, function (error, validator) {
+                callback(validator);
+                if(data.log[0].username!==item.sender){
+                  app.azureSettings.makeNotificationWindows("Surat anda dibatalkan oleh "+data.log[0].username+", Perihal : "+item.title,resultUser._id);
+                  notification.set(item.sender,data.log[0].username,"Surat anda dibatalkan oleh "+data.log[0].username+", Perihal : "+item.title , "/letter/read/" + id);
+                }
+              });
+            }else{
+              callback(error);
+            }
           });
-
        } else {
           var doc = { _id: id};
           var validator = app.validator(doc, doc);
@@ -994,12 +1005,22 @@ module.exports = function(app) {
                     }
                   }
                });
-              db.validateAndUpdate( {
-                _id: item._id
-              }, {
-                '$set': data 
-              }, function (error, validator) {
-                callback()
+
+              dbUser.findOne({username:  data.nextReviewer}, function(error, resultUser){
+                if(!error){
+                  app.azureSettings.makeNotificationWindows("Surat direject oleh "+req.session.currentUser+", Perihal : "+item.title,resultUser._id);
+                  notification.set(item.sender, data.nextReviewer, "Surat direject oleh "+req.session.currentUser+", Perihal : "+item.title , "/letter/read/" + id);
+
+                  db.validateAndUpdate( {
+                    _id: item._id
+                  }, {
+                    '$set': data 
+                  }, function (error, validator) {
+                    callback()
+                  });    
+                }else{
+                  callback(error)
+                }       
               });
             }else{
                 callback("Anda bukan reviewers selanjutnya");

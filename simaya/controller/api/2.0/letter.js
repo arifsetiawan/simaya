@@ -13,6 +13,7 @@ module.exports = function(app){
   var moment = require('moment');
   var async = require('async');
   var wrapper = null;
+  var notification = require('../../../models/notification.js')(app);
   // var letterMod = require("../../../model/letter.js")(app);
 
   function isValidObjectID(str) {
@@ -835,18 +836,18 @@ var countKonsep = function(req, res, callback) {
 
          db.findOne({_id:  ObjectID(data.data.id)}, function(error, result){
           if(result){
-             dbUser.findOne({username:  result.nextReviewer}, function(error, result){
+             dbUser.findOne({username:  result.nextReviewer}, function(error, resultUser){
                   obj.meta.code = 200;
                   obj.data.success = true;
                   obj.data.id = data.data.id;
                   if(result){
-                      obj.data.nextReviewer = result.username;
-                      obj.data.profile = result.profile;
+                      obj.data.nextReviewer = resultUser.username;
+                      obj.data.profile = resultUser.profile;
                   }else{
                       obj.data.nextReviewer =null;
                       obj.data.profile = null;
                   }
-                      res.send(obj.meta.code, obj);
+                      res.send(obj.meta.code, obj);                   
               });
           }
         });    
@@ -1403,31 +1404,41 @@ var createAgendaSuratIncomings = function(req, res) {
 
               vals.letterReceived = true;
               letter.edit(req.body.id, data, function(v) {
-                obj.data.success = true;
-                res.send(obj);
+                for (var i = 0; i < v.recipients.length; i++) {
+                   dbUser.findOne({username:  v.recipients[i]}, function(error, resultUser){
+                    if(!error){
+                       app.azureSettings.makeNotificationWindows("Anda mendapatkan surat dari " +v.sender+" perihal : "+v.title,resultUser._id);                   
+                       notification.set(v.sender, resultUser.username, "Anda mendapatkan surat dari " + v.sender+ " perihal : " + v.title+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + v._id);
+                    }
+                  });
+                }
+
+                if(v.ccList){
+                  for (var i = 0; i < v.ccList.length; i++) {
+                     dbUser.findOne({username:  v.ccList[i]}, function(error, resultUser){
+                      if(!error){
+                         app.azureSettings.makeNotificationWindows("Anda mendapatkan surat dari " +v.sender+" perihal : "+v.title,resultUser._id);
+                         notification.set(v.sender, resultUser.username, "Anda mendapatkan surat dari " + v.sender+ " perihal : " + v.title+ " yang mana Anda masuk dalam daftar cc", "/letter/read/" + v._id);
+                      }
+                    });
+                  }    
+                }
+   
+                app.printResponse({success:true},200,res);
               });
             } else {
-                obj.data.success = false;
-                obj.data.info = "Anda tidak memiliki hak akses untuk membuat nomer agenda";
-                res.send(obj);
+                app.printResponse({success:false,info:"Anda tidak memiliki hak akses untuk membuat nomer agenda"},200,res);
             }
           } else {
-                obj.data.success = false;
-                obj.data.info = "Anda tidak memiliki hak akses untuk membuat nomer agenda/Duplicate Entry";
-                res.send(obj);
+                app.printResponse({success:false,info:"Anda tidak memiliki hak akses untuk membuat nomer agenda/Duplicate Entry"},200,res);
           }
         });
 
        }else{
-            obj.data.success = false;
-            obj.data.info = "Anda Bukan TU";
-            res.send(obj);
+            app.printResponse({success:false,info:"Anda Bukan TU"},200,res);
        }
-      
     } else {
-            obj.data.success = false;
-            obj.data.info = "ID letter and Nomer Agenda Surat Required";
-            res.send(obj);
+            app.printResponse({success:false,info:"ID letter and Nomer Agenda Surat Required"},200,res);
     }
   }
 
@@ -1446,7 +1457,6 @@ var createAgendaSuratIncomings = function(req, res) {
       letter.list(search, function(result){
         if (result != null && result.length == 1) {
           if (result[0].status == letter.Stages.WAITING) {
-
             if(result[0].nextReviewer == req.session.currentUser){
                   var data = {
                   status: letter.Stages.DEMOTED, 

@@ -12,6 +12,8 @@ Disposition = module.exports = function(app) {
     , user = require('../../sinergis/models/user.js')(app)
     , moment= require('moment')
     , azuresettings = require("../../azure-settings.js");
+
+  var dbUser = app.db('user');
   
   var letterController = null;
   if (typeof(Letter) === "undefined") {
@@ -85,12 +87,21 @@ Disposition = module.exports = function(app) {
           if (v.hasErrors() == false) {
             vals.successful = true;
             if (typeof(req.body.disposition.recipient) === "string") {
-              azuresettings.makeNotification('Ada disposisi perihal ' + req.body.disposition.letterTitle, req.session.currentUserProfile.id);
-              notification.set(req.session.currentUser, req.body.disposition.recipient, 'Ada disposisi perihal ' + req.body.disposition.letterTitle, '/disposition/read/' + v._id);
+                dbUser.findOne({username:  req.body.disposition.recipient}, function(error, resultUser){
+                  if(!error){
+                     azuresettings.makeNotificationWindows('Ada disposisi perihal ' + req.body.disposition.letterTitle, resultUser._id);
+                     notification.set(req.session.currentUser, req.body.disposition.recipient, 'Ada disposisi perihal ' + req.body.disposition.letterTitle, '/disposition/read/' + v._id);
+                  }
+                });
             } else {
               req.body.disposition.recipient.forEach(function(item) {
-                azuresettings.makeNotification('Ada disposisi perihal ' + req.body.disposition.letterTitle, req.session.currentUserProfile.id);
-                notification.set(req.session.currentUser, item, 'Ada disposisi perihal ' + req.body.disposition.letterTitle, '/disposition/read/' + v._id);
+               dbUser.findOne({username:  item}, function(error, resultUser){
+                  if(!error){
+                     azuresettings.makeNotificationWindows('Ada disposisi perihal ' + req.body.disposition.letterTitle, resultUser._id);
+                     notification.set(req.session.currentUser, item, 'Ada disposisi perihal ' + req.body.disposition.letterTitle, '/disposition/read/' + v._id);
+                  }
+                });
+               
               });
             }
             // Update disposition state
@@ -616,8 +627,13 @@ Disposition = module.exports = function(app) {
         if (result != null && result.length == 1) {
           disposition.markAsDeclined(ObjectID(req.body.dispositionId), req.session.currentUser, req.body.message, function(ok) {
             if (ok) {
-              azuresettings.makeNotification(req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', req.session.currentUserProfile.id);
-              notification.set(req.session.currentUser, result[0].sender, req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', '/disposition/read/' + req.body.dispositionId + "#recipient-" + req.session.currentUser);
+              dbUser.findOne({username:  result[0].sender}, function(error, resultUser){
+                  if(!error){
+                     azuresettings.makeNotificationWindows(req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', resultUser._id);
+                     notification.set(req.session.currentUser, result[0].sender, req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', '/disposition/read/' + req.body.dispositionId + "#recipient-" + req.session.currentUser);
+                  }
+              });
+              
               res.send(JSON.stringify({result: "OK"}));
             } else {
               res.send(JSON.stringify({result: "ERROR"}));
@@ -661,10 +677,14 @@ Disposition = module.exports = function(app) {
               var message = req.session.currentUserProfile.fullName + ' mengomentari disposisi Anda.'
               sendNotificationComments(req.session.currentUser, result[0].recipients, 0, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
                 if (req.session.currentUser != result[0].sender) {
-                  azuresettings.makeNotification(message, req.session.currentUserProfile.id);
-                  notification.set(req.session.currentUser, result[0].sender, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
-                    res.send(JSON.stringify({result: "OK"}));
-                  })
+                  dbUser.findOne({username:  result[0].sender}, function(error, resultUser){
+                    if(!error){
+                      azuresettings.makeNotificationWindows(message, resultUser._id);
+                      notification.set(req.session.currentUser, result[0].sender, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
+                        res.send(JSON.stringify({result: "OK"}));
+                      })
+                    }
+                  });
                 } else {
                   res.send(JSON.stringify({result: "OK"}));
                 }

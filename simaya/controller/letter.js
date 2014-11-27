@@ -322,7 +322,8 @@ Letter = module.exports = function(app) {
 
                     if (vals.jsonRequest) {
                       res.send({result: "OK", data: {
-                        id: v.resultId
+                        id: v.resultId,
+                        title : v.title
                       }});
                     } else {
                       // Renders the page
@@ -1705,8 +1706,12 @@ Letter = module.exports = function(app) {
     data.senderResolved = data.senderResolved || {};
     var sender = req.session.currentUser;
     if (nextReviewer != "") {
-      azuresettings.makeNotification("Ada surat baru perlu diperiksa, perihal: " + data.title);
-      notification.set(sender, nextReviewer, "Ada surat baru perlu diperiksa, perihal: " + data.title, "/letter/read/" + data._id);
+      dbUser.findOne({username:  nextReviewer}, function(error, resultUser){
+        if(!error){
+           azuresettings.makeNotificationWindows("Ada surat baru perlu diperiksa, perihal : " + data.title,resultUser._id);
+           notification.set(sender, nextReviewer, "Ada surat baru perlu diperiksa, perihal : " + data.title, "/letter/read/" + data._id);
+        }
+      });
     } else {
       if (status == letter.Stages.APPROVED) {
         cUtils.notifyAdministrationOffice(data, req, res);
@@ -1723,8 +1728,12 @@ Letter = module.exports = function(app) {
           }
           user.list({search: search}, function(r) {
             for (var j = 0; j < r.length; j ++) {
-              azuresettings.makeNotification("Ada surat baru perlu diterima, nomor surat: " + data.mailId);
-              notification.set(sender, r[j].username, "Ada surat baru perlu diterima, nomor surat: " + data.mailId, "/letter/read/" + data._id);
+               dbUser.findOne({username:  r[j].username}, function(error, resultUser){
+                if(!error){
+                  azuresettings.makeNotificationWindows("Ada surat baru perlu diterima, nomor surat : " + data.mailId,resultUser._id);
+                  notification.set(sender, resultUser.username, "Ada surat baru perlu diterima, nomor surat : " + data.mailId, "/letter/read/" + data._id);
+                }
+              });
             }
           });
         }}
@@ -1735,30 +1744,49 @@ Letter = module.exports = function(app) {
           for (var i = 0; i < data.ccList.length; i ++) {
             if (data.ccList[i] != "") {
               if (data.senderResolved.title && data.senderResolved.title.length > 0) {
-                azuresettings.makeNotification("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan");
-                notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
+                dbUser.findOne({username:  data.ccList[i]}, function(error, resultUser){
+                  if(!error){
+                    azuresettings.makeNotificationWindows("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan",resultUser._id);
+                    notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
+                  }
+                });
               } 
               else if (data.senderManual) {
-                azuresettings.makeNotification("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan");
-                notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
+                dbUser.findOne({username:  data.ccList[i]}, function(error, resultUser){
+                  if(!error){
+                    azuresettings.makeNotificationWindows("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan",resultUser._id);
+                    notification.set(sender, data.ccList[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization+ " yang mana Anda masuk dalam daftar tembusan", "/letter/read/" + data._id);
+                  }
+                });
               }
             }
           }
         }
-
         for (var i = 0; i < data.recipients.length; i ++) {
           if (data.senderResolved.title && data.senderResolved.title.length > 0) {
-            azuresettings.makeNotification("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization);
-            notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization, "/letter/read/" + data._id);
+            dbUser.findOne({username:  data.recipients[i]}, function(error, resultUser){
+              if(!error){
+                azuresettings.makeNotificationWindows("Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization,resultUser._id);
+                notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderResolved.title + " " + data.senderResolved.organization, "/letter/read/" + data._id);
+              }
+            });
           } else if (data.senderManual) {
-            azuresettings.makeNotification("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization);
-            notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization, "/letter/read/" + data._id);
+            dbUser.findOne({username:  data.recipients[i]}, function(error, resultUser){
+              if(!error){
+                  azuresettings.makeNotificationWindows("Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization,resultUser._id);
+                  notification.set(sender, data.recipients[i], "Ada surat baru dari " + data.senderManual.name+ " " + data.senderManual.organization, "/letter/read/" + data._id);
+               }
+            });
           }
         }
       }
       else if (status == letter.Stages.DEMOTED) {
-        azuresettings.makeNotification("Ada surat yang dibatalkan");
-        notification.set(sender, req.body.originator, "Ada surat yang dibatalkan", "/letter/read/" + data._id);
+        dbUser.findOne({username:  req.body.originator}, function(error, resultUser){
+          if(!error){
+              azuresettings.makeNotificationWindows("Ada surat yang dibatalkan",resultUser._id);
+              notification.set(sender, req.body.originator, "Ada surat yang dibatalkan", "/letter/read/" + data._id);
+           }
+        });
       }
     }
   }
@@ -2241,15 +2269,25 @@ Letter = module.exports = function(app) {
       letter.list(search, function(result){
         // Make sure just one element in result array
         if (result.length == 1) {
+          dbUser.findOne({username:  result[0].originator}, function(error, resultUser){
+                if(!error){
+                   azuresettings.makeNotificationWindows("Surat anda ditolak oleh "+  req.session.currentUser +" perihal : " + result[0].title,resultUser._id);
+                   notification.set(result[0].originator, resultUser.username, "Surat anda ditolak oleh "+  req.session.currentUser +" perihal : " + result[0].title, "/letter/read/" + result[0]._id);
+                }
+              });
+
           letter.reject(req.body.id,
               req.session.currentUser,
               req.session.currentUserProfile.organization,
               req.body.reason,
               function (result) {
-            var code = 200;
-            if (!result) {
-              code = 500;
-            }
+              var code = 200;
+              if (!result) {
+                code = 500;
+              }
+
+               
+
             res.send(JSON.stringify({ok:result, code: code}));
           });
         } else {

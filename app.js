@@ -7,6 +7,7 @@
 var settingsFile = process.env.SIMAYASETTING ? process.env.SIMAYASETTING : 'settings.js';
 var settings = require('./' + settingsFile);
 
+
 var package = require("./package.json");
 
 var sinergisVar = {
@@ -23,6 +24,8 @@ var express = require('express.io')
   , moment = require('moment')
   , passport = require('passport');
   moment.locale("id")
+
+var MongoStore = require('connect-mongo')(express);
 
 app.use(function (req, res, next) {
   req.proto = req.headers["x-forwarded-proto"]
@@ -64,8 +67,14 @@ app.configure('development', function(){
   var MemStore = express.session.MemoryStore;
 
   app.use(express.cookieParser(' default '));
-  app.use(express.session({secret:' default ', store: MemStore({
-    reapInterval: 60000 * 10
+  // app.use(express.session({secret:' default ', store: MemStore({
+  //   reapInterval: 60000 * 10
+  //   })
+  // }));
+
+  // Store session in mongo
+  app.use(express.session({secret:' default ',  store: new MongoStore({
+      db: app.dbClient 
     })
   }));
 

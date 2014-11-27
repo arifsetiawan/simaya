@@ -10,6 +10,8 @@ module.exports = function(app){
     , cUtils = require('../../../../simaya/controller/utils.js')(app)
     , azuresettings = require("../../../../azure-settings.js");
 
+  var dbUser = app.db('user');
+
   function isValidObjectID(str) {
     str = str + '';
     var len = str.length, valid = false;
@@ -362,12 +364,17 @@ module.exports = function(app){
               var message = req.session.currentUserProfile.fullName + ' mengomentari disposisi Anda.'
               sendNotificationComments(req.session.currentUser, result[0].recipients, 0, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
                 if (req.session.currentUser != result[0].sender) {
-                  azuresettings.makeNotification(message, req.session.currentUserProfile.id);
-                  notification.set(req.session.currentUser, result[0].sender, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
-                        data.meta.code = 200;
-                        data.data.success = "ok";
-                        res.send(200, data);
-                  })
+                  // azuresettings.makeNotification(message, req.session.currentUserProfile.id);
+                  dbUser.findOne({username:   result[0].sender}, function(error, resultUser){
+                    if(!error){
+                      azureSettings.makeNotificationWindows(message,resultUser._id);
+                      notification.set(req.session.currentUser, result[0].sender, message, "/disposition/read/" + req.body.dispositionId + "#comments-" + id, function() {
+                            data.meta.code = 200;
+                            data.data.success = "ok";
+                            res.send(200, data);
+                      })
+                    }
+                  });
                 } else {
                         data.meta.code = 200;
                         data.data.success = "ok";
@@ -474,7 +481,8 @@ module.exports = function(app){
         if (result != null && result.length == 1) {
           disposition.markAsDeclined(ObjectID(req.body.dispositionId), req.session.currentUser, req.body.message, function(ok) {
             if (ok) {
-              azuresettings.makeNotification(req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', req.session.currentUserProfile.id);
+              //azuresettings.makeNotification(req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', req.session.currentUserProfile.id);
+              app.azureSettings.makeNotificationWindows(message,req.session.currentUserProfile.id);
               notification.set(req.session.currentUser, result[0].sender, req.session.currentUserProfile.fullName + ' menolak disposisi dari Anda.', '/disposition/read/' + req.body.dispositionId + "#recipient-" + req.session.currentUser);
               obj.data.success = true;
               res.send(obj);

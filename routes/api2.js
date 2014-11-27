@@ -3,7 +3,7 @@ module.exports = function(app){
   // box
   var boxC = require("../simaya/controller/box.js")(app);
   var box = require("../simaya/controller/api/2.0/box.js")(app);
-
+  
   // ob
   var ob = require("../simaya/controller/ob.js")(app);
 
@@ -18,6 +18,20 @@ module.exports = function(app){
   // khusus letter - uploadAttachments
   var letterC = require("../simaya/controller/letter.js")(app)
 
+  // Azure Setting
+  app.azureSettings = require('../azure-settings.js');
+
+  // Print Response
+  var printResponse = function(data, code,res) {
+     res.send({
+          meta: {
+            code: code
+          },
+          data: data,
+        });
+    }
+
+  app.printResponse = printResponse;
 
   // oauth2 handlers
   app.get('/oauth2/authorize', oauth2.authorization);
@@ -35,6 +49,7 @@ module.exports = function(app){
 
   // dummy endpoint, saying hello to you
   app.get(prefix + "/say/hello", oauth2.protectedResource, api2.say.hello);
+  app.get(prefix + "/say/notification", oauth2.protectedResource, api2.say.notification);
 
   // users
   app.get(prefix + "/users/self", oauth2.protectedResource, api2.user.self);

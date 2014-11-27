@@ -11,6 +11,8 @@ module.exports = function(app) {
     , calendar = require("../../simaya/models/calendar.js")(app)
     , azuresettings = require("../../azure-settings.js");
 
+  var dbUser = app.db('user');
+
   var monthView = function(req, res)
   {
     var vals = {
@@ -136,8 +138,12 @@ module.exports = function(app) {
       var message = resolved[0].name + " mengundang Anda ke pertemuan dengan perihal: " + data.title;
       for (var i = 0; i < data.recipients.length; i ++) {
         if (data.recipients[i] != me) {
-          azuresettings.makeNotification(message, req.session.currentUserProfile.id);
-          notification.setWithActions(me, data.recipients[i], message, "/calendar/day?invitationId=" + id, actions);
+          dbUser.findOne({username:   data.recipients[i]}, function(error, resultUser){
+            if(!error){
+              azuresettings.makeNotificationWindows(message, resultUser._id);
+              notification.setWithActions(me, resultUser.username, message, "/calendar/day?invitationId=" + id, actions);
+            }
+          });
         }
       }
       callback();
@@ -169,8 +175,14 @@ module.exports = function(app) {
           else if (type == "decline") {
             message = resolved[0].name + " menolak pertemuan dengan perihal: " + data.title;
           }
-          azuresettings.makeNotification(message, app.req.session.currentUserProfile.id);
-          notification.setWithActions(me, data.user, message, "/calendar/invitation", actions);
+
+          dbUser.findOne({username:  data.user}, function(error, resultUser){
+            if(!error){
+              azuresettings.makeNotificationWindows(message,  resultUser._id);
+              notification.setWithActions(me, resultUser.username, message, "/calendar/invitation", actions);
+            }
+          });
+          
           callback();
         });
       } else {

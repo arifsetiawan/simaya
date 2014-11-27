@@ -289,6 +289,7 @@ module.exports = function(app) {
               });
             });
           })
+          callback(item);
         } else {
           callback(false);
         }

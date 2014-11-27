@@ -9,6 +9,7 @@
     "async": "*",
     "base64-stream": "*",
     "bcrypt": "*",
+    "connect-mongo": "^0.4.1",
     "consolidate": "*",
     "debug": "^1.0.4",
     "express": "3.4.5",

@@ -7,6 +7,8 @@ module.exports = function(app) {
     , session = require("../../sinergis/models/session.js")(app)
     , azuresettings = require("../../azure-settings.js");
 
+  var dbUser = app.db('user');
+
   var listBase = function(search, template, vals, req, res) {
     var me = req.session.currentUser
 
@@ -117,12 +119,16 @@ module.exports = function(app) {
       if (item == null) {
         callback();
       } else {
-        modelUtils.resolveUsers([me], function(resolved) {
-          azuresettings.makeNotification("Sekarang Anda telah terhubung ke " + resolved[0].name, + "/contacts", app.req.session.currentUserProfile.id);
-          notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
-            callback();
-          })
-        })
+       modelUtils.resolveUsers([me], function(resolved) {
+          dbUser.findOne({username:  item.connections[1]}, function(error, resultUser){
+            if(!error){
+              azuresettings.makeNotificationWindows("Sekarang Anda telah terhubung ke " + resolved[0].name + "/contacts", resultUser._id);
+              notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
+                callback();
+              });
+            }
+          });
+        });
       }
     })
   }
@@ -133,13 +139,19 @@ module.exports = function(app) {
         callback();
       } else {
         modelUtils.resolveUsers([me], function(resolved) {
-          azuresettings.makeNotification("Sekarang Anda telah terhubung ke " + resolved[0].name, + "/contacts", req.session.currentUserProfile.id);
-          notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
-            callback();
-          })
-        })
+          dbUser.findOne({username:  item.connections[1]}, function(error, resultUser){
+            console.log(resultUser._id);
+            if(!error){
+              azuresettings.makeNotificationWindows("Sekarang Anda telah terhubung ke " + resolved[0].name + "/contacts", resultUser._id);
+              notification.set(me, notMe(me, item.connections), "Sekarang Anda telah terhubung ke " + resolved[0].name, "/contacts", function() {
+                callback();
+              });
+            }
+          });
+        });
       }
-    })  }
+    });  
+  }
 
   var toBeApproved = function(req, res) {
     var me = req.session.currentUser
@@ -230,8 +242,14 @@ module.exports = function(app) {
                 }
               }
             ]
-            notification.setWithActions(req.session.currentUser, req.query.username, message, "/contacts/to-be-approved", actions);
-            azuresettings.makeNotification(message, req.session.currentUserProfile.id);
+           
+            dbUser.findOne({username:  req.query.username}, function(error, resultUser){
+              if(!error){
+                azuresettings.makeNotificationWindows(message, resultUser._id);
+                notification.setWithActions(req.session.currentUser, req.query.username, message, "/contacts/to-be-approved", actions);
+              }
+            });
+
             res.send(JSON.stringify("OK"));
           })
         }
@@ -244,6 +262,15 @@ module.exports = function(app) {
   var removeConnection = function(req, res) {
     if (req.query && req.query.id) {
       contacts.remove(req.query.id, function(r) {
+        if(req.session.currentUser!==r.connections[1]){
+          dbUser.findOne({username:  r.connections[0]}, function(error, resultUser){
+              if(!error){
+                azuresettings.makeNotificationWindows("Permintaan pertemanan anda tidak diterima oleh "+resultUser.username, resultUser._id);
+                notification.setWithActions(req.session.currentUser, r.initiator, "Permintaan pertemanan anda tidak diterima oleh "+resultUser.username, "/contacts/to-be-approved", "");
+              }
+          });
+        }
+
         res.send(JSON.stringify("OK"));
       })
     } else {
