@@ -271,7 +271,7 @@ module.exports = function(app) {
                   });
                 });
               } else {
-                notifyRecipients(req, req.body.id, data, function() {
+                notifyRecipients(req, req.body.id || resultId, data, function() {
                   res.send(JSON.stringify({status:"OK"}))
                 });
               }
@@ -736,6 +736,7 @@ module.exports = function(app) {
     removeInvitationJSON: removeInvitationJSON,
     redirectToCalendarDay: redirectToCalendarDay,
     editCalender : editCalender,
-    listDayJSONApi : listDayJSONApi
+    listDayJSONApi : listDayJSONApi,
+    notifyInvitationUpdate : notifyInvitationUpdate
   }
 };

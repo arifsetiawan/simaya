@@ -154,11 +154,53 @@ module.exports = function(app){
     }
   }
 
+  var acceptInvitation = function(req,res){
+     var me = req.session.currentUser;
+      if (req.body.id_calender) {
+        calendar.acceptInvitation(req.body.id_calender, me, function(r) {
+          calendarWeb.notifyInvitationUpdate(req.body.id_calender, me, "accept", function() {
+            app.printResponse({success:true},200,res);
+          })
+        });
+      } else {
+        app.printResponse({success:false,info:"id_calender is required"},200,res);
+      }
+  }
+
+  var declineInvitation = function(req,res){
+    var me = req.session.currentUser;
+    if (req.body.id_calender) {
+      calendar.declineInvitation(req.body.id_calender, me, function(r) {
+        calendarWeb.notifyInvitationUpdate(req.body.id_calender, me, "decline", function() {
+          app.printResponse({success:true},200,res);
+        })
+      });
+    } else {
+      app.printResponse({success:false,info:"id_calender is required"},200,res);
+    }
+  }
+
+  var removeInvitation = function(req,res){
+   var me = req.session.currentUser;
+    if (req.body.id_calender) {
+      calendar.cancelInvitation(req.body.id_calender, me, function(r) {
+        calendarWeb.notifyInvitationUpdate(req.body.id_calender, me, "cancel", function() {
+            app.printResponse({success:true},200,res);
+        })
+      });
+    } else {
+      app.printResponse({success:false,info:"id_calender is required"},200,res);
+    }
+  }
+
   return {
     list: list,
     create: create,
     remove: remove,
     edit :edit,
-    downloadAttachment: downloadAttachment
+    downloadAttachment: downloadAttachment,
+    acceptInvitation : acceptInvitation,
+    declineInvitation : declineInvitation,
+    removeInvitation : removeInvitation
   }
 }

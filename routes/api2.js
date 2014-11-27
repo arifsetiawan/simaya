@@ -116,6 +116,9 @@ module.exports = function(app){
   app.del(prefix + "/calendar/remove", oauth2.protectedResource, api2.calendar.remove);
   app.put(prefix + "/calendar/edit", oauth2.protectedResource, api2.calendar.edit);
   app.get(prefix + "/calendar/attachment/:id", oauth2.protectedResource,api2.calendar.downloadAttachment);
+  app.put(prefix + "/calendar/invitation/accept", oauth2.protectedResource,api2.calendar.acceptInvitation);
+  app.put(prefix + "/calendar/invitation/decline", oauth2.protectedResource,api2.calendar.declineInvitation);
+  app.put(prefix + "/calendar/invitation/remove", oauth2.protectedResource,api2.calendar.removeInvitation);
 
   // notification
   app.get(prefix + "/notifications", oauth2.protectedResource, api2.notification.list);
