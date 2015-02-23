@@ -16,13 +16,13 @@ module.exports = function(app){
 
 
   /**
-   * @api {get} /calendar/list Gets list of calendar events
+   * @api {get} api/2/calendar/list Gets list of calendar events
    * @apiName ListCalendar
    * @apiGroup Calendar
    *
    * @apiVersion 0.1.0
    *
-
+   * @apiPermission token
    * @apiParam {Date} date Start date in ISO format
    * @apiParam {Number} num-days Number of days to get
    *
@@ -62,12 +62,13 @@ module.exports = function(app){
   }
 
   /**
-   * @api {post} /calendar/create Creating calendar using necessary data
+   * @api {post} api/2/calendar/create Creating calendar using necessary data
    * @apiVersion 0.1.0
    * @apiName CreateCalendar
    * @apiGroup Calendar
+   * @apiPermission token
    * @apiExample Example usage: 
-   * curl -v "http://localhost:3000/api/2/calendar/create?access_token=glmzf8I5vN0O9CNMNNyFE2KWQaYecqkX8SF5srTUFyt5ManCYYPxX31UmQTZSnsfdJaLtbM8VaKgCKLKbXmSbWbM4lK01bW9ybrSmr8qaSrkry5RK9IXFz36cA6SVFWC" -F "fileAttachments=@C:\Users\beningranum\Desktop\simaya.txt" -F "id=" -F "title=ada deh 1" -F "startDate=20/07/2014" -F "startTime=0200" -F "endDate=20/07/2014" -F "endTime=0230" -F "recipients=testuser3,testuser4"
+   * curl "http://simaya.cloudapp.net:3000/api/2/calendar/create?access_token=glmzf8I5vN0O9CNMNNyFE2KWQaYecqkX8SF5srTUFyt5ManCYYPxX31UmQTZSnsfdJaLtbM8VaKgCKLKbXmSbWbM4lK01bW9ybrSmr8qaSrkry5RK9IXFz36cA6SVFWC" -F "fileAttachments=@C:\Users\beningranum\Desktop\simaya.txt" -F "id=" -F "title=ada deh 1" -F "startDate=20/07/2014" -F "startTime=0200" -F "endDate=20/07/2014" -F "endTime=0230" -F "recipients=testuser3,testuser4"
    *
    */
 
@@ -84,6 +85,16 @@ module.exports = function(app){
     calendarWeb.newJSON(req, r);
   }
 
+   /**
+   * @api {del} api/2/calendar/remove Remove calendar
+   * @apiVersion 0.1.0
+   * @apiName RemoveCalender
+   * @apiGroup Calendar
+   * @apiPermission token
+   * @apiExample Example usage: 
+   * curl "http://simaya.cloudapp.net:3000/api/2/calendar/remove?id_calender=5432058281118928212f8416&access_token=ytfQsTlXpn5u4QdGLzUmliyFd1B2DSqBf45KD9Nu6hMtRmEd65vhAwlzKVGh0r9CPnyPG3ysx4O7K8YHczjhQlnedaMJKIDeesEJCdFaUWCRbxvYlZerOedUTSD0pbfh"
+   *
+   */
  var remove = function(req, res) {
 
   var obj = {
@@ -113,6 +124,26 @@ module.exports = function(app){
     } 
   }
 
+  /**
+   * @api {put} api/2/calendar/edit Edit calendar using necessary data
+   * @apiVersion 0.1.0
+   * @apiName EditCalendar
+   * @apiGroup Calendar
+   * @apiPermission token
+   * @apiParam {Object} id  Id from calender.
+   * @apiParam {String} title  Title calender.
+   * @apiParam {Time} startDate  Start date calender.
+   * @apiParam {Time} startTime  Start time calender.
+   * @apiParam {Date} endDate  End date calender.
+   * @apiParam {Date} endTime  End time calender.
+   * @apiParam {String} recipients  Recipients calender.
+   * @apiParam {String} description  Description calender.
+   * @apiParam {Number} status  Status calender.
+   * @apiParam {Number} visibility  Visibility calender.
+   * @apiParam {Number} reminder  Reminder calender.
+   * @apiParam {Number} recurrence  Recurrence calender.
+   * @apiParam {File} fileAttachments  File Attachments calender.  
+  */
    var edit = function(req, res) {
     var r = ResWrapper(function(data) {
        if (data && data == "\"OK\"") {
@@ -140,6 +171,15 @@ module.exports = function(app){
      calendarWeb.editCalender(req,res);
   }
 
+  /**
+   * @api {get} api/2/calendar/attachment/:id Download attachment calendar
+   * @apiVersion 0.1.0
+   * @apiName DownloadAttachmentCalendar
+   * @apiGroup Calendar
+   * @apiPermission token
+   * @apiExample Example usage: 
+   * curl "http://simaya.cloudapp.net:3000/api/2/calendar/attachment/5446219c689631a80b73bc89?access_token=ytfQsTlXpn5u4QdGLzUmliyFd1B2DSqBf45KD9Nu6hMtRmEd65vhAwlzKVGh0r9CPnyPG3ysx4O7K8YHczjhQlnedaMJKIDeesEJCdFaUWCRbxvYlZerOedUTSD0pbfh"
+  */
   var downloadAttachment = function(req, res) {
     var vals = {};
     
@@ -154,6 +194,14 @@ module.exports = function(app){
     }
   }
 
+  /**
+   * @api {put} api/2/calendar/invitation/accept Accept invitaion calendar
+   * @apiVersion 0.1.0
+   * @apiName AcceptInvitationCalendar
+   * @apiGroup Calendar
+   * @apiPermission token
+   * @apiParam {String} id_calender  Id from calender.
+  */
   var acceptInvitation = function(req,res){
      var me = req.session.currentUser;
       if (req.body.id_calender) {
@@ -167,6 +215,14 @@ module.exports = function(app){
       }
   }
 
+  /**
+   * @api {put} api/2/calendar/invitation/decline Decline invitaion calendar using necessary data
+   * @apiVersion 0.1.0
+   * @apiName DeclineInvitationCalendar
+   * @apiGroup Calendar
+   * @apiPermission token
+   * @apiParam {String} id_calender  Id from calender.
+  */
   var declineInvitation = function(req,res){
     var me = req.session.currentUser;
     if (req.body.id_calender) {
@@ -180,6 +236,15 @@ module.exports = function(app){
     }
   }
 
+  /**
+   * @api {del} api/2/calendar/invitation/remove Remove invitation calendar
+   * @apiVersion 0.1.0
+   * @apiName RemoveInvitationCalendar
+   * @apiGroup Calendar
+   * @apiPermission token
+   * @apiExample Example usage: 
+   * curl "http://simaya.cloudapp.net:3000/api/2/calendar/remove?id_calender=5432058281118928212f8416&access_token=ytfQsTlXpn5u4QdGLzUmliyFd1B2DSqBf45KD9Nu6hMtRmEd65vhAwlzKVGh0r9CPnyPG3ysx4O7K8YHczjhQlnedaMJKIDeesEJCdFaUWCRbxvYlZerOedUTSD0pbfh"
+  */
   var removeInvitation = function(req,res){
    var me = req.session.currentUser;
     if (req.body.id_calender) {

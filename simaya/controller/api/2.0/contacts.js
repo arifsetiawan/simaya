@@ -5,11 +5,15 @@ module.exports = function(app) {
     , moment= require('moment')
 
    /**
-   * @api {get} /contacts/waiting Gets list of contacts who are not yet approved
+   * @api {get} api/2/contacts/waiting Gets list of contacts who are not yet approved
    * @apiName ListWaitingContacts
    * @apiGroup Contacts
    *
    * @apiVersion 0.1.0
+   *
+   * @apiPermission token
+   *
+   * @apiDescription Gets list of contacts who are not yet approved
    *
    * @apiSuccess {Object[]} contacts List of contacts
    * @apiSuccess {String} contatcs._id ID of the connection
@@ -63,11 +67,15 @@ module.exports = function(app) {
   }
 
   /**
-   * @api {get} /contacts/to-be-approved Gets list of contacts who are requesting to be connected
+   * @api {get} api/2/contacts/to-be-approved Gets list of contacts who are requesting to be connected
    * @apiName ListToBeApprovedContacts
    * @apiGroup Contacts
    *
    * @apiVersion 0.1.0
+   *
+   * @apiPermission token
+   *
+   * @apiDescription  Gets list of contacts who are requesting to be connected
    *
    * @apiSuccess {Object[]} contacts List of contacts
    * @apiSuccess {String} contatcs._id ID of the connection
@@ -105,11 +113,15 @@ module.exports = function(app) {
   }
 
   /**
-   * @api {get} /contacts/list Gets list of contacts
+   * @api {get} api/2/contacts/list Gets list of contacts
    * @apiName ListContacts
    * @apiGroup Contacts
    *
    * @apiVersion 0.1.0
+   *
+   * @apiPermission token
+   *
+   * @apiDescription   Gets list of contacts
    *
    * @apiSuccess {Object[]} contacts List of contacts
    * @apiSuccess {String} contatcs._id ID of the connection
@@ -156,11 +168,15 @@ module.exports = function(app) {
   };
 
   /**
-   * @api {get} /contacts/request Requests to connect with a contact
+   * @api {get} api/2/contacts/request Requests to connect with a contact
    * @apiName RequestContact
    * @apiGroup Contacts
    *
    * @apiVersion 0.1.0
+   *
+   * @apiPermission token
+   *
+   * @apiDescription  Requests to connect with a contact
    *
    * @apiParam {String} username Username to be requested
    * @apiParam {String} text Request text
@@ -193,11 +209,15 @@ module.exports = function(app) {
   }
 
   /**
-   * @api {get} /contacts/remove Removes a connection with a contact 
+   * @api {get} api/2/contacts/remove Removes a connection with a contact 
    * @apiName RemoveContact
    * @apiGroup Contacts
    *
    * @apiVersion 0.1.0
+   *
+   * @apiPermission token
+   *
+   * @apiDescription  Removes a connection with a contact 
    *
    * @apiParam {String} id The id of the connection
    */
@@ -231,11 +251,15 @@ module.exports = function(app) {
   }
 
   /**
-   * @api {get} /contacts/establish Establishes a connection with a contact 
+   * @api {get} api/2/contacts/establish Establishes a connection with a contact 
    * @apiName EstablishContact
    * @apiGroup Contacts
    *
    * @apiVersion 0.1.0
+   *
+   * @apiPermission token
+   *
+   * @apiDescription Establishes a connection with a contact 
    *
    * @apiParam {String} id The id of the connection
    */

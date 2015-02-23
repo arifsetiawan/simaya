@@ -31,10 +31,10 @@ module.exports = function(app) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/timeline/list
+   * http://simaya.cloudapp.net:3000/api/2/timeline/list
    * 
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/timeline/list?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/timeline/list?access_token=f3fyGRRoKZ...
    */
 
 	var listJSON = function(req, res) {
@@ -141,6 +141,15 @@ module.exports = function(app) {
 		}
 	}*/
 
+  /**
+   * @api {post} /timeline/comment Comment timeline
+   * @apiVersion 0.1.0
+   * @apiName CommentTimeline
+   * @apiGroup Timeline
+   * @apiPermission token
+   * @apiParam {String} id Id timeline
+   * @apiParam {String} text Comment timeline
+  */
 	var postComment = function(req, res) {
 		if (req.body.id && req.body.text) {
 		     var obj = {
@@ -189,6 +198,14 @@ module.exports = function(app) {
 		}
 	}
 
+	/**
+   * @api {post} /timeline/love Love timeline
+   * @apiVersion 0.1.0
+   * @apiName LoveTimeline
+   * @apiGroup Timeline
+   * @apiPermission token
+   * @apiParam {String} id Id timeline
+  */
 	 var love = function(req, res) {
 	    if (req.body.id) {
     	  var obj = {
@@ -232,6 +249,14 @@ module.exports = function(app) {
 	    }
 	}
 
+	/**
+   * @api {post} /timeline/unlove Unlove timeline
+   * @apiVersion 0.1.0
+   * @apiName UnloveTimeline
+   * @apiGroup Timeline
+   * @apiPermission token
+   * @apiParam {String} id Id timeline
+  */
 	var unlove = function(req, res) {
 	    if (req.body.id) {
 		  var obj = {
@@ -275,6 +300,14 @@ module.exports = function(app) {
 	    }
 	}
 
+	/**
+   * @api {post} /timeline/upload Upload Media timeline
+   * @apiVersion 0.1.0
+   * @apiName UploadMediaTimeline
+   * @apiGroup Timeline
+   * @apiPermission token
+   * @apiParam {Files} upload Media upload timeline
+  */
 	var uploadMedia = function(req, res) {
 	    ob.simplePublicUpload(req.files.upload, "/timeline/status", function(e, r) {
 	      var image = "/ob/get/" + r._id;

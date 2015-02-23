@@ -21,6 +21,25 @@ module.exports = function(app){
     return valid;
   }
 
+   /**
+   * @api {post} api/2/dispositions/create Create Dispositions
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName CreateDispositions
+   * @apiGroup Dispositions
+   * @apiPermission token
+   *
+   * @apiDescription Create Dispositions
+   *
+   * @apiParam {Object} id Id Letter
+   * @apiParam {String[]} recipients[0] Recipients dispositions (Can add recipients[0],recipients[1] and many)
+   * @apiParam {String[]} date[0] Decipients dispositions (Can add date[0],date[1] and many)
+   * @apiParam {String[]} instruction[0] Instruction dispositions (Can add instruction[0],instruction[1] and many)
+   * @apiParam {String[]} security[0] Security dispositions (Can add security[0],security[1] and many)
+   * @apiParam {String[]} priority[0] Priority dispositions (Can add priority[0],priority[1] and many)
+   * @apiParam {String[]} message[0] Message dispositions (Can add message[0],message[1] and many)
+   */
   var create = function(req, res) {
      var obj = {
         meta : {  } ,
@@ -78,7 +97,7 @@ module.exports = function(app){
   }
 
   /**
-   * @api {get} /dispositions/outgoings Outgoing Dispositions
+   * @api {get} api/2/dispositions/outgoings Outgoing Dispositions
    *
    * @apiVersion 0.1.0
    *
@@ -94,10 +113,10 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // FOR DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/dispositions/outgoings
+   * http://simaya.cloudapp.net:3000/api/2/dispositions/outgoings
    * 
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/dispositions/outgoings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/dispositions/outgoings?access_token=f3fyGRRoKZ...
    */
   var outgoings = function(req, res) {
     var me = req.session.currentUser;
@@ -121,7 +140,7 @@ module.exports = function(app){
   }
 
   /**
-   * @api {get} /dispositions/incomings Incoming Dispositions
+   * @api {get} api/2/dispositions/incomings Incoming Dispositions
    *
    * @apiVersion 0.1.0
    *
@@ -137,10 +156,10 @@ module.exports = function(app){
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/dispositions/incomings
+   * http://simaya.cloudapp.net:3000/api/2/dispositions/incomings
    * 
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/dispositions/incomings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/dispositions/incomings?access_token=f3fyGRRoKZ...
    */
   var incomings = function(req, res) {
     var me = req.session.currentUser;
@@ -275,7 +294,7 @@ module.exports = function(app){
   }
 
   /**
-   * @api {get} /dispositions/:id Read a disposition
+   * @api {get} api/2/dispositions/:id Read a disposition
    *
    * @apiVersion 0.1.0
    *
@@ -286,14 +305,14 @@ module.exports = function(app){
    * @apiDescription Read a disposition
    * 
    * @apiParam {String} access_token The access token
-   * @apiParam {String} id The disposition id
+   * @apiParam {Object} id The disposition id
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/dispositions/:id
+   * http://simaya.cloudapp.net:3000/api/2/dispositions/:id
    * 
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/dispositions/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/dispositions/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
    *
    * @apiError DispositionNotFound 
    */
@@ -345,7 +364,20 @@ module.exports = function(app){
     }
   }
 
-
+  /**
+   * @api {post} api/2/dispositions/addComments Comments Dispositions
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName CommentsDispositions
+   * @apiGroup Dispositions
+   * @apiPermission token
+   *
+   * @apiDescription Comments Dispositions
+   *
+   * @apiParam {Object} dispositionId Id Letter
+   * @apiParam {String} message Comment Dispositions
+   */
   var addComments = function(req,res){
     var data = {};
         data.meta = {};
@@ -401,6 +433,18 @@ module.exports = function(app){
     }
   }
 
+  /**
+   * @api {get} api/2/dispositions/recepeints/getRecepeints Get Recepeints Dispositions
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName GetRecepintsDispositions
+   * @apiGroup Dispositions
+   * @apiPermission token
+   *
+   * @apiDescription Get Recepeints Dispositions
+   *
+   */
   var getRecepeints = function(req,res){
     var myEchelonUp = ""+(parseInt(req.session.currentUserProfile.echelon) + 1);
     var myEchelon = req.session.currentUserProfile.echelon;
@@ -466,6 +510,20 @@ module.exports = function(app){
     });
   }
 
+  /**
+   * @api {put} api/2/dispositions/decline Decline Dispositions
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName DeclineDispositions
+   * @apiGroup Dispositions
+   * @apiPermission token
+   *
+   * @apiDescription Decline Dispositions
+   *
+   * @apiParam {Object} dispositionId Id Letter
+   * @apiParam {String} message Reason decline dispositions
+   */
    var decline = function(req, res) {
      var obj = {
           meta : { code : 200 },

@@ -20,23 +20,58 @@ module.exports = function(app) {
 	    return dirname.indexOf("/" + currentUser + "/shared") == 0;
   	}
 
-  /**
-   * @api {get} /box/users Find Users
-   *
-   * @apiVersion 0.1.0
-   *
-   * @apiName GetUsers
-   * @apiGroup Box
-   * @apiPermission token
-   *
-   * @apiDescription Get Users
-   * 
-   * @apiParam {String} access_token The access token
-   * 
-   * @apiExample Example usage:
-   * curl "http://simaya.cloudapp.net/api/2/box/users?access_token=f3fyGRRoKZ...
+  	/**
+	   * @api {get} api/2/box/users Find Users
+	   *
+	   * @apiVersion 0.1.0
+	   *
+	   * @apiName GetUsers
+	   * @apiGroup Box
+	   * @apiPermission token
+	   *
+	   * @apiDescription Get Users
+	   * 
+	   * @apiParam {String} access_token The access token
+	   * 
+	   * @apiExample Example usage:
+	   * curl "http://simaya.cloudapp.net:3000/api/2/box/users?access_token=f3fyGRRoKZ...""
    */
 
+ 	/**
+	   * @api {get} api/2/box/users/org Get user organization
+	   *
+	   * @apiVersion 0.1.0
+	   *
+	   * @apiName GetUsersOrg
+	   * @apiGroup Box
+	   * @apiPermission token
+	   *
+	   * @apiDescription Get User Organization
+	   * 
+	   * @apiParam {String} access_token The access token
+	   *
+   	*/
+
+   	/**
+	   * @api {get} api/2/box/dir Get Directory Name
+	   * @api {get} api/2/box/dir/* Get Directory Name
+	   *
+	   * @apiVersion 0.1.0
+	   *
+	   * @apiName Get Directory Name
+	   * @apiGroup Box
+	   * @apiPermission token
+	   *
+	   * @apiDescription Get Directory Name
+	   * 
+	   * @apiParam {String} access_token The access token
+	   *
+	   * @apiExample URL Structure:
+	   * // DEVELOPMENT
+	   * http://simaya.cloudapp.net:3000/api/2/box/dir
+	   * http://simaya.cloudapp.net:3000/api/2/box/dir/*
+	   * 
+   */
 	var readDir = function (req, res) {
 	
 	    var currentPath = req.path.substr("/api/2/box/dir/".length, req.path.length) || req.session.currentUser;
@@ -103,7 +138,7 @@ module.exports = function(app) {
 	}
 
   /**
-   * @api {get} /box/file/* Read Files
+   * @api {get} api/2/box/file/* Read Files
    *
    * @apiVersion 0.1.0
    *
@@ -146,23 +181,23 @@ module.exports = function(app) {
 	    });
   	}
 
-  /**
-   * @api {post} /box/file Write File
-   *
-   * @apiVersion 0.1.0
-   *
-   * @apiName PostWriteFile
-   * @apiGroup Box
-   * @apiPermission token
-   *
-   * @apiDescription Post File to Database
-   * 
-   * @apiParam {String} access_token The access token
-   *
-   * 
-   * @apiExample Example usage:
-   * curl "http://simaya.cloudapp.net/api/2/box/file?access_token=f3fyGRRoKZ..." -F "files=@C:/lokasi/file/yang/dituju" -F "dirname=berkas"
-   */
+  	/**
+	   * @api {post} api/2/box/file Write File
+	   *
+	   * @apiVersion 0.1.0
+	   *
+	   * @apiName PostWriteFile
+	   * @apiGroup Box
+	   * @apiPermission token
+	   *
+	   * @apiDescription Post File to Database
+	   * 
+	   * @apiParam {String} access_token The access token
+	   *
+	   * 
+	   * @apiExample Example usage:
+	   * curl "http://simaya.cloudapp.net:3000/api/2/box/file?access_token=f3fyGRRoKZ..." -F "files=@C:/lokasi/file/yang/dituju" -F "dirname=berkas"
+	*/
 
   	var writeFile = function (req, res) {
   		 var obj = {
@@ -195,42 +230,23 @@ module.exports = function(app) {
 		
   	}
 
-  /**
-   * @api {get} /box/users/org Get user organization
-   *
-   * @apiVersion 0.1.0
-   *
-   * @apiName GetUsersOrg
-   * @apiGroup Box
-   * @apiPermission token
-   *
-   * @apiDescription Get User Organization
-   * 
-   * @apiParam {String} access_token The access token
-   *
-   */
-
-  /**
-   * @api {get} /box/dir Get Directory Name
-   * @api {get} /box/dir/* Get Directory Name
-   *
-   * @apiVersion 0.1.0
-   *
-   * @apiName Get Directory Name
-   * @apiGroup Box
-   * @apiPermission token
-   *
-   * @apiDescription Get Directory Name
-   * 
-   * @apiParam {String} access_token The access token
-   *
-   * @apiExample URL Structure:
-   * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/box/dir
-   * http://simaya.cloudapp.net/api/2/box/dir/*
-   * 
-   */
-
+  	/**
+	   * @api {post} api/2/box/dir Create Directory
+	   *
+	   * @apiVersion 0.1.0
+	   *
+	   * @apiName CreateDirectory
+	   * @apiGroup Box
+	   * @apiPermission token
+	   *
+	   * @apiDescription Create Directory
+	   * 
+	   * @apiParam {String} access_token The access token
+	   *
+	   * 
+	   * @apiExample Example usage:
+	   * curl "http://simaya.cloudapp.net:3000/api/2/box/dir?access_token=f3fyGRRoKZ..." -F "path=simaya"
+	*/
     var createDir = function (req, res) {
 	  	var obj = {
 	                  meta : { code : "200" },
@@ -267,8 +283,10 @@ module.exports = function(app) {
 	 
 	}
 
+	
 	var revisions = function (req, res) {
     var u = url.parse(req.url);
+    console.log(req.url);
     var item = u.pathname.substr("/api/2/box/file".length, u.pathname.length);
     var box = own.box(req.session);
 
@@ -281,6 +299,24 @@ module.exports = function(app) {
     });
   }
 
+  	/**
+	   * @api {post} api/2/box/share/file Share File
+	   *
+	   * @apiVersion 0.1.0
+	   *
+	   * @apiName ShareFile
+	   * @apiGroup Box
+	   * @apiPermission token
+	   *
+	   * @apiDescription Share file to another users
+	   * 
+	   * @apiParam {String} access_token The access token.
+	   * @apiParam {String} currentPath  Path want to share.
+	   * @apiParam {String} users Users would be share.
+	   * @apiParam {String} item  Item name wante to share (Example ic_drawer.png).
+	   * @apiParam {String} itemType  Item type want to share (Example image/png).
+	   * @apiParam {String} message  Message to users.
+	*/	
    var shareFile = function (req, res) {
 
     var body = req.body;
@@ -351,6 +387,21 @@ module.exports = function(app) {
     
   }
 
+	/**
+		* @api {post} api/2/box/share/file Share Directory
+		*
+		* @apiVersion 0.1.0
+		*
+		* @apiName ShareDirectory
+		* @apiGroup Box
+		* @apiPermission token
+		*
+		* @apiDescription Share file to another users
+		* 
+		* @apiParam {String} access_token The access token.
+		* @apiParam {String} pathShare  Path want to share.
+		* @apiParam {String} users Users would be share (Example faerul,dycode).
+	*/	
   var shareDir = function (req, res) {
      var obj = {
 	              meta : { code : "200" },
@@ -402,6 +453,21 @@ module.exports = function(app) {
     }
   }
 
+  	/**
+		* @api {post} api/2/box/delete/file Delete File
+		*
+		* @apiVersion 0.1.0
+		*
+		* @apiName DeleteFile
+		* @apiGroup Box
+		* @apiPermission token
+		*
+		* @apiDescription Delete file
+		* 
+		* @apiParam {String} access_token The access token.
+		* @apiParam {String} currentPath  Location directory file want to delete.
+		* @apiParam {String} item Name file want to delete.
+	*/	
    var deleteFile = function (req, res) {
    	 var obj = {
 	              meta : { code : "200" },
@@ -430,6 +496,20 @@ module.exports = function(app) {
    
   }
 
+  /**
+	* @api {post} api/2/box/delete/dir Delete Directory
+	*
+	* @apiVersion 0.1.0
+	*
+	* @apiName DeleteDirectory
+	* @apiGroup Box
+	* @apiPermission token
+	*
+	* @apiDescription Delete directory
+	* 
+	* @apiParam {String} access_token The access token.
+	* @apiParam {String} currentPath  Directory name want to delete.
+  */	
   var deleteDir = function (req, res) {
   	var obj = {
 	              meta : { code : "200" },

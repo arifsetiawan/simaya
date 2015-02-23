@@ -307,7 +307,7 @@ var countKonsep = function(req, res, callback) {
     }
 
   /**
-   * @api {get} /letters/incomings Incoming Letters
+   * @api {get} api/2/letters/incomings Incoming Letters
    *
    * @apiVersion 0.1.0
    *
@@ -323,10 +323,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/letters/incomings
+   * http://simaya.cloudapp.net:3000/api/2/letters/incomings
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/letters/incomings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/letters/incomings?access_token=f3fyGRRoKZ...
    */
    var incomings = function (req, res) {
     var search = letterWeb.buildSearchForIncomingApi(req, res);
@@ -341,7 +341,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letter/incomingcount Getting number of how many incoming letters does the user have
+   * @api {get} api/2/letters/incomingcount Getting number of how many incoming letters does the user have
    *
    * @apiVersion 0.1.0
    *
@@ -401,7 +401,7 @@ var countKonsep = function(req, res, callback) {
 }
 
   /**
-   * @api {get} /letters/outgoings Outgoing Letters
+   * @api {get} api/2/letters/outgoings Outgoing Letters
    *
    * @apiVersion 0.1.0
    *
@@ -417,10 +417,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/letters/outgoings
+   * http://simaya.cloudapp.net:3000/api/2/letters/outgoings
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/letters/outgoings?access_token=f3fyGRRoKZ...
    */
    var outgoings = function (req, res) {
     var search = letterWeb.buildSearchForOutgoingApi(req, res);
@@ -431,7 +431,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letter/outgoingcount Getting number of how many outgoing letters does the user have
+   * @api {get} api/2/letters/outgoingcount Getting number of how many outgoing letters does the user have
    *
    * @apiVersion 0.1.0
    *
@@ -502,7 +502,7 @@ var countKonsep = function(req, res, callback) {
 }
 
   /**
-   * @api {get} /letter/read/:id Read a letter or agenda
+   * @api {get} api/2/letters/read/:id Read a letter or agenda
    *
    * @apiVersion 0.1.0
    *
@@ -517,10 +517,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/letters/:id
+   * http://simaya.cloudapp.net:3000/api/2/letters/:id
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/letters/52ff37bc2b744cf14eacd2ab?access_token=f3fyGRRoKZ...
    */
    var read = function(req, res) {
 
@@ -575,7 +575,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /agendas/incomings Incoming Agendas
+   * @api {get} api/2/agendas/incomings Incoming Agendas
    *
    * @apiVersion 0.1.0
    *
@@ -591,10 +591,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/agendas/incomings
+   * http://simaya.cloudapp.net:3000/api/2/agendas/incomings
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/agendas/incomings?access_token=f3fyGRRoKZ...
    */
    var agendaIncomings = function (req, res){
     var search = {
@@ -612,7 +612,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /agendas/outgoings Outgoing Agendas
+   * @api {get} api/2/agendas/outgoings Outgoing Agendas
    *
    * @apiVersion 0.1.0
    *
@@ -628,10 +628,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/agendas/outgoings
+   * http://simaya.cloudapp.net:3000/api/2/agendas/outgoings
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/agendas/outgoings?access_token=f3fyGRRoKZ...
    */
    var agendaOutgoings = function (req, res){
     var search = {}
@@ -650,6 +650,23 @@ var countKonsep = function(req, res, callback) {
       list(search, req, res);
     }
 
+  /**
+    * @api {get} api/2/letters/:id/documents Get attachments letter
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName GetAttachmentsLetter
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Get attachments letter.
+    *
+    * @apiParam {String} access_token The access token.
+    * @apiParam {Object} id Id attachments.
+    *
+    * @apiExample Example usage:
+    * curl http://simaya.cloudapp.net:3000/api/2/letters/54d071b6ad1ec09c1ad75e38/documents?access_token=f3fyGRRoKZ...
+  */
     var attachments = function (req, res) {
       var id = req.params.id;
 
@@ -700,6 +717,23 @@ var countKonsep = function(req, res, callback) {
 
     }
 
+   /**
+    * @api {get} api/2/documents/:id Get attachment
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName GetDocuments
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Get attachment.
+    *
+    * @apiParam {String} access_token The access token.
+    * @apiParam {Object} id Id attachment.
+    *
+    * @apiExample Example usage:
+    * curl http://simaya.cloudapp.net:3000/api/2/letters/documents/54d071b6ad1ec09c1ad75e38?access_token=f3fyGRRoKZ...
+  */
     var attachment = function (req, res) {
     // TODO: get attachment metadata, depends of its mime type
     // if (req.files) {
@@ -744,12 +778,29 @@ var countKonsep = function(req, res, callback) {
     // }
   }
 
+  /**
+    * @api {get} api/2/documents/:id/stream Get attachment stream
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName GetDocuments
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Get attachment stream.
+    *
+    * @apiParam {String} access_token The access token.
+    * @apiParam {Objec} id Id attachments.
+    *
+    * @apiExample Example usage:
+    * curl http://simaya.cloudapp.net:3000/api/2/letters/documents/54d071b6ad1ec09c1ad75e38?access_token=f3fyGRRoKZ...
+  */
   var attachmentStream = function (req, res) {
     // TODO: stream the attachment, depends on its mime type
   }
 
   /**
-   * @api {get} /letters/new Send a new letter for inspection
+   * @api {post} api/2/letters/new Send a new letter for inspection
    *
    * @apiVersion 0.1.0
    *
@@ -780,10 +831,10 @@ var countKonsep = function(req, res, callback) {
    * @apiSuccess {Object} result.data Cause of error if error
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/letters/new
+   * http://simaya.cloudapp.net:3000/api/2/letters/new
    *
    * @apiExample Example usage:
-   * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net/api/2/letters/new?access_token=f3fyGRRoKZ...
+   * curl -d "letter%5Bsender%5D=presiden.ri&letter%5Brecipients%5D=ketua.mpr&letter%5Btitle%5D=Jajal+api&letter%5Bclassification%5D=1&letter%5Bpriority%5D=1&letter%5Btype%5D=2&letter%5Bdate%5D=2014-03-05T08%3A37%3A30.956Z" http://simaya.cloudapp.net:3000/api/2/letters/new?access_token=f3fyGRRoKZ...
    */
    var sendLetter = function(req, res) {
     /*console.log("reqbody",req.body);
@@ -867,7 +918,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letters/sender-selection Get a sender candidates selection list
+   * @api {get} api/2/letters/sender-selection Get a sender candidates selection list
    *
    * @apiVersion 0.1.0
    *
@@ -884,10 +935,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/letters/sender-selection
+   * http://simaya.cloudapp.net:3000/api/2/letters/sender-selection
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/letters/sender-selection?access_token=f3fyGRRoKZ...
    */
    var senderSelection = function(req, res) {
     var myOrganization = req.session.currentUserProfile.organization;
@@ -915,7 +966,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letters/recipient-organization-selection Get a recipient candidates organization selection list
+   * @api {get} api/2/letters/recipient-organization-selection Get a recipient candidates organization selection list
    *
    * @apiVersion 0.1.0
    *
@@ -934,10 +985,10 @@ var countKonsep = function(req, res, callback) {
    *
    * @apiExample URL Structure:
    * // DEVELOPMENT
-   * http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection
+   * http://simaya.cloudapp.net:3000/api/2/letters/recipient-organization-selection
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
+   * curl http://simaya.cloudapp.net:3000/api/2/letters/recipient-organization-selection?access_token=f3fyGRRoKZ...
    */
    var orgSelection = function(req, res) {
     var r = ResWrapperJSONParse(function(vals) {
@@ -964,7 +1015,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letter/recipient-candidates-selection Gets recipient candidates when composing a letter
+   * @api {get} api/2/letters/recipient-candidates-selection Gets recipient candidates when composing a letter
    * @apiName RecipientCandidatesSelection
    *
    * @apiVersion 0.1.0
@@ -1003,7 +1054,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letter/cc-candidates-selection Gets Cc candidates when composing a letter
+   * @api {get} api/2/letters/cc-candidates-selection Gets Cc candidates when composing a letter
    * @apiName CcCandidatesSelection
    *
    * @apiVersion 0.1.0
@@ -1042,7 +1093,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {get} /letter/reviewer-candidates-selection Get reviewer candidates when composing a letter
+   * @api {get} api/2/letters/reviewer-candidates-selection Get reviewer candidates when composing a letter
    * @apiName ReviewerCandidatesSelection
    *
    * @apiVersion 0.1.0
@@ -1080,7 +1131,7 @@ var countKonsep = function(req, res, callback) {
   }
 
   /**
-   * @api {post} /letter/reject Rejects an incoming letter
+   * @api {post} api/2/letters/reject Rejects an incoming letter
    *
    * @apiVersion 0.1.0
    *
@@ -1110,7 +1161,19 @@ var countKonsep = function(req, res, callback) {
     letterWeb.reject(req, r);
   }
 
-  // uploading attachment by user after the draftId has been created
+  /**
+    * @api {post} api/2/letters/uploadAttachments Uploading attachment by user after the draftId has been created
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName UploadAttachments
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Uploading attachment by user after the draftId has been created
+    * @apiParam {String} [tempDraftId] Temporary draft id.
+    * @apiParam {File} Files Files uploading attachment.
+  */
   var uploadAttachment = function(req, res){
 
     var files = [];
@@ -1161,7 +1224,19 @@ var countKonsep = function(req, res, callback) {
     }
   }
 
-  // deleting the uploaded attachment one by one
+  /**
+    * @api {del} api/2/letters/attachments/:letterId/:attachmentId Delete attachment
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName UploadAttachments
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Deleting the uploaded attachment one by one
+    * @apiParam {Object} letterId Id letter.
+    * @apiParam {Object} attachmentId Id attachment.
+  */
   var deleteAttachment = function(req, res){
 
     var file = {}
@@ -1223,6 +1298,25 @@ var countKonsep = function(req, res, callback) {
     })
   }
 
+  /**
+   * @api {get} api/2/letters/listOutgoingDraft List Outgoing Drafts
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName ListOutgoindDrafts
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   *
+   * @apiDescription Get list outgoing drafts
+   *
+   * @apiParam {String} access_token The access token
+   * @apiParam {String} page The <code>page-th</code> of result group
+   * @apiParam {String} limit The maximum number of letters per page
+   *
+   *
+   * @apiExample Example usage:
+   * curl http://simaya.cloudapp.net:3000/api/2/letters/listOutgoingDraft?access_token=f3fyGRRoKZ...
+   */
   var listOutgoingDraft = function(req,res){
     var search = {};
     var count = 0;
@@ -1344,7 +1438,25 @@ var countKonsep = function(req, res, callback) {
   });
 }
 
-var createAgendaSuratIncomings = function(req, res) {
+/**
+   * @api {put} /api/2/letters/createAgendaSuratIncomings Create agenda surat incomings
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName CreateAgendaSuratIncomings
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   *
+   * @apiDescription Create agenda surat incomings
+   *
+   * @apiParam {String} access_token The access token.
+   * @apiParam {Object} id Id letter.
+   * @apiParam {String} incomingAgenda Incoming agenda message.
+   *
+   * @apiExample Example usage:
+   * curl -d "id=5436583bfcd518dc23232d40&incomingAgenda=selamat+sore" http://simaya.cloudapp.net:3000/api/2/letters/createAgendaSuratIncomings?access_token=f3fyGRRoKZ...
+*/
+  var createAgendaSuratIncomings = function(req, res) {
     var vals = {};
     var obj = {
                 meta : { code : "200" },
@@ -1442,6 +1554,24 @@ var createAgendaSuratIncomings = function(req, res) {
     }
   }
 
+  /**
+   * @api {put} /api/2/letters/createAgendaSuratIncomings Cancel Letter
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName CancelLetter
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   *
+   * @apiDescription Cancel Letter
+   *
+   * @apiParam {String} access_token The access token.
+   * @apiParam {Object} id_letter Id letter.
+   * @apiParam {String} message Reason for cancel letter.
+   *
+   * @apiExample Example usage:
+   * curl -d "id_letter=5436583bfcd518dc23232d40&message=kurang+lengkap+datanya" http://simaya.cloudapp.net:3000/api/2/letters/cancelLetter?access_token=f3fyGRRoKZ...
+  */
    var cancelLetter = function(req, res) {
      var obj = {
                   meta : { code : "200" },
@@ -1518,6 +1648,23 @@ var createAgendaSuratIncomings = function(req, res) {
     }
   }
 
+  /**
+   * @api {put} /api/2/letters/rejectLetterNew Reject Letter
+   *
+   * @apiVersion 0.1.0
+   *
+   * @apiName RejectLetter
+   * @apiGroup Letters And Agendas
+   * @apiPermission token
+   *
+   * @apiDescription Cancel Letter
+   *
+   * @apiParam {String} access_token The access token.
+   * @apiParam {Object} id_letter Id letter.
+   *
+   * @apiExample Example usage:
+   * curl -d "id_letter=5436583bfcd518dc23232d40" http://simaya.cloudapp.net:3000/api/2/letters/rejectLetterNew?access_token=f3fyGRRoKZ...
+  */
   var rejectLetterNew = function(req,res){
       var obj = {
                   meta : { code : "200" },
@@ -1554,6 +1701,34 @@ var createAgendaSuratIncomings = function(req, res) {
     });
   }
 
+  /**
+    * @api {put} /api/2/letters/processLetter Process letter for tata usaha
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName ProcessLetterTataUsaha
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription  Process letter for tata usaha
+    *
+    * @apiParam {String} access_token The access token.
+    * @apiParam {Object} id Id letter.
+    * @apiParam {String} letter[sender] Sender letter.
+    * @apiParam {Date}   letter[date] Date letter.
+    * @apiParam {String[]} letter[ccList] CClist letter.
+    * @apiParam {String} letter[title] Title letter.
+    * @apiParam {Number} letter[priority] Priority letter.
+    * @apiParam {Number} letter[classification] Classification letter.
+    * @apiParam {Number} letter[type] Type letter.
+    * @apiParam {String} letter[comments] Comments letter.
+    * @apiParam {String} letter[reviewers] Reviewers letter.
+    * @apiParam {String} letter[body] Body letter.
+    * @apiParam {String} letter[recipients] Recipients letter.
+    * @apiParam {Boolean} ignoreFileAttachments Ignorefile Attachments letter.
+    * @apiParam {Number} letter[mailId] Mail id letter.
+    * @apiParam {Number} letter[outgoingAgenda] Outgoing agenda letter.
+  */
   var processLetter = function(req,res){
     var vals = {
       title: "Agenda Surat Masuk",
@@ -1702,6 +1877,24 @@ var createAgendaSuratIncomings = function(req, res) {
     }
   }
 
+  /**
+    * @api {get} api/2/letters/outgoings/cancel Outgoing cancel letter
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName GetOutgoingsLetter
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Get outgoings letter
+    *
+    * @apiParam {String} access_token The access token
+    * @apiParam {String} page The <code>page-th</code> of result group
+    * @apiParam {String} limit The maximum number of letters per page
+    *
+    * @apiExample Example usage:
+    * curl http://simaya.cloudapp.net:3000/api/2/letters/outgoings/cancel?access_token=f3fyGRRoKZ...
+  */
   var outgoingsCancel = function(req,res){
     var search = {
       search: {}
@@ -1773,6 +1966,24 @@ var createAgendaSuratIncomings = function(req, res) {
     });
   }
 
+   /**
+    * @api {get} api/2/letters/incomings/cc Incomings cc letter
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName GetIncomingsCC
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Get incomings cc letter
+    *
+    * @apiParam {String} access_token The access token
+    * @apiParam {String} page The <code>page-th</code> of result group
+    * @apiParam {String} limit The maximum number of letters per page
+    *
+    * @apiExample Example usage:
+    * curl http://simaya.cloudapp.net:3000/api/2/letters/incomings/cc?access_token=f3fyGRRoKZ...
+  */
   var incomingsCC = function (req, res) {
    var search = {
       search: {}
@@ -1843,6 +2054,21 @@ var createAgendaSuratIncomings = function(req, res) {
     });
   }
 
+   /**
+    * @api {put} /api/2/letters/rejectLetterIncomings Reject letter incomings letter
+    *
+    * @apiVersion 0.1.0
+    *
+    * @apiName RejectLetterIncomings
+    * @apiGroup Letters And Agendas
+    * @apiPermission token
+    *
+    * @apiDescription Reject letter incomings letter
+    *
+    * @apiParam {String} access_token The access token.
+    * @apiParam {Object} id Id letter.
+    * @apiParam {String} reason Reason rejet incomings letter.
+  */
   var rejectLetterIncomings = function(req, res) {
      var obj = {
                   meta : { code : "200" },

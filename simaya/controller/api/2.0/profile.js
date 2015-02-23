@@ -22,8 +22,10 @@ module.exports = function(app){
    * @apiGroup Profile
    * @apiPermission token
    *
-   * @apiParam {String} username Username to view
-   * @apiSuccess {Stream} Image stream 
+   * @apiDescription View avatar of a username.
+   *
+   * @apiParam {String} username Username to view.
+   * @apiSuccess {Stream} Image stream .
    */
   var getAvatar = function(req, res) {
     profileWeb.getAvatarStream(req, res);
@@ -58,11 +60,13 @@ module.exports = function(app){
    * @apiGroup Profile
    * @apiPermission token
    *
-   * @apiParam {String} username Username to view
-   * @apiSuccess {Object} data Profile data
-   * @apiSuccess {Object} data.profile Full listing of profile information
-   * @apiSuccess {String} data.username Username
-   * @apiSuccess {String} data.notes Personal notes about this user
+   * @apiDescription View profile of a username.
+   *
+   * @apiParam {String} username Username to view.
+   * @apiSuccess {Object} data Profile data.
+   * @apiSuccess {Object} data.profile Full listing of profile information.
+   * @apiSuccess {String} data.username Username.
+   * @apiSuccess {String} data.notes Personal notes about this user.
    */
   var view = function(req, res) {
     if (req.query.username) {
@@ -120,21 +124,22 @@ module.exports = function(app){
    * @apiGroup Profile
    * @apiPermission token
    *
+   * @apiDescription Saving profile of a username.
    *
-   * @apiSuccess {Object} data Profile data
-   * @apiSuccess {Object} data.profile Full listing of profile information
-   * @apiSuccess {String} data.username Username
-   * @apiSuccess {String} data.notes Personal notes about this user
+   * @apiSuccess {Object} data Profile data.
+   * @apiSuccess {Object} data.profile Full listing of profile information.
+   * @apiSuccess {String} data.username Username.
+   * @apiSuccess {String} data.notes Personal notes about this user.
    *
-   * @apiParam {String} profile.phones User phone number(s)
-   * @apiParam {String} profile.npwp User npwp
-   * @apiParam {Date} profile.nik Start date in ISO format
-   * @apiParam {Number} profile.address Number of days to get
-   * @apiParam {Date} profile.dates date in ISO format
-   * @apiParam {Number} profile.websites Number of days to get
+   * @apiParam {String} profile.phones User phone number(s).
+   * @apiParam {String} profile.npwp User npwp.
+   * @apiParam {Date} profile.nik Start date in ISO format.
+   * @apiParam {Number} profile.address Number of days to get.
+   * @apiParam {Date} profile.dates date in ISO format.
+   * @apiParam {Number} profile.websites Number of days to get.
    *
    * @apiExample Example usage:
-   * curl http://simaya.cloudapp.net/api/2/profile/save?access_token=f3fyGRRoKZ... -F parameter
+   *  curl -F "profile.phones=1234&profile.npwp=1234&profile.nik=1234&profile.address=setrasari&profile.dates=2015-02-02&profile.websites=www.dycode.co.id" "http://simaya.cloudapp.net:3000/api/2/box/dir?access_token=ytfQsTlXpn.........." 
    *
    */
 
@@ -374,6 +379,29 @@ module.exports = function(app){
     }
   }
 
+   /**
+   * @api {put} /profile/edit Edit profile using necessary data
+   * @apiVersion 0.1.0
+   * @apiName EditProfile
+   * @apiGroup Profile
+   * @apiPermission token
+   *
+   * @apiDescription Edit profile using necessary data. profile.phones,profile.emails,profile.socials.type and profile.socials.value is index
+   *
+   * @apiParam {String[]} profile.phones Phones Profile (Can add profile.phones[0],profile.phones[1] and many).
+   * @apiParam {String} profile.npwp Npwp Profile.
+   * @apiParam {String} profile.nik Nik Profile.
+   * @apiParam {String[]} profile.emails[0] Emails Profile (Can add profile.emails[0],profile.emails[1] and many).
+   * @apiParam {String} profile.address  Address Profile.
+   * @apiParam {String} profile.website Website Profile.
+   * @apiParam {Date} profile.dates[birthday] Birthday Profile.
+   * @apiParam {File} profile.avatar Avatar Profile.
+   * @apiParam {String} profile.dates[special] Dates Profile.
+   * @apiParam {String[]} profile.socials.type[0] Social Type Profile (Can add socials.type[0],socials.type[1] and many).
+   * @apiParam {String[]} profile.socials.value[0]  Social Values Profile (Can add profile.socials.value[0],profile.socials.value[1] and many).
+   * @apiExample Example usage:
+   * curl -F "profile.avatar=@C:\\4.jpg" -F "profile.phones[0]=12345&profile.npwp=1234&profile.nik=1234&profile.emails[0]=dycode@dycode.com&profile.address=Setrasari&profile.website=www.dycode.co.id&profile.dates[birthday]=2015-01-01&profile.dates[special]=1&profile.socials.type[0]=gmail&profile.socials.value[0]=faerul" "http://simaya.cloudapp.net:3000/api/2/box/dir?access_token=ytfQsTlXpn.........." 
+  */
   var edit = function(req,res){
       var data = {};
       data.meta = {};
@@ -391,6 +419,19 @@ module.exports = function(app){
       });
   }
 
+   /**
+   * @api {put} /profile/changePassword Change Password user
+   * @apiVersion 0.1.0
+   * @apiName ChangePasswordProfile
+   * @apiGroup Profile
+   * @apiPermission token
+   *
+   * @apiDescription Change Password user.
+   *
+   * @apiParam {String} oldPassword Old Password user.
+   * @apiParam {String} newPassword New Password user.
+   * @apiParam {String} newPasswordConfirm Confirm New Password user.
+  */
   var changePassword = function(req,res){
      var obj = {
           meta : { code : 200 },

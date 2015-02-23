@@ -121,12 +121,24 @@ module.exports = function(app) {
               }
             }
 
-            done(err, accessToken, null, { 'expired_at': date });
+            user.list({ search : { username :  theCode.user }}, function(users){
+              if (users && users.length > 0) 
+                  done(err, accessToken, null, { 'expired_at': date,'users' : users });
+              else
+                 done(err, accessToken, null, { 'expired_at': date });
+            });
+           
           });
 
 
         } else {
-          done(null, token.accessToken, null, { 'expired_at': token.expire_at });
+           user.list({ search : { username :  theCode.user }}, function(users){
+              if (users && users.length > 0) 
+                done(null, token.accessToken, null, { 'expired_at': token.expire_at,'users' : users });
+              else
+                done(null, token.accessToken, null, { 'expired_at': token.expire_at });
+            });
+        
         }
 
       });

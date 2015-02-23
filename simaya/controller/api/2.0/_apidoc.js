@@ -30,7 +30,7 @@
  *
  * @apiExample URL Structure:
  * // DEVELOPMENT
- * http://simaya.cloudapp.net/oauth2/authorize
+ * http://simaya.cloudapp.net:3000/oauth2/authorize
  * 
  * @apiExample Example usage:
  * var ROOT_URL = "http://client_id:client_secret@simaya.cloudapp.net";
@@ -55,6 +55,6 @@
  *
  * @apiExample URL Structure:
  * // DEVELOPMENT
- * http://simaya.cloudapp.net/oauth2/token
+ * http://simaya.cloudapp.net:3000/oauth2/token
  * 
  */

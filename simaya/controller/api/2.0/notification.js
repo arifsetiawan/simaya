@@ -9,6 +9,7 @@ module.exports = function(app) {
    * @apiName List
    *
    * @apiVersion 0.1.0
+   * @apiPermission token
    *
    * @apiGroup Notification
    * @apiSuccess {Object[]} result Notification list
@@ -42,12 +43,14 @@ module.exports = function(app) {
   }
 
   /**
-   * @api {get} /notifications/view Views a notification, this will clear notification status and sends push notification to all supported platforms
+   * @api {get} /notifications/view Views a notification
    * @apiName View
    *
    * @apiVersion 0.1.0
    *
+   * @apiPermission token
    * @apiGroup Notification
+   * @apiDescription Views a notification, this will clear notification status and sends push notification to all supported platforms
    * @apiSuccess {Object[]} result Notification information
    * @apiSuccess {Boolean} result.isRead Whether the notification is explicitly read
    * @apiSuccess {String} result._id Object id of the notification
@@ -76,6 +79,13 @@ module.exports = function(app) {
     }
   }
 
+   /**
+   * @api {del} /notifications/removeAll Remove All Notification
+   * @apiVersion 0.1.0
+   * @apiName DeclineInvitationCalendar
+   * @apiGroup Calendar
+   * @apiPermission token
+  */
   var removeAll = function(req,res){
     var obj = {
                 meta : { code : "200" },

@@ -2000,7 +2000,8 @@ Letter = module.exports = function(app) {
     var search = {
       search: {
         "profile.organization": pquery,
-        "profile.echelon": {$lt: 5 + "z"}
+        "profile.echelon": {$lt: 5 + "z"},
+        "roleList": { $ne:  "tatausaha" }
       }
     }
 
@@ -2014,6 +2015,7 @@ Letter = module.exports = function(app) {
       }
 
       var copy = cUtils.stripCopy(r, added);
+      console.log(copy);
       res.send(JSON.stringify(copy));
     });
   }
